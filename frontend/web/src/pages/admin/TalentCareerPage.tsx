@@ -74,19 +74,6 @@ function normalizeKoreanName(raw: string | null): string | null {
 
 // ── 평가/리뷰 헬퍼 컴포넌트 ────────────────────────────────────────────────────
 
-function ScoreDisplay({ value }: { value: number | null }) {
-  if (value == null) return <span className="text-xs text-primary/20 font-bold">미평가</span>
-  const color = value >= 4.5 ? 'text-emerald-600' : value >= 3.5 ? 'text-amber-600' : 'text-red-500'
-  return (
-    <div className="flex flex-col items-center gap-0.5">
-      <span className={`text-base font-black ${color}`}>{value.toFixed(1)}</span>
-      <span className="text-[10px]" style={{ color: '#f59e0b' }}>
-        {'★'.repeat(Math.round(value))}{'☆'.repeat(5 - Math.round(value))}
-      </span>
-    </div>
-  )
-}
-
 function StarInput({ value, onChange }: { value: number; onChange: (v: number) => void }) {
   const [hover, setHover] = useState(0)
   return (
@@ -350,7 +337,7 @@ const LANG_LIST = ['java','python','c++','c#','c','javascript','typescript','kot
 // prefix 매칭: 버전 숫자·공백이 붙은 경우도 인식 (예: Oracle12, EPAS 16, SQL Server2016)
 function matchTech(lo: string, keys: string[]): boolean {
   return keys.some(k =>
-    lo === k || (lo.startsWith(k) && /^[\s\d\.\-v_]/.test(lo[k.length] ?? ''))
+    lo === k || (lo.startsWith(k) && /^[\s\d.\-v_]/.test(lo[k.length] ?? ''))
   )
 }
 
@@ -1421,7 +1408,7 @@ function TalentDetailModal({
                                   <option value="중퇴">중퇴</option>
                                   <option value="수료">수료</option>
                                 </select>
-                                <button onClick={() => { window.confirm('삭제하시겠습니까?') && deleteExpMutation.mutate(exp.id) }} className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover/btn:opacity-100 p-1 text-red-400 hover:text-red-600 transition-opacity">🗑️</button>
+                                <button onClick={() => { if (window.confirm('삭제하시겠습니까?')) deleteExpMutation.mutate(exp.id) }} className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover/btn:opacity-100 p-1 text-red-400 hover:text-red-600 transition-opacity">🗑️</button>
                               </td>
                             </tr>
                           ))
@@ -1495,7 +1482,7 @@ function TalentDetailModal({
                                   defaultValue={exp.description || ''}
                                   onBlur={e => { if (e.target.value !== (exp.description || '')) handleExpUpdate(exp.id, exp, { description: e.target.value }) }}
                                 />
-                                <button onClick={() => { window.confirm('삭제하시겠습니까?') && deleteExpMutation.mutate(exp.id) }} className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover/btn:opacity-100 p-1 text-red-400 hover:text-red-600 transition-opacity">🗑️</button>
+                                <button onClick={() => { if (window.confirm('삭제하시겠습니까?')) deleteExpMutation.mutate(exp.id) }} className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover/btn:opacity-100 p-1 text-red-400 hover:text-red-600 transition-opacity">🗑️</button>
                               </td>
                             </tr>
                           ))
@@ -1548,7 +1535,7 @@ function TalentDetailModal({
                                   defaultValue={exp.startDate.substring(0, 7)}
                                   onBlur={e => { const val = e.target.value ? e.target.value + '-01' : ''; if (val !== exp.startDate) handleExpUpdate(exp.id, exp, { startDate: val }) }}
                                 />
-                                <button onClick={() => { window.confirm('삭제하시겠습니까?') && deleteExpMutation.mutate(exp.id) }} className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover/btn:opacity-100 p-1 text-red-400 hover:text-red-600 transition-opacity">🗑️</button>
+                                <button onClick={() => { if (window.confirm('삭제하시겠습니까?')) deleteExpMutation.mutate(exp.id) }} className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover/btn:opacity-100 p-1 text-red-400 hover:text-red-600 transition-opacity">🗑️</button>
                               </td>
                             </tr>
                           ))
@@ -1673,7 +1660,7 @@ function TalentDetailModal({
                                     onBlur={e => { if (e.target.value !== (exp.description || '')) handleExpUpdate(exp.id, exp, { description: e.target.value }) }}
                                   />
                                 </div>
-                                <button onClick={() => { window.confirm('삭제하시겠습니까?') && deleteExpMutation.mutate(exp.id) }} className="absolute right-2 top-2 opacity-0 group-hover/btn:opacity-100 p-1 text-red-400 hover:text-red-600 transition-opacity">🗑️</button>
+                                <button onClick={() => { if (window.confirm('삭제하시겠습니까?')) deleteExpMutation.mutate(exp.id) }} className="absolute right-2 top-2 opacity-0 group-hover/btn:opacity-100 p-1 text-red-400 hover:text-red-600 transition-opacity">🗑️</button>
                               </td>
                             </tr>
                           ))

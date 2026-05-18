@@ -35,7 +35,7 @@ axiosInstance.interceptors.request.use((config) => {
 
 axiosInstance.interceptors.response.use(
   (response) => {
-    // @ts-expect-error
+    // @ts-expect-error: metadata is added by request interceptor but not in AxiosRequestConfig type
     const durationMs = Date.now() - response.config.metadata?.startTime
     console.info(`[RES] ${response.status} ${response.config.url} ${durationMs}ms`)
     return response
