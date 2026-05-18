@@ -1,0 +1,44 @@
+spring:
+  datasource:
+    # Testcontainers가 동적으로 교체 — 여기서는 placeholder
+    url: jdbc:tc:postgresql:16-alpine:///linker_test?TC_IMAGE_TAG=pgvector/pgvector:pg16
+    username: linker
+    password: test_password
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: ""
+
+linker:
+  jwt:
+    secret: test-secret-key-must-be-at-least-32-characters
+    access-token-expiry: 900
+    refresh-token-expiry: 604800
+  encryption:
+    key: "0000000000000000000000000000000000000000000000000000000000000000"
+  ai:
+    gemini-api-key: dummy
+  minio:
+    endpoint: http://localhost:9000
+    access-key: minioadmin
+    secret-key: minioadmin
+    bucket: linker-test
+  clamav:
+    host: localhost
+    port: 3310
+    timeout-ms: 3000
+  queue:
+    type: memory
+  cors:
+    allowed-origins: http://localhost:5173

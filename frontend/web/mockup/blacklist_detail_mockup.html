@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>블랙리스트 상세 조회 - Linker Mockup</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#451A03',
+                        secondary: '#B45309',
+                        accent: '#FDE68A',
+                        background: '#FFFBEB',
+                        surface: '#FFF8F0',
+                        border: '#D6C4A8',
+                        success: '#166534',
+                        warning: '#D97706',
+                        danger: '#991B1B',
+                        info: '#1E293B',
+                    },
+                    fontFamily: {
+                        sans: ['Pretendard', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+</head>
+<body class="bg-background font-sans text-primary min-h-screen p-4 md:p-8 flex justify-center">
+
+    <main class="w-full max-w-4xl bg-white rounded-3xl shadow-xl overflow-hidden border border-border/50 flex flex-col">
+        
+        <!-- Header area with warning styling -->
+        <header class="bg-gradient-to-r from-danger via-red-900 to-danger p-8 text-white relative">
+            <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div class="flex items-center gap-4">
+                    <button class="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center backdrop-blur-sm transition-colors border border-white/20">
+                        &larr;
+                    </button>
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="inline-block px-2.5 py-0.5 bg-white text-danger text-xs font-black rounded-md tracking-wider">치명적 (HIGH RISK)</span>
+                            <span class="text-white/70 text-sm font-medium">등록일: 2025. 11. 12</span>
+                        </div>
+                        <h1 class="text-3xl font-bold tracking-tight">홍*동 (개발자)</h1>
+                    </div>
+                </div>
+                
+                <div class="bg-white/10 backdrop-blur-md px-5 py-3 rounded-2xl border border-white/20 text-right">
+                    <p class="text-xs text-red-200 mb-1">관리 상태</p>
+                    <p class="text-lg font-bold text-white flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-red-400 animate-pulse"></span>
+                        영구 이용 정지
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Decorative Background (Subtle warning stripes) -->
+            <div class="absolute right-0 top-0 w-full h-full pointer-events-none opacity-10" style="background: repeating-linear-gradient(45deg, transparent, transparent 15px, #ffffff 15px, #ffffff 30px);"></div>
+        </header>
+
+        <!-- Content Body -->
+        <div class="p-8 md:p-10 space-y-10">
+            
+            <!-- 1. Basic Information -->
+            <section>
+                <h2 class="text-lg font-bold text-primary mb-4 border-b border-border/50 pb-2 flex items-center gap-2">
+                    <span class="text-secondary">👤</span> 대상자 기본 정보
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-surface p-6 rounded-2xl border border-border/50">
+                    <div>
+                        <p class="text-xs font-bold text-primary/50 mb-1">이름</p>
+                        <p class="font-semibold text-primary">홍*동</p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-primary/50 mb-1">직무</p>
+                        <p class="font-semibold text-primary">프론트엔드 개발자</p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-primary/50 mb-1">연락처</p>
+                        <p class="font-semibold text-primary">010-12**-56**</p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-primary/50 mb-1">이메일</p>
+                        <p class="font-semibold text-primary">hgd****@naver.com</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. Incident Details -->
+            <section>
+                <h2 class="text-lg font-bold text-danger mb-4 border-b border-border/50 pb-2 flex items-center gap-2">
+                    <span>🚨</span> 주요 위반 사항 및 사유
+                </h2>
+                <div class="bg-red-50 p-6 rounded-2xl border border-red-100">
+                    <h3 class="font-bold text-danger text-xl mb-2">계약금 수령 후 무단 잠적 및 연락 두절</h3>
+                    <div class="flex items-center gap-4 text-sm text-danger/70 font-medium mb-6">
+                        <span>발생 프로젝트: [Linker] 초기 MVP 구축</span>
+                        <span class="w-1 h-1 rounded-full bg-danger/50"></span>
+                        <span>피해액: 약 5,000,000원</span>
+                    </div>
+                    
+                    <div class="space-y-4 text-primary/80 leading-relaxed text-sm bg-white p-5 rounded-xl border border-red-100">
+                        <p>
+                            <strong class="text-primary">사건 개요:</strong><br>
+                            해당 전문가는 2025년 10월 1일 자로 '초기 MVP 구축' 프로젝트의 프론트엔드 개발 파트로 계약을 체결하였습니다. 10월 15일, 1차 중도금(500만원)이 정상적으로 지급되었으나, 중도금 지급 직후인 10월 16일부터 모든 연락(전화, 이메일, 슬랙)에 응답하지 않고 무단으로 잠적하였습니다.
+                        </p>
+                        <p>
+                            <strong class="text-primary">피해 내역:</strong><br>
+                            - 프로젝트 일정 3주 지연<br>
+                            - 대체 인력 긴급 투입으로 인한 추가 비용 발생<br>
+                            - 기지급된 중도금 회수 불가 상태
+                        </p>
+                        <p>
+                            <strong class="text-primary">플랫폼 조치:</strong><br>
+                            내부 규정에 따라 해당 계정은 즉각 '영구 이용 정지' 처리되었으며, 타 클라이언트의 추가 피해를 막기 위해 최고 수준의 위험도(High)로 블랙리스트에 등재되었습니다. 현재 법무팀을 통해 내용증명 발송 및 형사 고소(사기 혐의) 절차가 진행 중입니다.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. Evidence / Attachments -->
+            <section>
+                <h2 class="text-lg font-bold text-primary mb-4 border-b border-border/50 pb-2 flex items-center gap-2">
+                    <span class="text-secondary">📎</span> 증빙 자료
+                </h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <!-- Attachment 1 -->
+                    <div class="border border-border/50 rounded-xl p-4 flex flex-col items-center justify-center gap-2 hover:bg-surface transition-colors cursor-pointer group">
+                        <div class="w-10 h-10 bg-secondary/10 text-secondary rounded-lg flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+                            📄
+                        </div>
+                        <span class="text-xs font-semibold text-primary/70 text-center">계약서_사본.pdf</span>
+                    </div>
+                    
+                    <!-- Attachment 2 -->
+                    <div class="border border-border/50 rounded-xl p-4 flex flex-col items-center justify-center gap-2 hover:bg-surface transition-colors cursor-pointer group">
+                        <div class="w-10 h-10 bg-secondary/10 text-secondary rounded-lg flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+                            💬
+                        </div>
+                        <span class="text-xs font-semibold text-primary/70 text-center">슬랙_메시지_캡쳐.png</span>
+                    </div>
+
+                    <!-- Attachment 3 -->
+                    <div class="border border-border/50 rounded-xl p-4 flex flex-col items-center justify-center gap-2 hover:bg-surface transition-colors cursor-pointer group">
+                        <div class="w-10 h-10 bg-secondary/10 text-secondary rounded-lg flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+                            ✉️
+                        </div>
+                        <span class="text-xs font-semibold text-primary/70 text-center">내용증명_발송내역.pdf</span>
+                    </div>
+                    
+                    <!-- Request access placeholder -->
+                    <div class="border border-dashed border-border rounded-xl p-4 flex flex-col items-center justify-center gap-2 hover:bg-surface transition-colors cursor-pointer">
+                        <div class="w-10 h-10 bg-surface rounded-lg flex items-center justify-center text-xl text-primary/30">
+                            🔒
+                        </div>
+                        <span class="text-xs font-semibold text-primary/50 text-center">상세 자료<br>열람 요청</span>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- Footer Actions -->
+        <div class="bg-surface/50 border-t border-border/50 p-6 flex justify-end gap-3">
+            <button class="px-6 py-2.5 rounded-xl border border-border font-bold text-primary/70 hover:bg-white transition-colors">
+                목록으로 돌아가기
+            </button>
+            <button class="px-6 py-2.5 rounded-xl bg-danger text-white font-bold hover:bg-red-800 shadow-sm hover:shadow transition-all">
+                신고자에게 문의하기
+            </button>
+        </div>
+
+    </main>
+
+</body>
+</html>

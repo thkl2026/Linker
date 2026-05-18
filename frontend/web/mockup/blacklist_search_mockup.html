@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>블랙리스트 조회 - Linker Mockup</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#451A03',
+                        secondary: '#B45309',
+                        accent: '#FDE68A',
+                        background: '#FFFBEB',
+                        surface: '#FFF8F0',
+                        border: '#D6C4A8',
+                        success: '#166534',
+                        warning: '#D97706',
+                        danger: '#991B1B',
+                        info: '#1E293B',
+                    },
+                    fontFamily: {
+                        sans: ['Pretendard', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+</head>
+<body class="bg-background font-sans text-primary min-h-screen p-4 md:p-8">
+
+    <main class="max-w-5xl mx-auto">
+        <!-- 1. Header & Search Area -->
+        <section class="bg-surface rounded-3xl shadow-md border border-danger/30 overflow-hidden mb-10 relative">
+            <!-- Warning Banner Strip -->
+            <div class="h-2 w-full bg-gradient-to-r from-danger via-warning to-danger opacity-80"></div>
+            
+            <div class="p-8 md:p-10 relative z-10">
+                <div class="flex items-center gap-4 mb-3">
+                    <div class="w-12 h-12 bg-danger/10 rounded-xl flex items-center justify-center border border-danger/20">
+                        <span class="text-2xl text-danger">⚠️</span>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-danger tracking-tight">블랙리스트 통합 조회</h1>
+                        <p class="text-sm text-primary/70 font-medium mt-1">안전한 프로젝트 진행을 위해 계약 전 위험 인력을 사전에 확인하세요.</p>
+                    </div>
+                </div>
+
+                <div class="mt-8 flex flex-col md:flex-row gap-4">
+                    <div class="flex-1 relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-primary/40">
+                            <span class="text-lg">🔍</span>
+                        </div>
+                        <input type="text" placeholder="이름, 연락처 또는 이메일로 검색" class="w-full pl-12 pr-4 py-3.5 rounded-2xl border border-border bg-white focus:border-danger focus:ring-2 focus:ring-danger/20 outline-none transition-all placeholder:text-primary/40 font-medium shadow-sm" />
+                    </div>
+                    
+                    <button class="px-8 py-3.5 bg-danger text-white font-bold rounded-2xl shadow-md hover:bg-red-800 transition-all active:scale-95 flex-shrink-0">
+                        위험도 검사
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Decorative Background (Subtle warning stripes) -->
+            <div class="absolute right-0 top-0 w-64 h-full pointer-events-none opacity-[0.03]" style="background: repeating-linear-gradient(45deg, transparent, transparent 10px, #991B1B 10px, #991B1B 20px);"></div>
+        </section>
+
+        <!-- 2. Search Results List -->
+        <div class="flex justify-between items-end mb-6 px-1">
+            <h2 class="text-lg font-bold text-primary flex items-center gap-2">
+                조회 결과 <span class="text-danger font-black bg-danger/10 px-2 py-0.5 rounded-md">3건</span>
+            </h2>
+            <div class="text-xs font-semibold text-primary/50">마지막 업데이트: 2026. 04. 25</div>
+        </div>
+
+        <div class="bg-white rounded-3xl border border-border/50 shadow-sm overflow-hidden">
+            <!-- Table Header -->
+            <div class="grid grid-cols-12 gap-4 p-4 border-b border-border/50 bg-surface/50 text-sm font-bold text-primary/70">
+                <div class="col-span-3 pl-4">대상자 정보</div>
+                <div class="col-span-2 text-center">등록일</div>
+                <div class="col-span-2 text-center">위험도</div>
+                <div class="col-span-4">사유</div>
+                <div class="col-span-1 text-center">상세</div>
+            </div>
+
+            <!-- List Items -->
+            <div class="divide-y divide-border/30">
+                
+                <!-- Item 1 (High Risk) -->
+                <div class="grid grid-cols-12 gap-4 p-4 items-center hover:bg-surface/30 transition-colors">
+                    <div class="col-span-3 pl-4">
+                        <p class="font-bold text-primary text-base">홍*동 <span class="text-xs font-normal text-primary/50 ml-1">(개발자)</span></p>
+                        <p class="text-xs text-primary/60 mt-0.5">010-12**-56**</p>
+                    </div>
+                    <div class="col-span-2 text-center text-sm font-medium text-primary/70">
+                        2025. 11. 12
+                    </div>
+                    <div class="col-span-2 text-center">
+                        <span class="inline-block px-3 py-1 bg-danger/10 text-danger text-xs font-bold rounded-full border border-danger/20">
+                            치명적 (High)
+                        </span>
+                    </div>
+                    <div class="col-span-4 text-sm font-medium text-primary line-clamp-2">
+                        계약금 수령 후 무단 잠적 및 연락 두절 (프로젝트 중단 피해 발생)
+                    </div>
+                    <div class="col-span-1 text-center">
+                        <button class="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-primary/50 hover:bg-surface hover:text-primary transition-colors mx-auto">
+                            &gt;
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Item 2 (Medium Risk) -->
+                <div class="grid grid-cols-12 gap-4 p-4 items-center hover:bg-surface/30 transition-colors">
+                    <div class="col-span-3 pl-4">
+                        <p class="font-bold text-primary text-base">이*은 <span class="text-xs font-normal text-primary/50 ml-1">(디자이너)</span></p>
+                        <p class="text-xs text-primary/60 mt-0.5">le***@gmail.com</p>
+                    </div>
+                    <div class="col-span-2 text-center text-sm font-medium text-primary/70">
+                        2026. 01. 05
+                    </div>
+                    <div class="col-span-2 text-center">
+                        <span class="inline-block px-3 py-1 bg-warning/10 text-warning text-xs font-bold rounded-full border border-warning/20">
+                            경고 (Medium)
+                        </span>
+                    </div>
+                    <div class="col-span-4 text-sm font-medium text-primary line-clamp-2">
+                        다수 프로젝트에서 잦은 납기일 지연 및 과도한 수정 요구 거부
+                    </div>
+                    <div class="col-span-1 text-center">
+                        <button class="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-primary/50 hover:bg-surface hover:text-primary transition-colors mx-auto">
+                            &gt;
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Item 3 (Low Risk) -->
+                <div class="grid grid-cols-12 gap-4 p-4 items-center hover:bg-surface/30 transition-colors">
+                    <div class="col-span-3 pl-4">
+                        <p class="font-bold text-primary text-base">박*수 <span class="text-xs font-normal text-primary/50 ml-1">(기획자)</span></p>
+                        <p class="text-xs text-primary/60 mt-0.5">010-98**-12**</p>
+                    </div>
+                    <div class="col-span-2 text-center text-sm font-medium text-primary/70">
+                        2026. 03. 20
+                    </div>
+                    <div class="col-span-2 text-center">
+                        <span class="inline-block px-3 py-1 bg-primary/10 text-primary/70 text-xs font-bold rounded-full border border-border">
+                            주의 (Low)
+                        </span>
+                    </div>
+                    <div class="col-span-4 text-sm font-medium text-primary line-clamp-2">
+                        이력서 경력 기간 과장 기재 적발 (실제 경력과 1년 이상 차이)
+                    </div>
+                    <div class="col-span-1 text-center">
+                        <button class="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-primary/50 hover:bg-surface hover:text-primary transition-colors mx-auto">
+                            &gt;
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Warning / Disclaimer Box -->
+        <div class="mt-8 p-5 bg-surface rounded-2xl border border-border/50 text-sm text-primary/70 flex gap-4 shadow-sm items-start">
+            <span class="text-xl">ℹ️</span>
+            <p class="leading-relaxed">
+                <strong class="text-primary">안내사항:</strong> 본 데이터는 Linker 플랫폼 내에서 발생한 분쟁 이력 및 제보를 바탕으로 수집된 정보입니다. 
+                개인정보 보호법에 따라 이름과 연락처의 일부는 마스킹 처리되어 제공되며, 상세한 증빙 자료는 '상세' 버튼을 클릭하여 열람 권한을 신청하신 후 확인하실 수 있습니다.
+            </p>
+        </div>
+
+    </main>
+
+</body>
+</html>

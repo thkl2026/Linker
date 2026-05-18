@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>서비스 관리자 대시보드 - Linker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#451A03',
+                        secondary: '#B45309',
+                        accent: '#FDE68A',
+                        background: '#F8F5F0',
+                        surface: '#FFFFFF',
+                        border: '#D6C4A8',
+                        success: '#166534',
+                        warning: '#D97706',
+                        danger: '#991B1B',
+                        chart1: '#B45309',
+                        chart2: '#D97706',
+                        chart3: '#FBBF24',
+                        chart4: '#FDE68A',
+                    },
+                    fontFamily: {
+                        sans: ['Pretendard', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <style type="text/tailwindcss">
+        @layer components {
+            .stat-card {
+                @apply bg-white p-6 rounded-3xl border border-border/30 shadow-[0_4px_20px_-4px_rgba(69,26,3,0.05)] hover:shadow-[0_8px_30px_-4px_rgba(69,26,3,0.1)] transition-all duration-300;
+            }
+            .sidebar-link {
+                @apply flex items-center gap-3 px-4 py-3 rounded-xl text-primary/60 font-medium hover:bg-secondary/5 hover:text-secondary transition-all;
+            }
+            .sidebar-link-active {
+                @apply flex items-center gap-3 px-4 py-3 rounded-xl bg-secondary text-white font-bold shadow-lg shadow-secondary/20 transition-all;
+            }
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body class="bg-background font-sans text-primary min-h-screen flex">
+
+    <!-- Sidebar -->
+    <aside class="w-72 bg-white border-r border-border/30 flex flex-col shrink-0">
+        <div class="p-8">
+            <span class="text-3xl font-black text-primary tracking-tighter">LINKER</span>
+            <p class="text-[10px] font-bold text-secondary tracking-widest mt-1 opacity-80 uppercase">Service Admin</p>
+        </div>
+        
+        <nav class="flex-1 px-4 space-y-1">
+            <a href="#" class="sidebar-link-active">
+                <span class="text-xl">📊</span> 대시보드
+            </a>
+            <a href="#" class="sidebar-link">
+                <span class="text-xl">👥</span> 전문가 관리
+            </a>
+            <a href="#" class="sidebar-link">
+                <span class="text-xl">📁</span> 프로젝트 관리
+            </a>
+            <a href="#" class="sidebar-link">
+                <span class="text-xl">⭐</span> 평가/리뷰 관리
+            </a>
+            <a href="#" class="sidebar-link">
+                <span class="text-xl">📢</span> 공지사항
+            </a>
+            <div class="pt-4 pb-2 px-4 mt-4 border-t border-border/10">
+                <p class="text-[10px] font-bold text-primary/30 tracking-widest uppercase">System</p>
+            </div>
+            <a href="#" class="sidebar-link">
+                <span class="text-xl">⚙️</span> 설정
+            </a>
+        </nav>
+        
+        <div class="p-6">
+            <div class="bg-primary/5 rounded-2xl p-4 border border-primary/5">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold">A</div>
+                    <div>
+                        <p class="text-xs font-bold">관리자님</p>
+                        <p class="text-[10px] text-primary/50">svcadmin@linker.com</p>
+                    </div>
+                </div>
+                <button class="w-full py-2 bg-white border border-border/50 rounded-lg text-[11px] font-bold text-primary/60 hover:bg-primary hover:text-white transition-all">로그아웃</button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto">
+        <!-- Top Bar -->
+        <header class="h-20 bg-white/50 border-b border-border/20 px-10 flex items-center justify-between sticky top-0 z-20 glass-effect">
+            <div>
+                <h2 class="text-xl font-black tracking-tight">안녕하세요, 서비스 운영 현황입니다. 👋</h2>
+                <p class="text-xs text-primary/40 mt-0.5">2026년 5월 3일 일요일 · <span class="text-secondary font-bold">운영 중인 서버: 정상</span></p>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <div class="relative group">
+                    <button class="w-10 h-10 rounded-xl bg-white border border-border/50 flex items-center justify-center hover:bg-surface transition-all">
+                        🔔
+                        <span class="absolute top-2 right-2 w-2 h-2 bg-danger rounded-full border-2 border-white"></span>
+                    </button>
+                </div>
+                <button class="px-5 py-2.5 bg-primary text-white rounded-xl text-sm font-bold shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
+                    + 전문가 신규 등록
+                </button>
+            </div>
+        </header>
+
+        <div class="p-10 space-y-8">
+            <!-- Stat Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="stat-card group">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="w-12 h-12 bg-secondary/10 rounded-2xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">💼</div>
+                        <span class="text-[10px] font-bold text-success bg-success/10 px-2 py-1 rounded-full">+12.5%</span>
+                    </div>
+                    <p class="text-xs font-bold text-primary/40 mb-1">총 전문가 수</p>
+                    <p class="text-3xl font-black tracking-tight">1,284<span class="text-sm font-normal text-primary/30 ml-1">명</span></p>
+                </div>
+                <div class="stat-card group">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">🚀</div>
+                        <span class="text-[10px] font-bold text-primary/40 bg-surface border border-border/30 px-2 py-1 rounded-full">실시간</span>
+                    </div>
+                    <p class="text-xs font-bold text-primary/40 mb-1">활성 프로젝트</p>
+                    <p class="text-3xl font-black tracking-tight">48<span class="text-sm font-normal text-primary/30 ml-1">건</span></p>
+                </div>
+                <div class="stat-card group">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">📄</div>
+                        <span class="text-[10px] font-bold text-danger bg-danger/10 px-2 py-1 rounded-full">검토 필요</span>
+                    </div>
+                    <p class="text-xs font-bold text-primary/40 mb-1">미검토 이력서</p>
+                    <p class="text-3xl font-black tracking-tight text-danger">12<span class="text-sm font-normal text-primary/30 ml-1">건</span></p>
+                </div>
+                <div class="stat-card group">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">✨</div>
+                        <span class="text-[10px] font-bold text-success bg-success/10 px-2 py-1 rounded-full">+4건</span>
+                    </div>
+                    <p class="text-xs font-bold text-primary/40 mb-1">오늘의 매칭</p>
+                    <p class="text-3xl font-black tracking-tight text-emerald-700">7<span class="text-sm font-normal text-primary/30 ml-1">건</span></p>
+                </div>
+            </div>
+
+            <!-- Charts Section 1: Distribution (Moved Up) -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Role Distribution (Horizontal Bar) -->
+                <div class="bg-white p-8 rounded-3xl border border-border/30 shadow-sm">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h3 class="text-lg font-black tracking-tight">전문 직무별 분포</h3>
+                            <p class="text-xs text-primary/40 mt-1">AA, TA, DA, DBA 및 개발자 구성 현황</p>
+                        </div>
+                        <div class="w-8 h-8 bg-primary/5 rounded-lg flex items-center justify-center text-sm">🏗️</div>
+                    </div>
+                    <div class="h-64">
+                        <canvas id="roleChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Grade Distribution (Radar) -->
+                <div class="bg-white p-8 rounded-3xl border border-border/30 shadow-sm">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h3 class="text-lg font-black tracking-tight">기술 등급별 분포</h3>
+                            <p class="text-xs text-primary/40 mt-1">인력 등급별 기술 성숙도 밸런스</p>
+                        </div>
+                        <div class="w-8 h-8 bg-primary/5 rounded-lg flex items-center justify-center text-sm">🎖️</div>
+                    </div>
+                    <div class="h-64 flex justify-center">
+                        <canvas id="gradeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section 2: Distribution & Categories -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Category Chart -->
+                <div class="bg-white p-8 rounded-3xl border border-border/30 shadow-sm flex flex-col">
+                    <h3 class="text-lg font-black tracking-tight mb-8">분야별 인력 구성</h3>
+                    <div class="flex-1 flex items-center justify-center relative min-h-[200px]">
+                        <canvas id="categoryChart"></canvas>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                            <p class="text-[10px] font-bold text-primary/30 uppercase tracking-widest">Main</p>
+                            <p class="text-2xl font-black">74%</p>
+                            <p class="text-[10px] font-bold text-secondary">개발자</p>
+                        </div>
+                    </div>
+                    <div class="mt-6 grid grid-cols-3 gap-2">
+                        <div class="text-center">
+                            <p class="text-[10px] font-bold text-primary/40 mb-1">개발자</p>
+                            <p class="text-sm font-black">950명</p>
+                        </div>
+                        <div class="text-center border-x border-border/10">
+                            <p class="text-[10px] font-bold text-primary/40 mb-1">디자이너</p>
+                            <p class="text-sm font-black">180명</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-[10px] font-bold text-primary/40 mb-1">기획자</p>
+                            <p class="text-sm font-black">120명</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Evaluation Grade Chart (New) -->
+                <div class="bg-white p-8 rounded-3xl border border-border/30 shadow-sm flex flex-col">
+                    <div class="flex justify-between items-center mb-8">
+                        <h3 class="text-lg font-black tracking-tight">전문가 평가 분포</h3>
+                        <span class="text-[10px] font-bold text-success bg-success/5 px-2 py-1 rounded-md border border-success/10">신뢰도 지표</span>
+                    </div>
+                    <div class="flex-1 flex items-center justify-center relative min-h-[200px]">
+                        <canvas id="evaluationChart"></canvas>
+                    </div>
+                    <div class="mt-6 grid grid-cols-2 gap-y-3 gap-x-4">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-emerald-500 shadow-sm shadow-emerald-200"></span>
+                            <span class="text-xs font-bold">우수</span>
+                            <span class="text-xs text-primary/40 ml-auto">65%</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-amber-400 shadow-sm shadow-amber-100"></span>
+                            <span class="text-xs font-bold">양호</span>
+                            <span class="text-xs text-primary/40 ml-auto">28%</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-rose-400 shadow-sm shadow-rose-100"></span>
+                            <span class="text-xs font-bold">주의</span>
+                            <span class="text-xs text-primary/40 ml-auto">5%</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-gray-600 shadow-sm shadow-gray-200"></span>
+                            <span class="text-xs font-bold text-gray-600">투입불가</span>
+                            <span class="text-xs text-primary/40 ml-auto">2%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section 3: Full Width Trend -->
+            <div class="bg-white p-8 rounded-3xl border border-border/30 shadow-sm">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h3 class="text-lg font-black tracking-tight">전문가 등록 및 프로젝트 매칭 추이</h3>
+                        <p class="text-xs text-primary/40 mt-1">플랫폼 성장 및 활성도 타임라인 분석</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <div class="flex bg-background p-1 rounded-lg border border-border/20">
+                            <button class="px-3 py-1 text-[10px] font-bold bg-white text-primary rounded-md shadow-sm">6개월</button>
+                            <button class="px-3 py-1 text-[10px] font-bold text-primary/40 hover:text-primary transition-all">1년</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="h-72">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Recent Activities -->
+                <div class="bg-white rounded-3xl border border-border/30 shadow-sm overflow-hidden">
+                    <div class="p-8 border-b border-border/10 flex justify-between items-center bg-surface">
+                        <h3 class="text-lg font-black tracking-tight">최근 등록된 전문가</h3>
+                        <button class="text-xs font-bold text-secondary hover:underline">전체보기 ➔</button>
+                    </div>
+                    <div class="divide-y divide-border/10">
+                        <div class="p-5 flex items-center justify-between hover:bg-primary/[0.02] transition-all">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-2xl bg-secondary/5 flex items-center justify-center text-xl">👨‍💻</div>
+                                <div>
+                                    <h4 class="text-sm font-black">노종화 <span class="text-[10px] font-bold text-primary/40 ml-2">개발자 · 풀스택</span></h4>
+                                    <p class="text-xs text-primary/40 mt-1">Java, Spring Boot, React · 경력 8년</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[10px] font-bold text-success mb-1">분석 완료</p>
+                                <p class="text-[10px] text-primary/30">10분 전</p>
+                            </div>
+                        </div>
+                        <div class="p-5 flex items-center justify-between hover:bg-primary/[0.02] transition-all">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-2xl bg-secondary/5 flex items-center justify-center text-xl">🎨</div>
+                                <div>
+                                    <h4 class="text-sm font-black">김하늘 <span class="text-[10px] font-bold text-primary/40 ml-2">디자이너 · UI/UX</span></h4>
+                                    <p class="text-xs text-primary/40 mt-1">Figma, Adobe XD, Protopie · 경력 5년</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[10px] font-bold text-success mb-1">분석 완료</p>
+                                <p class="text-[10px] text-primary/30">45분 전</p>
+                            </div>
+                        </div>
+                        <div class="p-5 flex items-center justify-between hover:bg-primary/[0.02] transition-all">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-2xl bg-secondary/5 flex items-center justify-center text-xl">📊</div>
+                                <div>
+                                    <h4 class="text-sm font-black">이창선 <span class="text-[10px] font-bold text-primary/40 ml-2">기획자 · 서비스</span></h4>
+                                    <p class="text-xs text-primary/40 mt-1">Backlog, Jira, WBS · 경력 12년</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[10px] font-bold text-warning mb-1">수동 검토 필요</p>
+                                <p class="text-[10px] text-primary/30">2시간 전</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Urgent Tasks -->
+                <div class="bg-white rounded-3xl border border-border/30 shadow-sm overflow-hidden">
+                    <div class="p-8 border-b border-border/10 flex justify-between items-center bg-surface">
+                        <h3 class="text-lg font-black tracking-tight">긴급 검토가 필요한 프로젝트</h3>
+                        <button class="text-xs font-bold text-secondary hover:underline">전체보기 ➔</button>
+                    </div>
+                    <div class="p-8 space-y-6">
+                        <div class="flex gap-4 p-4 border border-danger/20 rounded-2xl bg-danger/[0.02]">
+                            <div class="text-xl">⚠️</div>
+                            <div class="flex-1">
+                                <h4 class="text-sm font-bold text-danger mb-1">[긴급] 차세대 물류 시스템 - 인력 부족</h4>
+                                <p class="text-xs text-primary/60 mb-3">현재 5명 중 3명만 매칭되었습니다. (마감: D-3)</p>
+                                <div class="flex gap-2">
+                                    <button class="px-3 py-1.5 bg-danger text-white text-[10px] font-bold rounded-lg">추천 인력 확인</button>
+                                    <button class="px-3 py-1.5 bg-white border border-danger/30 text-danger text-[10px] font-bold rounded-lg">공고 수정</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 p-4 border border-border/40 rounded-2xl">
+                            <div class="text-xl">💡</div>
+                            <div class="flex-1">
+                                <h4 class="text-sm font-bold text-primary mb-1">신규 프로젝트 제안 검토</h4>
+                                <p class="text-xs text-primary/60 mb-3">(주)대한상사에서 신규 매칭을 요청했습니다.</p>
+                                <button class="px-3 py-1.5 bg-surface border border-border/50 text-primary text-[10px] font-bold rounded-lg">내용 확인하기</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="p-10 text-center border-t border-border/10">
+            <span class="text-2xl font-black text-[#1A4266] tracking-tighter opacity-50" style="font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;">주식회사 씽클레어</span>
+            <p class="text-[10px] text-primary/30 mt-2 font-bold tracking-widest uppercase">Linker Service Administration Console v1.0.4</p>
+        </footer>
+    </main>
+
+    <script>
+        // Trend Chart
+        const trendCtx = document.getElementById('trendChart').getContext('2d');
+        new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: ['12월', '1월', '2월', '3월', '4월', '5월'],
+                datasets: [{
+                    label: '신규 등록',
+                    data: [150, 230, 180, 290, 250, 320],
+                    borderColor: '#B45309',
+                    backgroundColor: 'rgba(180, 83, 9, 0.05)',
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 3,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#B45309'
+                }, {
+                    label: '프로젝트 투입',
+                    data: [120, 150, 140, 210, 190, 260],
+                    borderColor: '#451A03',
+                    backgroundColor: 'transparent',
+                    fill: false,
+                    tension: 0.4,
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    pointRadius: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20,
+                            font: { size: 11, weight: '600' }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { display: true, color: 'rgba(0,0,0,0.03)' },
+                        ticks: { font: { size: 10 } }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { size: 10 } }
+                    }
+                }
+            }
+        });
+
+        // Category Chart
+        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+        new Chart(categoryCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['개발자', '디자이너', '기획자'],
+                datasets: [{
+                    data: [74, 15, 11],
+                    backgroundColor: ['#B45309', '#D97706', '#FBBF24'],
+                    borderWidth: 0,
+                    hoverOffset: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '80%',
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+
+        // Role Chart (Horizontal Bar)
+        const roleCtx = document.getElementById('roleChart').getContext('2d');
+        new Chart(roleCtx, {
+            type: 'bar',
+            data: {
+                labels: ['AA', 'TA', 'DA', 'DBA', '개발자'],
+                datasets: [{
+                    data: [42, 35, 28, 45, 850],
+                    backgroundColor: [
+                        '#451A03',
+                        '#78350F',
+                        '#B45309',
+                        '#D97706',
+                        '#FBBF24'
+                    ],
+                    borderRadius: 8,
+                    barThickness: 20
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: { 
+                        grid: { display: true, color: 'rgba(0,0,0,0.03)' },
+                        ticks: { font: { size: 10 } }
+                    },
+                    y: { 
+                        grid: { display: false },
+                        ticks: { font: { size: 11, weight: 'bold' } }
+                    }
+                }
+            }
+        });
+
+        // Grade Chart (Radar)
+        const gradeCtx = document.getElementById('gradeChart').getContext('2d');
+        new Chart(gradeCtx, {
+            type: 'radar',
+            data: {
+                labels: ['특급', '고급', '중급', '초급'],
+                datasets: [{
+                    label: '인력 분포',
+                    data: [15, 35, 40, 10],
+                    backgroundColor: 'rgba(180, 83, 9, 0.2)',
+                    borderColor: '#B45309',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#B45309',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#B45309'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: { display: true, color: 'rgba(0,0,0,0.05)' },
+                        grid: { color: 'rgba(0,0,0,0.05)' },
+                        suggestedMin: 0,
+                        ticks: { display: false },
+                        pointLabels: {
+                            font: { size: 12, weight: 'bold' },
+                            color: '#451A03'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+
+        // Evaluation Chart (Doughnut)
+        const evalCtx = document.getElementById('evaluationChart').getContext('2d');
+        new Chart(evalCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['우수', '양호', '주의', '투입불가'],
+                datasets: [{
+                    data: [65, 28, 5, 2],
+                    backgroundColor: ['#10B981', '#F59E0B', '#FB7185', '#4B5563'],
+                    borderWidth: 0,
+                    hoverOffset: 15
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: { display: false }
+                },
+                animation: {
+                    animateScale: true,
+                    animateRotate: true
+                }
+            }
+        });
+    </script>
+</body>
+</html>

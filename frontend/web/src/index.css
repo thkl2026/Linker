@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Pretendard', sans-serif;
+    background-color: #FFFBEB;
+    color: #1E293B;
+    /* iOS input 자동 줌 방지 — UI 표준 Rule */
+    font-size: 16px;
+  }
+
+  input, textarea, select {
+    font-size: 16px; /* iOS 자동 줌 방지 */
+  }
+}

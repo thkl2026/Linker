@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프로젝트 등록 (PM용) - Linker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#451A03',
+                        secondary: '#B45309',
+                        accent: '#FDE68A',
+                        background: '#FFFBEB',
+                        surface: '#FFF8F0',
+                        border: '#D6C4A8',
+                        success: '#166534',
+                        warning: '#D97706',
+                        danger: '#991B1B',
+                    },
+                    fontFamily: {
+                        sans: ['Pretendard', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+</head>
+<body class="bg-background font-sans text-primary min-h-screen">
+    
+    <!-- Top Navigation -->
+    <header class="bg-surface border-b border-border/50 sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <a href="main_mockup.html" class="text-primary/50 hover:text-primary transition-colors text-xl font-bold">←</a>
+                <h1 class="text-lg font-bold text-primary">프로젝트 등록 (PM 전용)</h1>
+            </div>
+            <div class="flex items-center gap-3">
+                <button class="px-4 py-2 rounded-xl border border-border text-sm font-bold text-primary/60 hover:bg-white transition-all">임시저장</button>
+                <button class="px-6 py-2 rounded-xl bg-secondary text-white text-sm font-bold shadow-md hover:bg-amber-900 transition-all">등록 완료</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto py-10 px-6">
+        <div class="mb-10">
+            <h2 class="text-3xl font-black text-primary flex items-center gap-3 mb-3">
+                <span class="text-4xl">🚀</span> 새 프로젝트 등록
+            </h2>
+            <p class="text-primary/60 font-medium mb-8 leading-relaxed">
+                관리하실 프로젝트의 상세 정보를 입력하고, 필요한 전문가 팀 구성을 정의하세요.
+            </p>
+        </div>
+
+        <form class="space-y-8">
+            <!-- Client and Project Name -->
+            <div class="bg-white p-8 rounded-3xl border border-border/50 shadow-sm relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-1 h-full bg-secondary"></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-base font-bold text-primary mb-2">발주처(클라이언트) <span class="text-danger">*</span></label>
+                        <input type="text" placeholder="예: (주)대한로지스틱스" class="w-full px-5 py-3.5 rounded-xl border border-border focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none transition-all text-sm font-medium" />
+                    </div>
+                    <div>
+                        <label class="block text-base font-bold text-primary mb-2">프로젝트명 <span class="text-danger">*</span></label>
+                        <input type="text" placeholder="예: 차세대 물류 관리 시스템 구축" class="w-full px-5 py-3.5 rounded-xl border border-border focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none transition-all text-sm font-medium" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project Main Tech Stack -->
+            <div class="bg-white p-8 rounded-3xl border border-border/50 shadow-sm relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-1 h-full bg-secondary"></div>
+                <div class="flex items-center justify-between mb-4">
+                    <label class="block text-base font-bold text-primary">전체 프로젝트 기술 스택 <span class="text-danger">*</span></label>
+                    <span class="text-[11px] font-bold text-primary/40 uppercase tracking-widest italic">Main Technology</span>
+                </div>
+                <div class="p-4 border border-border bg-surface/30 rounded-2xl focus-within:border-secondary focus-within:ring-2 focus-within:ring-secondary/20 transition-all shadow-sm">
+                    <div class="flex flex-wrap gap-2 mb-3">
+                        <span class="px-3 py-1.5 bg-white border border-border/50 rounded-lg text-xs font-bold text-primary/80 flex items-center gap-2 shadow-sm">
+                            Spring Boot <button type="button" class="text-primary/20 hover:text-danger">&times;</button>
+                        </span>
+                        <span class="px-3 py-1.5 bg-white border border-border/50 rounded-lg text-xs font-bold text-primary/80 flex items-center gap-2 shadow-sm">
+                            MySQL <button type="button" class="text-primary/20 hover:text-danger">&times;</button>
+                        </span>
+                        <span class="px-3 py-1.5 bg-white border border-border/50 rounded-lg text-xs font-bold text-primary/80 flex items-center gap-2 shadow-sm">
+                            AWS <button type="button" class="text-primary/20 hover:text-danger">&times;</button>
+                        </span>
+                    </div>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-1 flex items-center text-primary/30 text-sm">#</span>
+                        <input type="text" placeholder="프로젝트 메인 기술 (예: Java, Flutter, Docker)" class="w-full pl-6 pr-4 py-1.5 bg-transparent outline-none text-sm placeholder:text-primary/30 font-medium" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project Main Scope -->
+            <div class="bg-white p-8 rounded-3xl border border-border/50 shadow-sm relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-1 h-full bg-secondary"></div>
+                <div class="flex items-center justify-between mb-4">
+                    <label class="block text-base font-bold text-primary">프로젝트 주요 범위 <span class="text-danger">*</span></label>
+                    <span class="text-[11px] font-bold text-primary/40 uppercase tracking-widest italic">Key Scope & Features</span>
+                </div>
+                <textarea rows="4" placeholder="프로젝트에서 구현해야 할 핵심 기능이나 사업 범위를 상세히 입력해주세요." class="w-full px-5 py-4 rounded-2xl border border-border bg-surface/30 focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none transition-all text-sm font-medium resize-none"></textarea>
+            </div>
+
+            <!-- Team Composition (Expert Needs) - Compact Version -->
+            <div class="bg-white p-8 rounded-3xl border border-border/50 shadow-sm space-y-6 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-1 h-full bg-secondary"></div>
+                <div class="flex items-center justify-between border-b border-border/30 pb-4">
+                    <div>
+                        <label class="block text-base font-bold text-primary">필요 전문가 구성 <span class="text-danger">*</span></label>
+                        <p class="text-xs text-primary/40 mt-1 font-medium">분야별 필요한 인력과 기술을 빠르게 입력하세요.</p>
+                    </div>
+                </div>
+
+                <!-- Quick Add Selection -->
+                <div class="flex flex-wrap gap-2 py-2">
+                    <button type="button" class="px-4 py-2 rounded-xl border border-border/60 bg-surface/50 text-xs font-bold text-primary/70 hover:border-secondary hover:bg-secondary/5 transition-all">+ 프론트엔드</button>
+                    <button type="button" class="px-4 py-2 rounded-xl border border-border/60 bg-surface/50 text-xs font-bold text-primary/70 hover:border-secondary hover:bg-secondary/5 transition-all">+ 백엔드</button>
+                    <button type="button" class="px-4 py-2 rounded-xl border border-border/60 bg-surface/50 text-xs font-bold text-primary/70 hover:border-secondary hover:bg-secondary/5 transition-all">+ 디자인</button>
+                    <button type="button" class="px-4 py-2 rounded-xl border border-border/60 bg-surface/50 text-xs font-bold text-primary/70 hover:border-secondary hover:bg-secondary/5 transition-all">+ 앱개발</button>
+                </div>
+                
+                <!-- Expert List (Table-like) -->
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="text-[11px] font-black text-primary/30 uppercase tracking-widest border-b border-border/20">
+                                <th class="text-left py-3 px-2 w-1/4">모집 분야</th>
+                                <th class="text-center py-3 px-2 w-20">인원</th>
+                                <th class="text-left py-3 px-2">필요 기술 및 주요 업무</th>
+                                <th class="py-3 px-2 w-10"></th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-border/10">
+                            <tr class="group hover:bg-surface/30 transition-colors">
+                                <td class="py-4 px-2">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center text-sm">💻</div>
+                                        <input type="text" value="프론트엔드 개발자" class="bg-transparent font-bold text-sm text-primary outline-none focus:text-secondary w-full" />
+                                    </div>
+                                </td>
+                                <td class="py-4 px-2">
+                                    <div class="flex items-center justify-center border border-border/40 rounded-lg bg-white overflow-hidden shadow-sm">
+                                        <button type="button" class="px-2 py-1 hover:bg-gray-50 text-primary/40">-</button>
+                                        <input type="number" value="2" class="w-8 text-center text-xs font-bold outline-none" />
+                                        <button type="button" class="px-2 py-1 hover:bg-gray-50 text-primary/40">+</button>
+                                    </div>
+                                </td>
+                                <td class="py-4 px-2">
+                                    <div class="space-y-2">
+                                        <div class="flex flex-wrap gap-1.5">
+                                            <span class="px-2 py-0.5 bg-white border border-border/50 rounded-md text-[10px] font-bold text-primary/60 flex items-center gap-1">
+                                                React <button class="text-primary/20 hover:text-danger">&times;</button>
+                                            </span>
+                                            <button class="px-2 py-0.5 border border-dashed border-border/60 rounded-md text-[10px] font-bold text-primary/30 hover:text-secondary">+ 기술 추가</button>
+                                        </div>
+                                        <input type="text" placeholder="간단한 주요 업무를 입력하세요" class="w-full bg-transparent text-[11px] font-medium text-primary/50 outline-none focus:text-primary" />
+                                    </div>
+                                </td>
+                                <td class="py-4 px-2 text-right">
+                                    <button type="button" class="text-primary/20 hover:text-danger opacity-0 group-hover:opacity-100 transition-all font-bold text-lg">&times;</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <button type="button" class="w-full py-3 rounded-xl border-2 border-dashed border-border/40 text-primary/30 font-bold text-xs hover:bg-surface/50 transition-all">
+                    ➕ 새로운 분야 인력 추가
+                </button>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex items-center justify-center gap-4 pt-10">
+                <button type="button" class="px-12 py-4 rounded-xl border border-border font-bold text-primary/70 hover:bg-white transition-all">취소</button>
+                <button type="button" class="px-16 py-4 rounded-xl bg-secondary text-white font-bold shadow-xl hover:bg-amber-900 hover:-translate-y-1 transition-all">프로젝트 등록 완료</button>
+            </div>
+        </form>
+    </main>
+    <div class="h-20"></div>
+</body>
+</html>

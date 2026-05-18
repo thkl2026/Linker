@@ -1,0 +1,27 @@
+# AWS 클라우드 전환 후 설정 (Phase 6)
+spring:
+  datasource:
+    url: jdbc:postgresql://${RDS_ENDPOINT}:5432/linker
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    hikari:
+      maximum-pool-size: 50
+  data:
+    redis:
+      host: ${ELASTICACHE_ENDPOINT}
+      port: 6379
+
+linker:
+  storage:
+    type: s3
+    s3:
+      bucket: ${S3_BUCKET}
+      region: ${AWS_REGION:ap-northeast-2}
+  queue:
+    type: sqs
+    sqs:
+      queue-url: ${SQS_QUEUE_URL}
+  scan:
+    type: lambda
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS}

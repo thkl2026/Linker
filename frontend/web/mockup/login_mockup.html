@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인 - Linker Mockup</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#451A03',
+                        secondary: '#B45309',
+                        accent: '#FDE68A',
+                        background: '#FFFBEB',
+                        surface: '#FFF8F0',
+                        border: '#D6C4A8',
+                        success: '#166534',
+                        warning: '#D97706',
+                        danger: '#991B1B',
+                        info: '#1E293B',
+                    },
+                    fontFamily: {
+                        sans: ['Pretendard', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+</head>
+<body class="bg-background font-sans text-primary min-h-screen flex items-center justify-center p-4">
+
+    <main class="w-full max-w-6xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[700px] border border-border/30">
+        
+        <!-- Left Side: Branding & Value Proposition -->
+        <div class="md:w-1/2 bg-gradient-to-br from-primary via-[#5d2605] to-secondary p-12 text-white flex flex-col justify-between relative overflow-hidden hidden md:flex">
+            <!-- Decorative Elements -->
+            <div class="absolute -top-24 -left-24 w-96 h-96 bg-white/5 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute bottom-10 -right-20 w-80 h-80 bg-accent/20 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div class="relative z-10">
+                <div class="text-3xl font-black tracking-tighter mb-16 flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-lg bg-white text-primary flex items-center justify-center text-xl">L</span>
+                    Linker.
+                </div>
+                
+                <h1 class="text-4xl lg:text-5xl font-bold leading-tight mb-6">
+                    최고의 <span class="text-accent">전문가</span>와<br>
+                    성공적인 <span class="text-accent">프로젝트</span>를<br>
+                    연결합니다.
+                </h1>
+                
+                <p class="text-amber-100/80 text-lg max-w-md leading-relaxed">
+                    검증된 IT 프리랜서 매칭부터, 스마트한 정산, 그리고 투명한 평가 시스템까지. Linker 하나로 모든 것을 완벽하게 관리하세요.
+                </p>
+            </div>
+
+            <!-- Social Proof / Stats placeholder -->
+            <div class="relative z-10 flex gap-8 mt-12 pt-8 border-t border-white/20">
+                <div>
+                    <p class="text-3xl font-bold text-white mb-1">98%</p>
+                    <p class="text-xs text-amber-100/70">매칭 만족도</p>
+                </div>
+                <div>
+                    <p class="text-3xl font-bold text-white mb-1">5K+</p>
+                    <p class="text-xs text-amber-100/70">등록된 전문가</p>
+                </div>
+                <div>
+                    <p class="text-3xl font-bold text-white mb-1">0원</p>
+                    <p class="text-xs text-amber-100/70">수수료 정책</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side: Login Form -->
+        <div class="md:w-1/2 p-8 md:p-16 flex flex-col justify-center bg-surface/30">
+            
+            <!-- Mobile Logo (visible only on mobile) -->
+            <div class="md:hidden text-3xl font-black tracking-tighter text-primary flex items-center gap-2 mb-10">
+                <span class="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center text-xl">L</span>
+                Linker.
+            </div>
+
+            <div class="max-w-md w-full mx-auto">
+                <div class="mb-10 text-center md:text-left">
+                    <h2 class="text-3xl font-bold text-primary mb-2 tracking-tight">환영합니다! 👋</h2>
+                    <p class="text-primary/60">로그인할 계정의 유형을 선택해 주세요.</p>
+                </div>
+
+                <!-- Role Selection -->
+                <div class="grid grid-cols-2 gap-4 mb-8">
+                    <label class="cursor-pointer group">
+                        <input type="radio" name="userRole" class="peer sr-only" value="expert" checked />
+                        <div class="p-4 border-2 border-border/50 rounded-2xl text-center peer-checked:border-secondary peer-checked:bg-secondary/5 transition-all group-hover:bg-surface">
+                            <span class="block text-2xl mb-1">🧑‍💻</span>
+                            <span class="text-sm font-bold text-primary">전문가 (Expert)</span>
+                            <p class="text-[9px] text-primary/40 mt-1">경력 인증 및 리포트 발행</p>
+                        </div>
+                    </label>
+                    <label class="cursor-pointer group">
+                        <input type="radio" name="userRole" class="peer sr-only" value="client" />
+                        <div class="p-4 border-2 border-border/50 rounded-2xl text-center peer-checked:border-secondary peer-checked:bg-secondary/5 transition-all group-hover:bg-surface">
+                            <span class="block text-2xl mb-1">🏢</span>
+                            <span class="text-sm font-bold text-primary">기업 / 파트너사</span>
+                            <p class="text-[9px] text-primary/40 mt-1">인력 소싱 및 매칭 (구매/공급)</p>
+                        </div>
+                    </label>
+                </div>
+
+                <form action="linker_portal_mockup.html" class="space-y-6">
+                    <!-- Email Input -->
+                    <div>
+                        <label class="block text-sm font-bold text-primary mb-2">이메일 주소</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-primary/40">
+                                ✉️
+                            </div>
+                            <input type="email" placeholder="example@linker.com" class="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-border bg-white focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none transition-all placeholder:text-primary/30 font-medium shadow-sm" />
+                        </div>
+                    </div>
+
+                    <!-- Password Input -->
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="block text-sm font-bold text-primary">비밀번호</label>
+                            <div class="flex items-center gap-2">
+                                <a href="#" class="text-sm font-bold text-secondary hover:text-primary transition-colors">이메일 찾기</a>
+                                <span class="text-border/70 text-xs">|</span>
+                                <a href="#" class="text-sm font-bold text-secondary hover:text-primary transition-colors">비밀번호 찾기</a>
+                            </div>
+                        </div>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-primary/40">
+                                🔒
+                            </div>
+                            <input type="password" placeholder="••••••••" class="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-border bg-white focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none transition-all placeholder:text-primary/30 font-medium shadow-sm" />
+                            <button type="button" class="absolute inset-y-0 right-0 pr-4 flex items-center text-primary/40 hover:text-primary transition-colors">
+                                👁️
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Options -->
+                    <div class="flex items-center">
+                        <label class="flex items-center gap-2 cursor-pointer group">
+                            <div class="relative flex items-center justify-center w-5 h-5 rounded border border-border bg-white group-hover:border-secondary transition-colors">
+                                <input type="checkbox" class="sr-only peer" />
+                                <div class="absolute inset-0 bg-secondary rounded opacity-0 peer-checked:opacity-100 transition-opacity flex items-center justify-center">
+                                    <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                            </div>
+                            <span class="text-sm font-medium text-primary/70 select-none">로그인 상태 유지</span>
+                        </label>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="button" class="w-full py-4 rounded-2xl bg-primary text-white font-bold text-lg hover:bg-amber-900 shadow-md hover:shadow-lg transition-all active:scale-[0.98] mt-4">
+                        로그인
+                    </button>
+                    
+                    <!-- OAuth/Social Login Separator -->
+                    <div class="flex items-center gap-4 my-8">
+                        <div class="h-px bg-border/50 flex-1"></div>
+                        <span class="text-xs font-bold text-primary/40 uppercase tracking-widest">or</span>
+                        <div class="h-px bg-border/50 flex-1"></div>
+                    </div>
+
+                    <!-- Social Login Buttons -->
+                    <div class="grid grid-cols-3 gap-3">
+                        <button type="button" class="flex items-center justify-center gap-2 py-3 rounded-2xl border border-border bg-white font-bold text-primary/70 hover:bg-surface hover:text-primary transition-colors shadow-sm text-sm">
+                            <span class="text-lg">🅖</span> Google
+                        </button>
+                        <button type="button" class="flex items-center justify-center gap-2 py-3 rounded-2xl border border-transparent bg-[#FEE500] font-bold text-[#191919] hover:bg-[#FEE500]/90 transition-colors shadow-sm text-sm">
+                            <span class="text-lg">💬</span> Kakao
+                        </button>
+                        <button type="button" class="flex items-center justify-center gap-2 py-3 rounded-2xl border border-transparent bg-[#03C75A] font-bold text-white hover:bg-[#03C75A]/90 transition-colors shadow-sm text-sm">
+                            <span class="text-lg font-black italic">N</span> Naver
+                        </button>
+                    </div>
+
+                </form>
+
+                <p class="mt-10 text-center text-sm font-medium text-primary/60">
+                    아직 계정이 없으신가요? 
+                    <a href="#" class="font-bold text-secondary hover:text-primary transition-colors ml-1">무료로 가입하기</a>
+                </p>
+            </div>
+        </div>
+
+    </main>
+
+</body>
+</html>

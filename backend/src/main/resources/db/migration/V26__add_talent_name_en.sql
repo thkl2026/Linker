@@ -1,0 +1,1 @@
+ALTER TABLE talent_profiles ADD COLUMN IF NOT EXISTS name_en VARCHAR(100);

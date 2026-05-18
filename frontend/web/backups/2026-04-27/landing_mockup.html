@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linker - 검증된 전문가와 프로젝트의 신뢰받는 연결</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#451A03',
+                        secondary: '#B45309',
+                        accent: '#FDE68A',
+                        background: '#FFFBEB',
+                        surface: '#FFF8F0',
+                        border: '#D6C4A8',
+                        success: '#166534',
+                        warning: '#D97706',
+                        danger: '#991B1B',
+                    },
+                    fontFamily: {
+                        sans: ['Pretendard', 'sans-serif'],
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'fade-in-up': 'fadeInUp 1s ease-out forwards',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        },
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(40px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <style>
+        .glass-nav {
+            background: rgba(255, 251, 235, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .text-gradient {
+            background: linear-gradient(135deg, #451A03 0%, #B45309 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero-bg {
+            background-image: url('landing_hero_image_1777235056965.png');
+            background-size: cover;
+            background-position: center;
+        }
+        .card-hover {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .card-hover:hover {
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: 0 25px 50px -12px rgba(69, 26, 3, 0.15);
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body class="bg-background font-sans text-primary selection:bg-accent selection:text-primary overflow-x-hidden">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-[100] border-b border-border/20 glass-nav">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center text-2xl font-black shadow-lg">L</div>
+                <span class="text-2xl font-black tracking-tighter">Linker.</span>
+            </div>
+            
+            <div class="hidden md:flex items-center gap-10">
+                <a href="#features" class="text-sm font-bold hover:text-secondary transition-colors">주요 기능</a>
+                <a href="#business" class="text-sm font-bold hover:text-secondary transition-colors">비즈니스 솔루션</a>
+                <a href="#expert" class="text-sm font-bold hover:text-secondary transition-colors">전문가 가이드</a>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <a href="login_mockup.html" class="text-sm font-bold px-6 py-2.5 rounded-xl hover:bg-surface transition-all">로그인</a>
+                <a href="signup_mockup.html" class="text-sm font-black px-6 py-2.5 bg-primary text-white rounded-xl shadow-xl hover:bg-black transition-all transform hover:-translate-y-0.5">시작하기</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative min-h-screen flex items-center pt-20 overflow-hidden">
+        <div class="absolute inset-0 hero-bg opacity-30"></div>
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent via-background/50 to-background"></div>
+        
+        <div class="max-w-7xl mx-auto px-6 relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div class="animate-fade-in-up">
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/10 border border-secondary/20 text-secondary text-xs font-black uppercase tracking-widest mb-8">
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span>
+                    </span>
+                    The Future of Sourcing
+                </div>
+                <h1 class="text-5xl md:text-7xl font-black leading-[1.1] tracking-tight mb-8">
+                    단순한 이력이 아닌,<br/>
+                    <span class="text-gradient underline decoration-accent/50 underline-offset-8">실재하는 프로젝트</span>로<br/>
+                    신뢰를 연결합니다.
+                </h1>
+                <p class="text-lg md:text-xl text-primary/70 font-medium mb-10 leading-relaxed max-w-lg">
+                    Linker는 전문가의 프로젝트 수행 역할과 실적을 투명하게 검증하여 최적의 인재와 기업을 연결하는 하이엔드 소싱 플랫폼입니다.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a href="signup_mockup.html" class="px-10 py-5 bg-primary text-white rounded-2xl font-black text-lg shadow-2xl hover:bg-black transition-all text-center">전문가로 참여하기</a>
+                    <a href="login_mockup.html" class="px-10 py-5 bg-white border-2 border-primary/10 text-primary rounded-2xl font-black text-lg hover:bg-surface transition-all text-center">인력 소싱 시작하기</a>
+                </div>
+                
+                <div class="mt-16 flex items-center gap-8 grayscale opacity-50">
+                    <div class="text-xs font-bold uppercase tracking-widest text-primary/40">Trusted By</div>
+                    <div class="flex gap-8 text-xl font-black italic">SAMSUNG</div>
+                    <div class="flex gap-8 text-xl font-black italic">HYUNDAI</div>
+                    <div class="flex gap-8 text-xl font-black italic">NAVER</div>
+                </div>
+            </div>
+
+            <div class="hidden lg:block relative animate-float">
+                <!-- Floating Dashboard Mockup Elements -->
+                <div class="relative z-20 bg-white/40 backdrop-blur-3xl border border-white/60 p-8 rounded-[48px] shadow-[0_40px_100px_-20px_rgba(69,26,3,0.2)]">
+                    <div class="space-y-6">
+                        <div class="flex items-center justify-between">
+                            <div class="h-4 w-24 bg-primary/10 rounded-full"></div>
+                            <div class="flex gap-2">
+                                <div class="w-8 h-8 rounded-full bg-secondary/20"></div>
+                                <div class="w-8 h-8 rounded-full bg-primary/20"></div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="h-32 bg-secondary/5 rounded-3xl border border-secondary/20 flex flex-col items-center justify-center p-4">
+                                <div class="text-2xl font-black text-secondary">98%</div>
+                                <div class="text-[10px] font-bold text-primary/40">Matching Score</div>
+                            </div>
+                            <div class="h-32 bg-primary/5 rounded-3xl border border-primary/20 flex flex-col items-center justify-center p-4">
+                                <div class="text-2xl font-black text-primary">12+</div>
+                                <div class="text-[10px] font-bold text-primary/40">Verified Projects</div>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="h-3 bg-primary/5 rounded-full w-full"></div>
+                            <div class="h-3 bg-primary/5 rounded-full w-4/5"></div>
+                            <div class="h-3 bg-primary/5 rounded-full w-2/3"></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Decorative Elements -->
+                <div class="absolute -top-10 -right-10 w-40 h-40 bg-accent/30 rounded-full blur-3xl -z-10"></div>
+                <div class="absolute -bottom-20 -left-10 w-60 h-60 bg-secondary/20 rounded-full blur-3xl -z-10"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Value Propositions -->
+    <section id="features" class="py-32 bg-white relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center max-w-3xl mx-auto mb-20">
+                <h2 class="text-4xl md:text-5xl font-black mb-6">검증된 데이터가 만드는<br/>인사이트의 차이</h2>
+                <p class="text-lg text-primary/60 font-medium">Linker는 불필요한 서류 작업을 줄이고 실제 퍼포먼스에 집중합니다.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="p-10 rounded-[40px] bg-surface border border-border/40 card-hover">
+                    <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-3xl mb-8 shadow-sm">🧠</div>
+                    <h3 class="text-xl font-black mb-4">AI 정합성 분석</h3>
+                    <p class="text-sm text-primary/60 leading-relaxed font-medium">
+                        전문가의 이력서와 프로젝트 수행 이력을 AI가 분석하여, 해당 프로젝트에서의 실제 역할 비중과 기여도를 수치화합니다.
+                    </p>
+                </div>
+                <div class="p-10 rounded-[40px] bg-surface border border-border/40 card-hover">
+                    <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-3xl mb-8 shadow-sm">🛡️</div>
+                    <h3 class="text-xl font-black mb-4">프로젝트 인증제</h3>
+                    <p class="text-sm text-primary/60 leading-relaxed font-medium">
+                        수행 완료된 프로젝트는 해당 프로젝트의 PM 혹은 발주 담당자의 인증을 통해 'Verified' 마크가 부여되어 신뢰를 보장합니다.
+                    </p>
+                </div>
+                <div class="p-10 rounded-[40px] bg-surface border border-border/40 card-hover">
+                    <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-3xl mb-8 shadow-sm">⚡</div>
+                    <h3 class="text-xl font-black mb-4">다이렉트 소싱</h3>
+                    <p class="text-sm text-primary/60 leading-relaxed font-medium">
+                        복잡한 유통 단계 없이 필요한 전문 인력을 직접 검색하고, 매칭 스코어 기반으로 즉시 제안을 보낼 수 있습니다.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Role-based Sections -->
+    <section id="business" class="py-32 bg-primary text-white overflow-hidden relative">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-20">
+            <!-- Business Side -->
+            <div class="space-y-10 border-r border-white/10 pr-0 lg:pr-20">
+                <div class="inline-block px-4 py-1 rounded-full bg-white/10 text-white text-[10px] font-black uppercase tracking-widest">For Business</div>
+                <h2 class="text-4xl md:text-5xl font-black leading-tight">프로젝트 성공을 위한<br/>최적의 퍼즐 조각을 찾으세요</h2>
+                <ul class="space-y-6">
+                    <li class="flex items-start gap-4">
+                        <span class="w-6 h-6 rounded-full bg-secondary flex items-center justify-center text-xs">✓</span>
+                        <div>
+                            <div class="font-bold mb-1">정교한 기술 필터링</div>
+                            <div class="text-sm text-white/60">AA, TA, DA 등 현장 중심 직무별 상세 필터</div>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-4">
+                        <span class="w-6 h-6 rounded-full bg-secondary flex items-center justify-center text-xs">✓</span>
+                        <div>
+                            <div class="font-bold mb-1">인력 공급사 통합 관리</div>
+                            <div class="text-sm text-white/60">여러 파트너사의 인력을 한 곳에서 비교 및 소싱</div>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-4">
+                        <span class="w-6 h-6 rounded-full bg-secondary flex items-center justify-center text-xs">✓</span>
+                        <div>
+                            <div class="font-bold mb-1">실시간 충원 현황판</div>
+                            <div class="text-sm text-white/60">프로젝트별 인력 확보 상태 실시간 모니터링</div>
+                        </div>
+                    </li>
+                </ul>
+                <a href="signup_mockup.html" class="inline-block px-8 py-4 bg-secondary text-white rounded-xl font-black hover:bg-amber-600 transition-all">비즈니스 계정 가입</a>
+            </div>
+
+            <!-- Expert Side -->
+            <div id="expert" class="space-y-10">
+                <div class="inline-block px-4 py-1 rounded-full bg-white/10 text-white text-[10px] font-black uppercase tracking-widest">For Experts</div>
+                <h2 class="text-4xl md:text-5xl font-black leading-tight">당신의 기술력은<br/>데이터로 증명됩니다</h2>
+                <ul class="space-y-6">
+                    <li class="flex items-start gap-4">
+                        <span class="w-6 h-6 rounded-full bg-accent text-primary flex items-center justify-center text-xs font-bold">✓</span>
+                        <div>
+                            <div class="font-bold mb-1">AI 커리어 디지털 전환</div>
+                            <div class="text-sm text-white/60">PDF 이력서 업로드만으로 정교한 디지털 프로필 생성</div>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-4">
+                        <span class="w-6 h-6 rounded-full bg-accent text-primary flex items-center justify-center text-xs font-bold">✓</span>
+                        <div>
+                            <div class="font-bold mb-1">매칭 가이드라인 설정</div>
+                            <div class="text-sm text-white/60">수행 가능 최소 단가 및 선호 지역 기반의 맞춤 제안</div>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-4">
+                        <span class="w-6 h-6 rounded-full bg-accent text-primary flex items-center justify-center text-xs font-bold">✓</span>
+                        <div>
+                            <div class="font-bold mb-1">통합 이력 증명서 발급</div>
+                            <div class="text-sm text-white/60">검증된 모든 프로젝트 이력을 하나의 리포트로 추출</div>
+                        </div>
+                    </li>
+                </ul>
+                <a href="signup_mockup.html" class="inline-block px-8 py-4 bg-accent text-primary rounded-xl font-black hover:bg-yellow-300 transition-all">전문가 프로필 등록</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-20 bg-surface border-t border-border/20">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-10">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center text-lg font-black shadow-md">L</div>
+                    <span class="text-xl font-black tracking-tighter">Linker.</span>
+                </div>
+                <div class="flex gap-10 text-xs font-bold text-primary/40 uppercase tracking-widest">
+                    <a href="#" class="hover:text-primary transition-colors">이용약관</a>
+                    <a href="#" class="hover:text-primary transition-colors">개인정보처리방침</a>
+                    <a href="#" class="hover:text-primary transition-colors">고객센터</a>
+                </div>
+                <div class="text-[10px] text-primary/30 font-medium">
+                    © 2026 Linker Inc. All rights reserved.
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>경력증명서 확인 - Linker Mockup</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#451A03',
+                        secondary: '#B45309',
+                        accent: '#FDE68A',
+                        background: '#FFFBEB',
+                        surface: '#FFF8F0',
+                        border: '#D6C4A8',
+                        success: '#166534',
+                        warning: '#D97706',
+                        danger: '#991B1B',
+                        info: '#1E293B',
+                    },
+                    fontFamily: {
+                        sans: ['Pretendard', 'sans-serif'],
+                        serif: ['Noto Serif KR', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Fonts -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Custom print-like styling for the certificate */
+        .certificate-paper {
+            background-color: #ffffff;
+            background-image: 
+                linear-gradient(rgba(214, 196, 168, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(214, 196, 168, 0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+            position: relative;
+        }
+        
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 8rem;
+            font-weight: 900;
+            color: rgba(180, 83, 9, 0.03); /* Extremely faint secondary color */
+            pointer-events: none;
+            white-space: nowrap;
+            user-select: none;
+        }
+
+        .seal {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .seal::after {
+            content: "인";
+            position: absolute;
+            right: -15px;
+            top: -5px;
+            width: 40px;
+            height: 40px;
+            border: 2px solid #991B1B;
+            border-radius: 50%;
+            color: #991B1B;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-center;
+            font-family: 'Noto Serif KR', serif;
+            background-color: rgba(153, 27, 27, 0.05);
+            transform: rotate(-10deg);
+            opacity: 0.8;
+            padding-left: 12px;
+            line-height: 38px;
+        }
+    </style>
+</head>
+<body class="bg-background font-sans text-primary min-h-screen p-4 md:p-8 flex flex-col items-center">
+
+    <!-- Action Toolbar -->
+    <div class="w-full max-w-4xl flex justify-between items-center mb-6 px-2">
+        <div>
+            <h1 class="text-2xl font-bold text-primary">경력증명서 발급/조회</h1>
+            <p class="text-sm text-primary/60 mt-1">Linker 플랫폼에서 수행한 프로젝트 내역이 공식적으로 증명됩니다.</p>
+        </div>
+        <div class="flex gap-3">
+            <button class="px-5 py-2.5 rounded-xl border border-border bg-white text-primary font-bold hover:bg-surface transition-colors flex items-center gap-2 shadow-sm">
+                <span class="text-lg">🖨️</span> 인쇄하기
+            </button>
+            <button class="px-5 py-2.5 rounded-xl bg-primary text-white font-bold hover:bg-amber-900 shadow-md hover:shadow-lg transition-all active:scale-[0.98] flex items-center gap-2">
+                <span class="text-lg">📄</span> PDF 다운로드
+            </button>
+        </div>
+    </div>
+
+    <!-- Certificate Document Container -->
+    <main class="w-full max-w-4xl certificate-paper rounded-none shadow-2xl border border-border/50 p-12 md:p-20 overflow-hidden">
+        
+        <!-- Watermark -->
+        <div class="watermark font-serif">LINKER VERIFIED</div>
+
+        <!-- Document Header -->
+        <div class="text-center mb-16 border-b-4 border-double border-primary/30 pb-8">
+            <h2 class="text-4xl md:text-5xl font-black text-primary font-serif tracking-widest mb-4">경 력 증 명 서</h2>
+            <p class="text-sm text-primary/60 tracking-widest font-bold">CERTIFICATE OF WORK EXPERIENCE</p>
+        </div>
+
+        <!-- 1. Personal Information -->
+        <div class="mb-10">
+            <h3 class="text-lg font-bold text-primary mb-3 border-l-4 border-secondary pl-3">인적 사항</h3>
+            <table class="w-full text-sm border-t border-l border-border/60">
+                <tbody>
+                    <tr>
+                        <th class="bg-surface/50 border-b border-r border-border/60 p-3 text-left w-32 font-bold text-primary/80">성 명</th>
+                        <td class="border-b border-r border-border/60 p-3 font-semibold">홍 길 동</td>
+                        <th class="bg-surface/50 border-b border-r border-border/60 p-3 text-left w-32 font-bold text-primary/80">생년월일</th>
+                        <td class="border-b border-r border-border/60 p-3 font-semibold">1990. 05. 12</td>
+                    </tr>
+                    <tr>
+                        <th class="bg-surface/50 border-b border-r border-border/60 p-3 text-left w-32 font-bold text-primary/80">연 락 처</th>
+                        <td class="border-b border-r border-border/60 p-3 font-semibold">010-1234-5678</td>
+                        <th class="bg-surface/50 border-b border-r border-border/60 p-3 text-left w-32 font-bold text-primary/80">이 메 일</th>
+                        <td class="border-b border-r border-border/60 p-3 font-semibold">expert.hong@linker.com</td>
+                    </tr>
+                    <tr>
+                        <th class="bg-surface/50 border-b border-r border-border/60 p-3 text-left w-32 font-bold text-primary/80">주 소</th>
+                        <td colspan="3" class="border-b border-r border-border/60 p-3 font-semibold">서울특별시 강남구 테헤란로 123, 45층 (역삼동)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 2. Project History -->
+        <div class="mb-16">
+            <h3 class="text-lg font-bold text-primary mb-3 border-l-4 border-secondary pl-3">경력(프로젝트) 사항</h3>
+            <table class="w-full text-sm border-t border-l border-border/60">
+                <thead class="bg-surface/50 text-primary/80 font-bold">
+                    <tr>
+                        <th class="border-b border-r border-border/60 p-3 w-12 text-center">No</th>
+                        <th class="border-b border-r border-border/60 p-3 text-center">참여 기간</th>
+                        <th class="border-b border-r border-border/60 p-3 text-left">프로젝트명</th>
+                        <th class="border-b border-r border-border/60 p-3 text-left">담당 역할(직무)</th>
+                        <th class="border-b border-r border-border/60 p-3 text-left">발주처(클라이언트)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="border-b border-r border-border/60 p-3 text-center text-primary/60 font-semibold">1</td>
+                        <td class="border-b border-r border-border/60 p-3 text-center font-semibold">2025. 11. 01<br>~ 2026. 04. 30<br><span class="text-xs text-primary/50">(6개월)</span></td>
+                        <td class="border-b border-r border-border/60 p-3 font-bold text-primary">차세대 물류 관리 시스템 프론트엔드 구축</td>
+                        <td class="border-b border-r border-border/60 p-3 text-primary/80">시니어 프론트엔드 개발<br>(React, TypeScript)</td>
+                        <td class="border-b border-r border-border/60 p-3 text-primary/80">(주)대한로지스틱스</td>
+                    </tr>
+                    <tr>
+                        <td class="border-b border-r border-border/60 p-3 text-center text-primary/60 font-semibold">2</td>
+                        <td class="border-b border-r border-border/60 p-3 text-center font-semibold">2025. 05. 10<br>~ 2025. 10. 15<br><span class="text-xs text-primary/50">(5개월)</span></td>
+                        <td class="border-b border-r border-border/60 p-3 font-bold text-primary">B2B SaaS 사내 그룹웨어 리뉴얼</td>
+                        <td class="border-b border-r border-border/60 p-3 text-primary/80">UI 컴포넌트 설계 및 개발<br>(Vue.js)</td>
+                        <td class="border-b border-r border-border/60 p-3 text-primary/80">테크솔루션즈(주)</td>
+                    </tr>
+                    <tr>
+                        <td class="border-b border-r border-border/60 p-3 text-center text-primary/60 font-semibold">3</td>
+                        <td class="border-b border-r border-border/60 p-3 text-center font-semibold">2024. 08. 01<br>~ 2025. 02. 28<br><span class="text-xs text-primary/50">(7개월)</span></td>
+                        <td class="border-b border-r border-border/60 p-3 font-bold text-primary">금융권 마이데이터 앱 하이브리드 전환</td>
+                        <td class="border-b border-r border-border/60 p-3 text-primary/80">웹뷰 연동 및 최적화<br>(React Native, Webpack)</td>
+                        <td class="border-b border-r border-border/60 p-3 text-primary/80">한국미래은행</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <p class="text-xs text-primary/50 mt-2 text-right">
+                ※ 상기 프로젝트 경력은 Linker 플랫폼을 통해 정상적으로 계약이 체결되고 정산이 완료된 내역만을 포함합니다.
+            </p>
+        </div>
+
+        <!-- Document Footer / Verification -->
+        <div class="text-center mt-12 mb-16">
+            <p class="text-lg font-bold text-primary mb-8">위의 사실이 틀림없음을 증명합니다.</p>
+            <p class="text-xl font-bold font-serif text-primary">2026년 04월 25일</p>
+        </div>
+
+        <!-- Issuer Info & Seal -->
+        <div class="flex justify-between items-end border-t-2 border-primary/10 pt-8 mt-10 relative">
+            <div class="text-sm text-primary/60">
+                <p>문서확인번호: <span class="font-mono font-bold text-primary">LNK-2026-0425-9823</span></p>
+                <p class="mt-1">본 증명서의 위변조 여부는 Linker 웹사이트에서 확인 가능합니다.</p>
+            </div>
+            
+            <div class="text-right">
+                <p class="text-lg font-bold text-primary mb-2">주식회사 링커 (Linker Inc.)</p>
+                <p class="text-xl font-black font-serif text-primary seal">대 표 이 사   김 링 커</p>
+            </div>
+        </div>
+
+    </main>
+
+</body>
+</html>

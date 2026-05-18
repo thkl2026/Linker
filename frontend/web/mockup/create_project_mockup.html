@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>신규 프로젝트 등록 - Linker Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#451A03',
+                        secondary: '#B45309',
+                        accent: '#FDE68A',
+                        background: '#FFFBEB',
+                        surface: '#FFF8F0',
+                        border: '#D6C4A8',
+                        success: '#166534',
+                        warning: '#D97706',
+                        danger: '#991B1B',
+                        info: '#1D4ED8',
+                    },
+                    fontFamily: {
+                        sans: ['Pretendard', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #D6C4A8;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #B45309;
+        }
+        .step-active {
+            @apply border-secondary text-secondary bg-secondary/5;
+        }
+    </style>
+</head>
+<body class="bg-background font-sans text-primary min-h-screen flex">
+
+    <!-- Sidebar (Same as Project Management) -->
+    <aside class="w-64 bg-surface border-r border-border/50 sticky top-0 h-screen flex flex-col">
+        <div class="p-8">
+            <div class="text-2xl font-black tracking-tighter text-primary flex items-center gap-2">
+                <span class="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center text-2xl shadow-lg">L</span>
+                Linker <span class="text-xs font-bold text-secondary bg-secondary/10 px-2 py-1 rounded-md ml-1">ADMIN</span>
+            </div>
+        </div>
+        
+        <nav class="flex-1 px-4 space-y-2 overflow-y-auto custom-scrollbar">
+            <div class="text-[10px] font-bold text-primary/30 uppercase tracking-widest px-4 mb-2">Main</div>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-primary/40 hover:bg-white transition-all">
+                <span>📊</span> 대시보드
+            </a>
+            <a href="project_management_mockup.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold bg-primary text-white shadow-xl shadow-primary/20 transition-all">
+                <span>📁</span> 프로젝트 관리
+            </a>
+            <a href="evaluation_management_mockup.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-primary/40 hover:bg-white transition-all">
+                <span>⭐</span> 평가 관리
+            </a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-primary/40 hover:bg-white transition-all">
+                <span>👤</span> 전문가 관리
+            </a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-primary/40 hover:bg-white transition-all">
+                <span>🏢</span> 기업 관리
+            </a>
+            
+            <div class="pt-6 text-[10px] font-bold text-primary/30 uppercase tracking-widest px-4 mb-2">System</div>
+            <a href="settings_mockup.html" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-primary/40 hover:bg-white transition-all">
+                <span>⚙️</span> 설정
+            </a>
+        </nav>
+        
+        <div class="p-6 border-t border-border/30">
+            <div class="flex items-center gap-3 bg-white p-3 rounded-2xl border border-border/50">
+                <div class="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center text-lg">👑</div>
+                <div class="overflow-hidden">
+                    <p class="text-xs font-black truncate">관리자(Master)</p>
+                    <p class="text-[10px] text-primary/40 truncate">admin@linker.co.kr</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 min-w-0 overflow-y-auto custom-scrollbar">
+        
+        <!-- Header -->
+        <header class="bg-surface/80 backdrop-blur-md border-b border-border/30 sticky top-0 z-40">
+            <div class="max-w-[1200px] mx-auto px-10 h-20 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <a href="project_management_mockup.html" class="w-10 h-10 rounded-xl bg-white border border-border/50 flex items-center justify-center hover:bg-surface transition-all">
+                        ←
+                    </a>
+                    <div>
+                        <h2 class="text-xl font-black tracking-tight">신규 프로젝트 등록</h2>
+                        <p class="text-xs text-primary/40 font-medium">새로운 비즈니스 기회를 정의하고 인력 매칭을 준비합니다.</p>
+                    </div>
+                </div>
+                <div class="flex gap-3">
+                    <button class="px-6 py-2.5 bg-white border border-border text-primary/60 rounded-xl text-sm font-black hover:bg-surface transition-all">
+                        임시 저장
+                    </button>
+                    <button class="px-6 py-2.5 bg-primary text-white rounded-xl text-sm font-black shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
+                        등록 완료
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="max-w-[1200px] mx-auto p-10 grid grid-cols-1 lg:grid-cols-3 gap-10">
+            
+            <!-- Left Column: Form Sections -->
+            <div class="lg:col-span-2 space-y-8">
+                
+                <!-- Section 1: Basic Info -->
+                <div class="bg-white p-8 rounded-[40px] border border-border/30 shadow-sm space-y-6">
+                    <div class="flex items-center gap-3 pb-4 border-b border-border/10">
+                        <span class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-xs font-black">1</span>
+                        <h3 class="text-lg font-black">기본 정보</h3>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-[11px] font-black text-primary/40 uppercase mb-2 ml-1">프로젝트명</label>
+                            <input type="text" placeholder="예: 차세대 AI 추천 엔진 고도화" 
+                                class="w-full bg-background border border-border/50 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-secondary transition-all font-bold">
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[11px] font-black text-primary/40 uppercase mb-2 ml-1">발주사 (고객사)</label>
+                                <select class="w-full bg-background border border-border/50 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-secondary transition-all appearance-none font-bold">
+                                    <option>발주사를 선택하세요</option>
+                                    <option>(주)대한상사</option>
+                                    <option>로지스월드</option>
+                                    <option>한국금융</option>
+                                    <option>+ 직접 입력</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-black text-primary/40 uppercase mb-2 ml-1">주사업자</label>
+                                <select class="w-full bg-background border border-border/50 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-secondary transition-all appearance-none font-bold">
+                                    <option>주사업자를 선택하세요</option>
+                                    <option>(주)링크소프트</option>
+                                    <option>(주)인포테크</option>
+                                    <option>에이치에스 시스템</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Schedule & Period -->
+                <div class="bg-white p-8 rounded-[40px] border border-border/30 shadow-sm space-y-6">
+                    <div class="flex items-center gap-3 pb-4 border-b border-border/10">
+                        <span class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-xs font-black">2</span>
+                        <h3 class="text-lg font-black">수행 기간 및 일정</h3>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-[11px] font-black text-primary/40 uppercase mb-2 ml-1">프로젝트 시작일</label>
+                            <input type="date" class="w-full bg-background border border-border/50 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-secondary transition-all font-bold">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-black text-primary/40 uppercase mb-2 ml-1">프로젝트 종료일</label>
+                            <input type="date" class="w-full bg-background border border-border/50 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-secondary transition-all font-bold">
+                        </div>
+                    </div>
+                    
+                    <div class="bg-surface/50 p-6 rounded-3xl border border-border/20">
+                        <label class="block text-[11px] font-black text-primary/40 uppercase mb-3 ml-1">인력 모집 마감일 (Recruitment Deadline)</label>
+                        <div class="flex items-center gap-4">
+                            <input type="date" class="flex-1 bg-white border border-border/50 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-secondary transition-all font-bold">
+                            <div class="flex items-center gap-2 px-4">
+                                <input type="checkbox" id="urgent" class="w-5 h-5 rounded border-border text-secondary focus:ring-secondary">
+                                <label for="urgent" class="text-sm font-bold text-danger">긴급 채용</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: Personnel Configuration -->
+                <div class="bg-white p-8 rounded-[40px] border border-border/30 shadow-sm space-y-6">
+                    <div class="flex items-center justify-between pb-4 border-b border-border/10">
+                        <div class="flex items-center gap-3">
+                            <span class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-xs font-black">3</span>
+                            <h3 class="text-lg font-black">인력 구성 및 PM</h3>
+                        </div>
+                        <button class="text-xs font-bold text-secondary px-4 py-2 bg-secondary/5 rounded-xl border border-secondary/20 hover:bg-secondary hover:text-white transition-all">
+                            + 역할 추가
+                        </button>
+                    </div>
+
+                    <!-- PM Selection -->
+                    <div class="space-y-4">
+                        <label class="block text-[11px] font-black text-primary/40 uppercase ml-1">책임 PM 지정</label>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="p-4 bg-background border-2 border-secondary rounded-2xl flex items-center gap-3 relative cursor-pointer">
+                                <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold">JD</div>
+                                <div>
+                                    <p class="text-sm font-black">김담당 PM</p>
+                                    <p class="text-[10px] text-primary/40">전문분야: 커머스</p>
+                                </div>
+                                <div class="absolute top-2 right-2 text-secondary">✓</div>
+                            </div>
+                            <div class="p-4 bg-white border border-border/50 rounded-2xl flex items-center gap-3 hover:border-secondary transition-all cursor-pointer">
+                                <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center font-bold">LS</div>
+                                <div>
+                                    <p class="text-sm font-bold text-primary/60">이승우 PM</p>
+                                    <p class="text-[10px] text-primary/30">전문분야: 물류</p>
+                                </div>
+                            </div>
+                            <div class="p-4 bg-white border border-border/50 rounded-2xl flex items-center justify-center hover:border-secondary transition-all border-dashed cursor-pointer text-primary/30 text-xs font-bold">
+                                + PM 직접 검색
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Role Configuration Table -->
+                    <div class="mt-8">
+                        <label class="block text-[11px] font-black text-primary/40 uppercase mb-4 ml-1">상세 인력 구성</label>
+                        <div class="space-y-3">
+                            <!-- Role Row 1 -->
+                            <div class="grid grid-cols-12 gap-3 items-center p-4 bg-surface/30 rounded-2xl border border-border/20">
+                                <div class="col-span-4">
+                                    <select class="w-full bg-white border border-border/50 rounded-xl px-4 py-2.5 text-sm font-bold appearance-none">
+                                        <option>Frontend Developer</option>
+                                        <option>Backend Developer</option>
+                                        <option>UI/UX Designer</option>
+                                        <option>QA Engineer</option>
+                                    </select>
+                                </div>
+                                <div class="col-span-2">
+                                    <div class="flex items-center bg-white border border-border/50 rounded-xl px-3 py-2">
+                                        <input type="number" value="3" class="w-full text-center text-sm font-black focus:outline-none">
+                                        <span class="text-[10px] font-bold text-primary/30 ml-1">명</span>
+                                    </div>
+                                </div>
+                                <div class="col-span-5">
+                                    <input type="text" placeholder="필수 스택: React, Tailwind, TS" 
+                                        class="w-full bg-white border border-border/50 rounded-xl px-4 py-2.5 text-xs font-medium focus:outline-none">
+                                </div>
+                                <div class="col-span-1 text-right">
+                                    <button class="text-primary/20 hover:text-danger transition-all">✕</button>
+                                </div>
+                            </div>
+                            
+                            <!-- Role Row 2 -->
+                            <div class="grid grid-cols-12 gap-3 items-center p-4 bg-surface/30 rounded-2xl border border-border/20">
+                                <div class="col-span-4">
+                                    <select class="w-full bg-white border border-border/50 rounded-xl px-4 py-2.5 text-sm font-bold appearance-none">
+                                        <option>Backend Developer</option>
+                                        <option>Frontend Developer</option>
+                                        <option>UI/UX Designer</option>
+                                        <option>QA Engineer</option>
+                                    </select>
+                                </div>
+                                <div class="col-span-2">
+                                    <div class="flex items-center bg-white border border-border/50 rounded-xl px-3 py-2">
+                                        <input type="number" value="5" class="w-full text-center text-sm font-black focus:outline-none">
+                                        <span class="text-[10px] font-bold text-primary/30 ml-1">명</span>
+                                    </div>
+                                </div>
+                                <div class="col-span-5">
+                                    <input type="text" placeholder="필수 스택: Java, Spring Boot, JPA" 
+                                        class="w-full bg-white border border-border/50 rounded-xl px-4 py-2.5 text-xs font-medium focus:outline-none">
+                                </div>
+                                <div class="col-span-1 text-right">
+                                    <button class="text-primary/20 hover:text-danger transition-all">✕</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Summary & Options -->
+            <div class="space-y-8">
+                
+                <!-- Registration Summary Card -->
+                <div class="bg-primary text-white p-8 rounded-[40px] shadow-2xl relative overflow-hidden">
+                    <div class="relative z-10">
+                        <h4 class="text-xs font-black text-white/40 uppercase tracking-widest mb-6">등록 요약</h4>
+                        <div class="space-y-6">
+                            <div>
+                                <p class="text-[10px] font-black text-white/30 uppercase mb-1">인력 규모</p>
+                                <p class="text-3xl font-black">총 8 <span class="text-lg font-normal text-white/40">명</span></p>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-[10px] font-black text-white/30 uppercase mb-1">수행 개월</p>
+                                    <p class="text-xl font-black">6.5 <span class="text-xs font-normal text-white/40">개월</span></p>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] font-black text-white/30 uppercase mb-1">매칭 난이도</p>
+                                    <p class="text-xl font-black text-accent font-black">Normal</p>
+                                </div>
+                            </div>
+                            <div class="pt-6 border-t border-white/10">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-xs font-bold text-white/60">예상 인건비</span>
+                                    <span class="text-sm font-black">₩ 145,000,000</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs font-bold text-white/60">매칭 수수료</span>
+                                    <span class="text-sm font-black">₩ 14,500,000</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Decorative Elements -->
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-secondary/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+                </div>
+
+                <!-- Additional Options -->
+                <div class="bg-white p-8 rounded-[40px] border border-border/30 shadow-sm space-y-6">
+                    <h4 class="text-sm font-black border-b border-border/10 pb-4">추가 옵션</h4>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <label class="text-xs font-bold text-primary/60">전문가 자동 매칭 제안</label>
+                            <div class="w-12 h-6 bg-secondary rounded-full relative cursor-pointer">
+                                <div class="w-4 h-4 bg-white rounded-full absolute right-1 top-1"></div>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <label class="text-xs font-bold text-primary/60">발주사 실시간 알림</label>
+                            <div class="w-12 h-6 bg-border/30 rounded-full relative cursor-pointer">
+                                <div class="w-4 h-4 bg-white rounded-full absolute left-1 top-1"></div>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <label class="text-xs font-bold text-primary/60">비공개 프로젝트</label>
+                            <div class="w-12 h-6 bg-border/30 rounded-full relative cursor-pointer">
+                                <div class="w-4 h-4 bg-white rounded-full absolute left-1 top-1"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tips/Info -->
+                <div class="p-6 bg-secondary/5 rounded-3xl border border-secondary/10">
+                    <p class="text-xs font-bold text-secondary mb-2">💡 빠른 등록 팁</p>
+                    <p class="text-[11px] leading-relaxed text-secondary/70">인력 구성에서 '필수 스택'을 구체적으로 입력할수록 AI 매칭 엔진이 더 적합한 전문가를 자동으로 추천할 확률이 높아집니다.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="h-20"></div>
+    </main>
+
+</body>
+</html>

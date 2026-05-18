@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PM 대시보드 - Linker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#451A03',
+                        secondary: '#B45309',
+                        accent: '#FDE68A',
+                        background: '#FFFBEB',
+                        surface: '#FFF8F0',
+                        border: '#D6C4A8',
+                        success: '#166534',
+                        warning: '#D97706',
+                        danger: '#991B1B',
+                    },
+                    fontFamily: {
+                        sans: ['Pretendard', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+</head>
+<body class="bg-background font-sans text-primary min-h-screen">
+
+    <!-- Top Navigation -->
+    <header class="bg-surface border-b border-border/50 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-8">
+                <div class="text-2xl font-black tracking-tighter text-primary flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center text-xl shadow-md">L</span>
+                    Linker <span class="text-xs font-bold text-secondary bg-secondary/10 px-2 py-1 rounded-md ml-1">PM</span>
+                </div>
+                <nav class="hidden md:flex items-center gap-6">
+                    <a href="#" class="text-sm font-bold text-primary">프로젝트 공고</a>
+                    <a href="#" class="text-sm font-bold text-secondary border-b-2 border-secondary pb-1">팀원 관리</a>
+                    <a href="#" class="text-sm font-bold text-primary/40">전문가 검색</a>
+                </nav>
+            </div>
+            <div class="flex items-center gap-4">
+                <button class="relative w-10 h-10 flex items-center justify-center rounded-xl hover:bg-white transition-colors">
+                    <span class="text-xl">🔔</span>
+                    <span class="absolute top-2 right-2 w-2 h-2 bg-danger rounded-full"></span>
+                </button>
+                <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white font-bold">JD</div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto py-10 px-6">
+        
+        <!-- Welcome Section -->
+        <div class="flex flex-col md:flex-row justify-between items-end mb-10 gap-6">
+            <div>
+                <h2 class="text-3xl font-black text-primary mb-2">안녕하세요, 김담당 PM님!</h2>
+                <p class="text-primary/60 font-medium">현재 <span class="text-secondary font-black underline underline-offset-4">3개</span>의 프로젝트를 운영 중이며, 확인이 필요한 알림이 <span class="text-danger font-black">5건</span> 있습니다.</p>
+            </div>
+            <a href="project_creation_mockup.html" class="px-8 py-3.5 rounded-2xl bg-primary text-white font-bold shadow-xl hover:bg-black hover:-translate-y-1 transition-all">
+                + 새 프로젝트 등록하기
+            </a>
+        </div>
+
+        <!-- Alert Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
+            <div class="bg-warning/5 border border-warning/20 p-5 rounded-2xl flex items-center justify-between group cursor-pointer hover:bg-warning/10 transition-colors">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-warning/10 rounded-xl flex items-center justify-center text-xl">🛡️</div>
+                    <div>
+                        <p class="text-sm font-bold text-primary">경력 인증 요청 <span class="text-danger font-black ml-1">3건</span></p>
+                        <p class="text-xs text-primary/50 mt-0.5 font-medium">이지은님 외 2명이 프로젝트 참여 인증을 요청했습니다.</p>
+                    </div>
+                </div>
+                <span class="text-primary/30 group-hover:translate-x-1 transition-transform">→</span>
+            </div>
+            <div class="bg-success/5 border border-success/20 p-5 rounded-2xl flex items-center justify-between group cursor-pointer hover:bg-success/10 transition-colors">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-success/10 rounded-xl flex items-center justify-center text-xl">👤</div>
+                    <div>
+                        <p class="text-sm font-bold text-primary">새로운 지원자 <span class="text-secondary font-black ml-1">2건</span></p>
+                        <p class="text-xs text-primary/50 mt-0.5 font-medium">차세대 구매 시스템 프로젝트에 새로운 지원자가 있습니다.</p>
+                    </div>
+                </div>
+                <span class="text-primary/30 group-hover:translate-x-1 transition-transform">→</span>
+            </div>
+        </div>
+
+        <!-- Ongoing Projects -->
+        <section class="space-y-6">
+            <div class="flex items-center justify-between">
+                <h3 class="text-xl font-black text-primary">운영 중인 프로젝트</h3>
+                <div class="flex gap-2">
+                    <button class="px-4 py-2 rounded-xl bg-white border border-border text-xs font-bold text-primary">진행 중 (3)</button>
+                    <button class="px-4 py-2 rounded-xl bg-white border border-border text-xs font-bold text-primary/40">완료됨</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Project Card 1 -->
+                <div class="bg-white rounded-[40px] border border-border/50 shadow-sm hover:shadow-xl transition-all overflow-hidden group">
+                    <div class="p-8 pb-4">
+                        <div class="flex justify-between items-start mb-6">
+                            <span class="px-3 py-1 bg-success/10 text-success rounded-full text-[10px] font-black uppercase tracking-widest">Active</span>
+                            <span class="text-[11px] font-bold text-primary/30">D+42 일째 진행 중</span>
+                        </div>
+                        <h4 class="text-2xl font-black text-primary group-hover:text-secondary transition-colors mb-2">차세대 B2B 구매 시스템 구축</h4>
+                        <p class="text-sm font-bold text-primary/50 mb-6 flex items-center gap-2 italic">🏢 (주)대한상사</p>
+                        
+                        <div class="grid grid-cols-3 gap-4 border-t border-border/20 pt-6 mb-6">
+                            <div>
+                                <p class="text-[10px] font-black text-primary/30 uppercase mb-1">Members</p>
+                                <p class="text-xl font-black">12 / 16</p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-black text-primary/30 uppercase mb-1">Verify Req</p>
+                                <p class="text-xl font-black text-danger">3 <span class="text-xs">건</span></p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-black text-primary/30 uppercase mb-1">Start Date</p>
+                                <p class="text-sm font-bold pt-1">2024. 03. 15</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="px-8 py-6 bg-surface/50 border-t border-border/30 flex gap-3">
+                        <a href="expert_registration_mockup.html" class="flex-1 py-3.5 bg-primary text-white text-center rounded-2xl font-bold text-sm shadow-md hover:bg-black transition-all">
+                            팀원 관리하기
+                        </a>
+                        <button class="px-5 py-3.5 bg-white border border-border rounded-2xl font-bold text-sm hover:bg-surface transition-all">
+                            ⚙️ 설정
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Project Card 2 -->
+                <div class="bg-white rounded-[40px] border border-border/50 shadow-sm hover:shadow-xl transition-all overflow-hidden group opacity-80">
+                    <div class="p-8 pb-4">
+                        <div class="flex justify-between items-start mb-6">
+                            <span class="px-3 py-1 bg-warning/10 text-warning rounded-full text-[10px] font-black uppercase tracking-widest">Recruiting</span>
+                            <span class="text-[11px] font-bold text-primary/30">D-5 공고 종료 임박</span>
+                        </div>
+                        <h4 class="text-2xl font-black text-primary group-hover:text-secondary transition-colors mb-2">글로벌 물류 대시보드 리뉴얼</h4>
+                        <p class="text-sm font-bold text-primary/50 mb-6 flex items-center gap-2 italic">🏢 로지스월드</p>
+                        
+                        <div class="grid grid-cols-3 gap-4 border-t border-border/20 pt-6 mb-6">
+                            <div>
+                                <p class="text-[10px] font-black text-primary/30 uppercase mb-1">Applicants</p>
+                                <p class="text-xl font-black text-secondary">24 <span class="text-xs">명</span></p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-black text-primary/30 uppercase mb-1">Open Slots</p>
+                                <p class="text-xl font-black">2 / 5</p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-black text-primary/30 uppercase mb-1">End Date</p>
+                                <p class="text-sm font-bold pt-1">2024. 05. 01</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="px-8 py-6 bg-surface/50 border-t border-border/30 flex gap-3">
+                        <button class="flex-1 py-3.5 bg-secondary text-white text-center rounded-2xl font-bold text-sm shadow-md hover:bg-amber-900 transition-all">
+                            지원자 검토하기
+                        </button>
+                        <button class="px-5 py-3.5 bg-white border border-border rounded-2xl font-bold text-sm hover:bg-surface transition-all">
+                            ⚙️
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <div class="h-20"></div>
+
+</body>
+</html>

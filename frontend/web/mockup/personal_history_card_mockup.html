@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>개인 이력 카드 - Linker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#451A03',
+                        secondary: '#B45309',
+                        accent: '#FDE68A',
+                        background: '#FFFBEB',
+                        surface: '#FFF8F0',
+                        border: '#D6C4A8',
+                        success: '#166534',
+                        warning: '#D97706',
+                        danger: '#991B1B',
+                    },
+                    fontFamily: {
+                        sans: ['Pretendard', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <style type="text/tailwindcss">
+        /* 프린트 스타일 최적화 */
+        @media print {
+            body { background-color: white !important; }
+            .print-hide { display: none !important; }
+            .print-shadow-none { box-shadow: none !important; border-color: #e5e7eb !important; }
+            .page-break { page-break-before: always; }
+        }
+        
+        .table-header {
+            @apply bg-surface text-primary font-bold text-[13px] border-b border-r border-border/50 flex items-center justify-center text-center py-2 px-3;
+        }
+        .table-cell {
+            @apply text-[13px] text-primary/80 border-b border-r border-border/30 py-2 px-3;
+        }
+    </style>
+</head>
+<body class="bg-background font-sans text-primary min-h-screen p-4 md:p-8 flex justify-center items-start">
+
+    <div class="w-full max-w-5xl flex flex-col gap-6">
+        <!-- Header Actions -->
+        <div class="flex justify-between items-center print-hide">
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight">인력 프로필</h1>
+                <p class="text-sm text-primary/60 mt-1">등록된 인력의 상세 이력 카드입니다.</p>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="window.print()" class="px-5 py-2.5 rounded-xl bg-white border border-border text-primary font-bold hover:bg-surface transition-colors shadow-sm flex items-center gap-2 text-sm">
+                    🖨️ 인쇄하기
+                </button>
+                <button class="px-5 py-2.5 rounded-xl bg-primary text-white font-bold hover:bg-amber-900 shadow-md hover:shadow-lg transition-all flex items-center gap-2 text-sm">
+                    💾 PDF 다운로드
+                </button>
+            </div>
+        </div>
+
+        <!-- Resume Container -->
+        <main class="w-full bg-white rounded-2xl shadow-xl border border-border/50 overflow-hidden print-shadow-none p-8 md:p-12">
+            
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-black text-primary tracking-widest border-b-2 border-primary pb-4 inline-block px-10">개인 이력 카드 (홍길동)</h2>
+            </div>
+
+            <!-- 1. 기본 정보 -->
+            <section class="mb-10">
+                <h3 class="text-lg font-bold mb-4 flex items-center gap-2 border-l-4 border-secondary pl-3">
+                    기본 정보
+                </h3>
+                <div class="flex flex-col md:flex-row gap-6">
+                    <!-- Photo -->
+                    <div class="w-32 h-40 bg-surface border border-border/50 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden shadow-sm">
+                        <span class="text-5xl text-primary/20">👤</span>
+                        <!-- <img src="profile.jpg" alt="사진" class="w-full h-full object-cover"> -->
+                    </div>
+                    
+                    <!-- Info Table -->
+                    <div class="flex-1 border border-border/50 border-r-0 border-b-0 rounded-sm">
+                        <div class="flex">
+                            <div class="table-header w-24">연락처</div>
+                            <div class="table-cell flex-1">010-7542-3201</div>
+                            <div class="table-header w-24">총 경력</div>
+                            <div class="table-cell flex-1 font-bold">-</div>
+                        </div>
+                        <div class="flex">
+                            <div class="table-header w-24">분류</div>
+                            <div class="table-cell flex-1">개발자</div>
+                            <div class="table-header w-24">분야</div>
+                            <div class="table-cell flex-1">풀스택</div>
+                        </div>
+                        <div class="flex">
+                            <div class="table-header w-24">근무 형태</div>
+                            <div class="table-cell flex-1">상주</div>
+                            <div class="table-header w-24">희망 단가</div>
+                            <div class="table-cell flex-1">-</div>
+                        </div>
+                        <div class="flex">
+                            <div class="table-header w-24">가용 상태</div>
+                            <div class="table-cell flex-1">
+                                <span class="px-3 py-1 rounded-full border border-emerald-300 text-emerald-700 bg-emerald-50 text-xs font-bold tracking-tight">투입 가능</span>
+                            </div>
+                            <div class="table-header w-24">AI 점수</div>
+                            <div class="table-cell flex-1 text-primary/60 font-bold">0점</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 기존 학력/경력 등 데이터 (숨김) -->
+            <div class="hidden">
+            <!-- 2. 학력 사항 -->
+            <section class="mb-10">
+                <h3 class="text-lg font-bold mb-4 flex items-center gap-2 border-l-4 border-secondary pl-3">
+                    학력 사항
+                </h3>
+                <div class="border border-border/50 border-r-0 border-b-0 rounded-sm overflow-hidden">
+                    <div class="flex bg-surface">
+                        <div class="table-header w-1/4">학교명</div>
+                        <div class="table-header w-1/4">전공</div>
+                        <div class="table-header w-1/4">재학기간</div>
+                        <div class="table-header w-1/4">졸업구분</div>
+                    </div>
+                    <div class="flex">
+                        <div class="table-cell w-1/4 text-center flex items-center justify-center">한국대학교</div>
+                        <div class="table-cell w-1/4 text-center flex items-center justify-center">컴퓨터공학과</div>
+                        <div class="table-cell w-1/4 text-center flex items-center justify-center">2004.03 ~ 2008.02</div>
+                        <div class="table-cell w-1/4 text-center flex items-center justify-center">졸업 (학사)</div>
+                    </div>
+                    <div class="flex bg-surface/20">
+                        <div class="table-cell w-1/4 text-center flex items-center justify-center">대한고등학교</div>
+                        <div class="table-cell w-1/4 text-center flex items-center justify-center">이과</div>
+                        <div class="table-cell w-1/4 text-center flex items-center justify-center">2001.03 ~ 2004.02</div>
+                        <div class="table-cell w-1/4 text-center flex items-center justify-center">졸업</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 근무 경력 -->
+            <section class="mb-10">
+                <h3 class="text-lg font-bold mb-4 flex items-center gap-2 border-l-4 border-secondary pl-3">
+                    근무 경력
+                </h3>
+                <div class="border border-border/50 border-r-0 border-b-0 rounded-sm overflow-hidden">
+                    <div class="flex bg-surface">
+                        <div class="table-header w-1/4">직장명</div>
+                        <div class="table-header w-1/4">부서/직위</div>
+                        <div class="table-header w-1/4">근무기간</div>
+                        <div class="table-header w-1/4">담당업무</div>
+                    </div>
+                    <div class="flex">
+                        <div class="table-cell w-1/4 text-center flex items-center justify-center">(주)씽클레어</div>
+                        <div class="table-cell w-1/4 text-center flex items-center justify-center">개발팀 / 수석</div>
+                        <div class="table-cell w-1/4 text-center flex items-center justify-center">2018.04 ~ 현재</div>
+                        <div class="table-cell w-1/4 text-center flex items-center justify-center">백엔드 개발 및 PL</div>
+                    </div>
+                    <div class="flex bg-surface/20">
+                        <div class="table-cell w-1/4 text-center flex items-center justify-center">(주)한국소프트</div>
+                        <div class="table-cell w-1/4 text-center flex items-center justify-center">SI사업부 / 책임</div>
+                        <div class="table-cell w-1/4 text-center flex items-center justify-center">2010.03 ~ 2018.03</div>
+                        <div class="table-cell w-1/4 text-center flex items-center justify-center">웹 어플리케이션 개발</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. 자격 및 어학 -->
+            <section class="mb-10">
+                <h3 class="text-lg font-bold mb-4 flex items-center gap-2 border-l-4 border-secondary pl-3">
+                    자격 및 어학
+                </h3>
+                <div class="border border-border/50 border-r-0 border-b-0 rounded-sm overflow-hidden">
+                    <div class="flex bg-surface">
+                        <div class="table-header w-1/2">자격증명 및 점수</div>
+                        <div class="table-header w-1/4">발급기관</div>
+                        <div class="table-header w-1/4">취득일자</div>
+                    </div>
+                    <div class="flex">
+                        <div class="table-cell w-1/2 font-medium text-center flex items-center justify-center">정보처리기사</div>
+                        <div class="table-cell w-1/4 text-center flex items-center justify-center">한국산업인력공단</div>
+                        <div class="table-cell w-1/4 text-center flex items-center justify-center">2007.08.15</div>
+                    </div>
+                    <div class="flex bg-surface/20">
+                        <div class="table-cell w-1/2 font-medium text-center flex items-center justify-center">SQL Developer (SQLD)</div>
+                        <div class="table-cell w-1/4 text-center flex items-center justify-center">한국데이터산업진흥원</div>
+                        <div class="table-cell w-1/4 text-center flex items-center justify-center">2021.05.10</div>
+                    </div>
+                    <div class="flex">
+                        <div class="table-cell w-1/2 font-medium text-center flex items-center justify-center">AWS Certified Solutions Architect</div>
+                        <div class="table-cell w-1/4 text-center flex items-center justify-center">Amazon Web Services</div>
+                        <div class="table-cell w-1/4 text-center flex items-center justify-center">2023.01.20</div>
+                    </div>
+                </div>
+            </section>
+            </div>
+
+            <!-- 4. 보유 기술 (Skill Inventory) -->
+            <section class="mb-10">
+                <h3 class="text-lg font-bold mb-4 flex items-center gap-2 border-l-4 border-secondary pl-3">
+                    기술 스택
+                </h3>
+                <div class="border border-border/50 rounded-sm p-5 bg-white shadow-sm">
+                    <div class="flex flex-wrap gap-2.5">
+                        <span class="px-2.5 py-1.5 border border-border/60 rounded text-xs font-bold text-primary bg-surface/30">UNIX</span>
+                        <span class="px-2.5 py-1.5 border border-border/60 rounded text-xs font-bold text-primary bg-surface/30">Linux</span>
+                        <span class="px-2.5 py-1.5 border border-border/60 rounded text-xs font-bold text-primary bg-surface/30">JAVA</span>
+                        <span class="px-2.5 py-1.5 border border-border/60 rounded text-xs font-bold text-primary bg-surface/30">JavaScript</span>
+                        <span class="px-2.5 py-1.5 border border-border/60 rounded text-xs font-bold text-primary bg-surface/30">JSP/Servlet</span>
+                        <span class="px-2.5 py-1.5 border border-border/60 rounded text-xs font-bold text-primary bg-surface/30">node.js</span>
+                        <span class="px-2.5 py-1.5 border border-border/60 rounded text-xs font-bold text-primary bg-surface/30">xml</span>
+                        <span class="px-2.5 py-1.5 border border-border/60 rounded text-xs font-bold text-primary bg-surface/30">AngularJS</span>
+                        <span class="px-2.5 py-1.5 border border-border/60 rounded text-xs font-bold text-primary bg-surface/30">jQuery</span>
+                        <span class="px-2.5 py-1.5 border border-border/60 rounded text-xs font-bold text-primary bg-surface/30">Spring</span>
+                        <span class="px-2.5 py-1.5 border border-border/60 rounded text-xs font-bold text-primary bg-surface/30">Spring Boot</span>
+                        <span class="px-2.5 py-1.5 border border-border/60 rounded text-xs font-bold text-primary bg-surface/30">MyBatis</span>
+                        <span class="px-2.5 py-1.5 border border-border/60 rounded text-xs font-bold text-primary bg-surface/30">JPA</span>
+                        <span class="px-2.5 py-1.5 border border-border/60 rounded text-xs font-bold text-primary bg-surface/30">ORACLE</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 신규 경력 등록하기 -->
+            <section class="mt-8 bg-white border border-border/40 rounded-xl p-8 relative overflow-hidden shadow-sm">
+                <!-- 상단 장식 -->
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/10 via-secondary/30 to-primary/10"></div>
+                
+                <div class="text-center mb-8">
+                    <h3 class="text-xl font-black text-primary tracking-tight">신규 경력 등록하기</h3>
+                    <p class="text-[13px] text-primary/60 mt-1.5">직접 입력하거나, 기존 파일을 업로드하여 자동으로 등록하세요.</p>
+                </div>
+                
+                <!-- 파일 업로드 박스 -->
+                <div class="border border-secondary/30 rounded-xl p-6 flex items-center justify-between bg-surface/30 hover:bg-surface/80 transition-colors shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)]">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-white rounded-lg flex items-center justify-center text-2xl border border-secondary/20 shadow-sm">
+                            ✨
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <h4 class="font-bold text-primary text-[15px]">기존 이력서/경력기술서로 자동 등록</h4>
+                                <span class="px-2 py-0.5 bg-[#333] text-white text-[10px] font-bold rounded-full">AI 추출</span>
+                            </div>
+                            <p class="text-xs text-primary/60">PDF · DOCX · TXT 파일을 업로드하면 AI가 자동으로 분석합니다.</p>
+                        </div>
+                    </div>
+                    <button class="px-5 py-2.5 bg-white border border-border/80 hover:border-secondary/60 text-primary text-[13px] font-bold rounded-lg flex items-center gap-2 shadow-sm transition-all hover:shadow">
+                        파일 업로드 📎
+                    </button>
+                </div>
+
+                <!-- 구분선 -->
+                <div class="flex items-center gap-4 my-8">
+                    <div class="flex-1 h-px bg-border/50"></div>
+                    <span class="text-[11px] text-primary/40 font-bold tracking-wider">직접 입력하기 (수동 등록)</span>
+                    <div class="flex-1 h-px bg-border/50"></div>
+                </div>
+
+                <!-- 수동 등록 카드 -->
+                <div class="flex gap-4">
+                    <!-- 근무 회사 등록 -->
+                    <div class="flex-1 border border-border/60 rounded-xl p-6 flex items-start gap-4 shadow-sm bg-white hover:border-secondary/50 hover:shadow-md cursor-pointer transition-all group">
+                        <div class="w-12 h-12 bg-blue-50/50 rounded-lg flex items-center justify-center text-2xl border border-blue-100/50 flex-shrink-0 group-hover:scale-105 transition-transform">
+                            🏢
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-primary mb-1.5 text-[15px]">근무 회사 등록</h4>
+                            <p class="text-[12px] text-primary/60 leading-relaxed">
+                                정규직, 계약직 등 특정 회사에 소속되어 근무한 이력을 등록합니다.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 참여 프로젝트 등록 -->
+                    <div class="flex-1 border border-border/60 rounded-xl p-6 flex items-start gap-4 shadow-sm bg-white hover:border-secondary/50 hover:shadow-md cursor-pointer transition-all group">
+                        <div class="w-12 h-12 bg-red-50/50 rounded-lg flex items-center justify-center text-2xl border border-red-100/50 flex-shrink-0 group-hover:scale-105 transition-transform">
+                            🚀
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-primary mb-1.5 text-[15px]">참여 프로젝트 등록</h4>
+                            <p class="text-[12px] text-primary/60 leading-relaxed">
+                                프리랜서, 외주 등 프로젝트 단위로 참여한 경력을 상세히 등록합니다.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 기존 프로젝트 데이터 (숨김) -->
+            <div class="hidden">
+            <!-- 5. 프로젝트 수행 이력 -->
+            <section>
+                <h3 class="text-lg font-bold mb-4 flex items-center gap-2 border-l-4 border-secondary pl-3">
+                    프로젝트 수행 이력 <span class="text-sm font-normal text-primary/50 ml-2">※ 최근 프로젝트 순으로 기재</span>
+                </h3>
+                
+                <div class="border border-border/50 border-r-0 border-b-0 rounded-sm overflow-hidden">
+                    <!-- Table Head -->
+                    <div class="flex bg-surface">
+                        <div class="table-header w-[25%]">프로젝트명 / 고객사</div>
+                        <div class="table-header w-[15%]">참여기간</div>
+                        <div class="table-header w-[15%]">수행역할</div>
+                        <div class="table-header w-[45%]">개발환경 및 담당업무</div>
+                    </div>
+                    
+                    <!-- Project 1 -->
+                    <div class="flex hover:bg-surface/10 transition-colors">
+                        <div class="table-cell w-[25%]">
+                            <p class="font-bold text-sm text-primary">차세대 물류 시스템 구축</p>
+                            <p class="text-xs text-primary/60 mt-2">고객사: (주)한국물류</p>
+                            <p class="text-xs text-primary/60">주사업자: LG CNS</p>
+                        </div>
+                        <div class="table-cell w-[15%] text-center text-xs flex flex-col justify-center">
+                            <p>2023.01</p>
+                            <p class="text-primary/40 my-1">~</p>
+                            <p>2023.12</p>
+                            <p class="mt-2 text-primary/50 font-bold">(12개월)</p>
+                        </div>
+                        <div class="table-cell w-[15%] text-center font-medium">
+                            PL / BE 리드
+                        </div>
+                        <div class="table-cell w-[45%]">
+                            <div class="text-xs space-y-2">
+                                <div><span class="font-bold text-primary/70">OS/DB:</span> Linux, PostgreSQL</div>
+                                <div><span class="font-bold text-primary/70">Language/Tool:</span> Java, Spring Boot, JPA, Git</div>
+                                <div class="mt-2 text-primary/80">
+                                    - 백엔드 아키텍처 설계 및 코어 모듈 개발<br>
+                                    - 배차 관리, 정산 시스템 API 개발<br>
+                                    - 배치(Batch) 프로그램 설계 및 성능 튜닝<br>
+                                    - 주니어 개발자 코드 리뷰 및 리딩
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project 2 -->
+                    <div class="flex bg-surface/20 hover:bg-surface/30 transition-colors">
+                        <div class="table-cell w-[25%]">
+                            <p class="font-bold text-sm text-primary">금융 마이데이터 서비스 플랫폼 구축</p>
+                            <p class="text-xs text-primary/60 mt-2">고객사: OO은행</p>
+                            <p class="text-xs text-primary/60">주사업자: SK(주) C&C</p>
+                        </div>
+                        <div class="table-cell w-[15%] text-center text-xs flex flex-col justify-center">
+                            <p>2021.05</p>
+                            <p class="text-primary/40 my-1">~</p>
+                            <p>2022.11</p>
+                            <p class="mt-2 text-primary/50 font-bold">(19개월)</p>
+                        </div>
+                        <div class="table-cell w-[15%] text-center font-medium">
+                            Backend Developer
+                        </div>
+                        <div class="table-cell w-[45%]">
+                            <div class="text-xs space-y-2">
+                                <div><span class="font-bold text-primary/70">OS/DB:</span> Unix, Oracle 19c</div>
+                                <div><span class="font-bold text-primary/70">Language/Tool:</span> Java, Spring Framework, Mybatis, SVN</div>
+                                <div class="mt-2 text-primary/80">
+                                    - 외부 기관(카드, 증권) API 연동 모듈 개발<br>
+                                    - 마이데이터 수집 및 적재 데몬 개발<br>
+                                    - 회원 가입 및 인증(OAuth 2.0) 기능 구현
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project 3 -->
+                    <div class="flex hover:bg-surface/10 transition-colors">
+                        <div class="table-cell w-[25%]">
+                            <p class="font-bold text-sm text-primary">전사 ERP 고도화 및 웹 전환</p>
+                            <p class="text-xs text-primary/60 mt-2">고객사: (주)대한상사</p>
+                        </div>
+                        <div class="table-cell w-[15%] text-center text-xs flex flex-col justify-center">
+                            <p>2019.03</p>
+                            <p class="text-primary/40 my-1">~</p>
+                            <p>2020.12</p>
+                            <p class="mt-2 text-primary/50 font-bold">(22개월)</p>
+                        </div>
+                        <div class="table-cell w-[15%] text-center font-medium">
+                            Full-Stack
+                        </div>
+                        <div class="table-cell w-[45%]">
+                            <div class="text-xs space-y-2">
+                                <div><span class="font-bold text-primary/70">OS/DB:</span> Windows Server, MS-SQL</div>
+                                <div><span class="font-bold text-primary/70">Language/Tool:</span> Java, Spring, Vue.js, MiPlatform</div>
+                                <div class="mt-2 text-primary/80">
+                                    - 기존 CS(MiPlatform) 시스템을 Vue.js 기반 웹 플랫폼으로 전환<br>
+                                    - 인사/총무 도메인 화면 개발 및 API 연동<br>
+                                    - 사내 그룹웨어(SSO) 연동 개발
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            </div>
+
+            <!-- 하단 씽클레어 로고 -->
+            <div class="mt-16 flex justify-end items-center print:mt-10">
+                <span class="text-3xl font-black text-[#1A4266] tracking-tighter opacity-90" style="font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;">주식회사 씽클레어</span>
+            </div>
+
+        </main>
+        
+        <div class="h-10"></div>
+    </div>
+
+</body>
+</html>

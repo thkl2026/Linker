@@ -1,0 +1,46 @@
+# ── 시크릿 / 환경 변수 (절대 커밋 금지) ──────────────────────────────────
+.env
+.env.local
+.env.production
+*.secret
+secrets/
+
+# ── Java / Spring Boot ────────────────────────────────────────────────────
+backend/build/
+backend/bin/
+backend/.gradle/
+backend/out/
+*.class
+*.jar
+*.war
+*.nar
+!gradle/wrapper/gradle-wrapper.jar
+.gradle/
+backend/.idea/
+backend/*.iml
+
+# ── 로컬 개발 설정 (실제 시크릿 포함) ────────────────────────────────────
+backend/src/main/resources/application-local.yml
+
+# ── Node / npm ────────────────────────────────────────────────────────────
+node_modules/
+frontend/web/dist/
+frontend/web/.vite/
+frontend/mobile/.expo/
+frontend/mobile/dist/
+
+# ── OS / IDE ──────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ── 로그 ──────────────────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── 테스트 커버리지 ───────────────────────────────────────────────────────
+backend/build/reports/
+coverage/

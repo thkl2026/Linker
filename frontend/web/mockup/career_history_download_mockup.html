@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>경력 내역서 다운로드 - Linker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#451A03',
+                        secondary: '#B45309',
+                        accent: '#FDE68A',
+                        background: '#FFFBEB',
+                        surface: '#FFF8F0',
+                        border: '#D6C4A8',
+                        success: '#166534',
+                        warning: '#D97706',
+                        danger: '#991B1B',
+                    },
+                    fontFamily: {
+                        sans: ['Pretendard', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+</head>
+<body class="bg-background font-sans text-primary min-h-screen">
+    
+    <!-- Top Navigation -->
+    <header class="bg-surface border-b border-border/50 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <a href="career_management_mockup.html" class="text-primary/50 hover:text-primary transition-colors text-xl font-bold">←</a>
+                <h1 class="text-lg font-bold text-primary">경력 내역서 미리보기 및 다운로드</h1>
+            </div>
+            <div class="flex items-center gap-3">
+                <button class="px-4 py-2 rounded-xl border border-border text-sm font-bold text-primary/60 bg-white hover:bg-surface transition-all">Excel 다운로드</button>
+                <button class="px-6 py-2 rounded-xl bg-primary text-white text-sm font-bold shadow-md hover:bg-black transition-all flex items-center gap-2">
+                    <span class="text-lg">📄</span> PDF로 저장
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto py-10 px-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Left: Options Panel -->
+        <aside class="space-y-6">
+            <div class="bg-white rounded-3xl border border-border/50 shadow-sm p-6 sticky top-24">
+                <h3 class="text-lg font-bold text-primary mb-6 flex items-center gap-2">
+                    <span class="text-secondary">⚙️</span> 리포트 구성 설정
+                </h3>
+
+                <div class="space-y-6">
+                    <!-- Template Selection -->
+                    <div>
+                        <label class="block text-sm font-bold text-primary/60 mb-3">템플릿 스타일</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button class="p-3 rounded-xl border-2 border-secondary bg-surface text-secondary text-xs font-bold">프리미엄 (기본)</button>
+                            <button class="p-3 rounded-xl border border-border text-primary/60 text-xs font-bold hover:bg-surface">심플 화이트</button>
+                        </div>
+                    </div>
+
+                    <div class="h-px bg-border/30 w-full"></div>
+
+                    <!-- Filter Options -->
+                    <div class="space-y-3">
+                        <label class="block text-sm font-bold text-primary/60">포함 항목 선택</label>
+                        
+                        <label class="flex items-center justify-between p-3 rounded-xl hover:bg-surface cursor-pointer group">
+                            <span class="text-sm font-bold text-primary/80">공식 인증 뱃지 표시</span>
+                            <input type="checkbox" checked class="w-5 h-5 rounded border-border text-secondary focus:ring-secondary/20" />
+                        </label>
+                        
+                        <label class="flex items-center justify-between p-3 rounded-xl hover:bg-surface cursor-pointer group">
+                            <span class="text-sm font-bold text-primary/80">수행 프로젝트 상세 설명</span>
+                            <input type="checkbox" checked class="w-5 h-5 rounded border-border text-secondary focus:ring-secondary/20" />
+                        </label>
+
+                        <label class="flex items-center justify-between p-3 rounded-xl hover:bg-surface cursor-pointer group">
+                            <span class="text-sm font-bold text-primary/80">사용한 기술 스택</span>
+                            <input type="checkbox" checked class="w-5 h-5 rounded border-border text-secondary focus:ring-secondary/20" />
+                        </label>
+
+                        <label class="flex items-center justify-between p-3 rounded-xl hover:bg-surface cursor-pointer group">
+                            <span class="text-sm font-bold text-primary/80">참여 동료/담당자 정보</span>
+                            <input type="checkbox" class="w-5 h-5 rounded border-border text-secondary focus:ring-secondary/20" />
+                        </label>
+                    </div>
+
+                    <div class="h-px bg-border/30 w-full"></div>
+
+                    <p class="text-[11px] text-primary/40 leading-relaxed">
+                        * Linker에서 인증된 경력은 리포트 하단에 QR 코드가 포함되어 발주처가 즉시 진위여부를 확인할 수 있습니다.
+                    </p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Right: Report Preview Area -->
+        <div class="lg:col-span-2 space-y-6">
+            <div class="bg-primary/5 rounded-2xl p-4 flex items-center justify-center gap-4 border border-primary/10">
+                <span class="text-primary/40 text-sm font-medium">실제 출력물 미리보기 (1 / 2 Page)</span>
+            </div>
+
+            <!-- PDF Page Simulator -->
+            <div class="bg-white shadow-2xl mx-auto w-full max-w-[210mm] min-h-[297mm] p-[20mm] text-primary relative border border-border/20">
+                <!-- Watermark -->
+                <div class="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none rotate-45 text-9xl font-black select-none">
+                    LINKER VERIFIED
+                </div>
+
+                <!-- Header -->
+                <div class="flex justify-between items-start border-b-2 border-primary pb-8 mb-10">
+                    <div>
+                        <h2 class="text-4xl font-black tracking-tight mb-2">홍길동</h2>
+                        <p class="text-lg font-bold text-secondary">Senior Full-Stack Developer</p>
+                        <div class="mt-4 flex gap-4 text-sm font-medium text-primary/60">
+                            <span>📧 kildong@example.com</span>
+                            <span>📞 010-1234-5678</span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="w-16 h-16 bg-primary rounded-xl mb-3 ml-auto flex items-center justify-center">
+                            <span class="text-white font-black text-xl">L</span>
+                        </div>
+                        <p class="text-xs font-bold text-primary/40 uppercase tracking-widest">Linker Career Report</p>
+                        <p class="text-xs font-bold text-primary/40 mt-1">ISSUED: 2024. 04. 25</p>
+                    </div>
+                </div>
+
+                <!-- Section: Summary -->
+                <section class="mb-10">
+                    <h3 class="text-xs font-black text-secondary uppercase tracking-[0.2em] mb-4 border-b border-secondary/20 pb-1">Summary</h3>
+                    <p class="text-sm leading-relaxed font-medium">
+                        6년 차 풀스택 개발자로 이커머스 및 물류 시스템 구축 전문가입니다. React와 Node.js 기반의 대규모 트래픽 처리에 강점이 있으며, 
+                        총 8건의 프로젝트 중 7건에 대해 발주처 담당자의 공식 인증을 완료했습니다.
+                    </p>
+                </section>
+
+                <!-- Section: Experience -->
+                <section class="mb-10">
+                    <h3 class="text-xs font-black text-secondary uppercase tracking-[0.2em] mb-6 border-b border-secondary/20 pb-1">Verified Experience</h3>
+                    
+                    <div class="space-y-10">
+                        <!-- Experience Item 1 -->
+                        <div class="relative pl-6 border-l-2 border-primary/10">
+                            <div class="absolute -left-[5px] top-0 w-2 h-2 rounded-full bg-primary"></div>
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h4 class="text-lg font-bold">테크솔루션즈(주) <span class="text-xs font-bold bg-success/10 text-success px-2 py-0.5 rounded ml-2">VERIFIED</span></h4>
+                                    <p class="text-sm font-bold text-primary/60 mt-0.5">시니어 개발자 (정규직)</p>
+                                </div>
+                                <span class="text-sm font-bold text-primary/40 italic">2023. 03 - 2025. 10</span>
+                            </div>
+                            <p class="text-xs leading-relaxed text-primary/80 mt-3 bg-surface/50 p-4 rounded-lg">
+                                사내 B2B SaaS 플랫폼 초기 설계 및 개발 리딩, React 기반 UI 컴포넌트 시스템 구축을 통해 
+                                개발 생산성 30% 향상 기여.
+                            </p>
+                        </div>
+
+                        <!-- Experience Item 2 -->
+                        <div class="relative pl-6 border-l-2 border-primary/10">
+                            <div class="absolute -left-[5px] top-0 w-2 h-2 rounded-full bg-primary"></div>
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h4 class="text-lg font-bold">(주)대한로지스틱스 <span class="text-xs font-bold bg-success/10 text-success px-2 py-0.5 rounded ml-2">VERIFIED</span></h4>
+                                    <p class="text-sm font-bold text-primary/60 mt-0.5">차세대 물류 관리 시스템 구축 프로젝트</p>
+                                </div>
+                                <span class="text-sm font-bold text-primary/40 italic">2022. 05 - 2023. 02</span>
+                            </div>
+                            <div class="flex gap-2 my-2">
+                                <span class="text-[9px] font-bold border border-border px-1.5 py-0.5 rounded bg-white">React</span>
+                                <span class="text-[9px] font-bold border border-border px-1.5 py-0.5 rounded bg-white">TypeScript</span>
+                            </div>
+                            <p class="text-xs leading-relaxed text-primary/80 mt-2">
+                                프론트엔드 리드로서 대시보드 화면 120종 개발 및 성능 최적화 진행. 
+                                발주처(김담당 매니저) 교차 인증 완료.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Footer (QR) -->
+                <div class="absolute bottom-[20mm] left-[20mm] right-[20mm] flex items-end justify-between border-t border-border pt-6">
+                    <div class="text-[10px] text-primary/30 leading-tight">
+                        This report is digitally signed and verified by Linker Platform.<br>
+                        Visit linker.com/verify to check the authenticity of this document.
+                    </div>
+                    <div class="text-right">
+                        <div class="w-12 h-12 bg-white border border-border p-1 ml-auto mb-1">
+                            <div class="w-full h-full bg-primary/10 flex items-center justify-center text-[8px] font-bold">QR CODE</div>
+                        </div>
+                        <p class="text-[9px] font-bold text-primary/40 italic">VERIFICATION ID: LN-2024-X921</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="h-20"></div>
+
+</body>
+</html>

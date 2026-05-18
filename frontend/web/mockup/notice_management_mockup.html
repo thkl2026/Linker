@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>공지사항 관리 - Linker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1A4266',
+                        secondary: '#B45309',
+                        accent: '#FDE68A',
+                        background: '#F8F5F0',
+                        surface: '#FFFFFF',
+                        border: '#D6C4A8',
+                        success: '#166534',
+                        warning: '#D97706',
+                        danger: '#991B1B',
+                    },
+                    fontFamily: {
+                        sans: ['Pretendard', 'sans-serif'],
+                        serif: ['Cormorant Garamond', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <style type="text/tailwindcss">
+        @layer components {
+            .stat-card {
+                @apply bg-white p-6 rounded-3xl border border-border/30 shadow-[0_4px_20px_-4px_rgba(69,26,3,0.05)] hover:shadow-[0_8px_30px_-4px_rgba(69,26,3,0.1)] transition-all duration-300;
+            }
+            .sidebar-link {
+                @apply flex items-center gap-3 px-4 py-3 rounded-xl text-primary/60 font-medium hover:bg-secondary/5 hover:text-secondary transition-all;
+            }
+            .sidebar-link-active {
+                @apply flex items-center gap-3 px-4 py-3 rounded-xl bg-secondary text-white font-bold shadow-lg shadow-secondary/20 transition-all;
+            }
+            .badge {
+                @apply px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider;
+            }
+            .badge-primary { @apply bg-primary/10 text-primary; }
+            .badge-secondary { @apply bg-secondary/10 text-secondary; }
+            .badge-success { @apply bg-success/10 text-success; }
+            .badge-danger { @apply bg-danger/10 text-danger; }
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .notice-row:hover {
+            transform: translateY(-2px);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #D6C4A8;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-background font-sans text-primary min-h-screen flex">
+
+    <!-- Sidebar -->
+    <aside class="w-72 bg-white border-r border-border/30 flex flex-col shrink-0 sticky top-0 h-screen">
+        <div class="p-8">
+            <img src="../src/statics/linker_bi_logo.png" alt="Linker Logo" class="h-10 w-auto object-contain">
+            <p class="text-[10px] font-bold text-secondary tracking-widest mt-2 opacity-80 uppercase">Service Admin</p>
+        </div>
+        
+        <nav class="flex-1 px-4 space-y-1">
+            <a href="#" class="sidebar-link">
+                <span class="text-xl">📊</span> 대시보드
+            </a>
+            <a href="#" class="sidebar-link">
+                <span class="text-xl">👥</span> 전문가 관리
+            </a>
+            <a href="#" class="sidebar-link">
+                <span class="text-xl">📁</span> 프로젝트 관리
+            </a>
+            <a href="#" class="sidebar-link">
+                <span class="text-xl">⭐</span> 평가/리뷰 관리
+            </a>
+            <a href="#" class="sidebar-link-active">
+                <span class="text-xl">📢</span> 공지사항
+            </a>
+            <div class="pt-4 pb-2 px-4 mt-4 border-t border-border/10">
+                <p class="text-[10px] font-bold text-primary/30 tracking-widest uppercase">System</p>
+            </div>
+            <a href="#" class="sidebar-link">
+                <span class="text-xl">⚙️</span> 설정
+            </a>
+        </nav>
+        
+        <div class="p-6">
+            <div class="bg-primary/5 rounded-2xl p-4 border border-primary/5">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold shadow-inner">A</div>
+                    <div>
+                        <p class="text-xs font-bold">관리자님</p>
+                        <p class="text-[10px] text-primary/50">svcadmin@linker.com</p>
+                    </div>
+                </div>
+                <button class="w-full py-2 bg-white border border-border/50 rounded-lg text-[11px] font-bold text-primary/60 hover:bg-primary hover:text-white transition-all">로그아웃</button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col min-w-0">
+        <!-- Top Bar -->
+        <header class="h-20 bg-white/50 border-b border-border/20 px-10 flex items-center justify-between sticky top-0 z-20 glass-effect">
+            <div>
+                <h2 class="text-xl font-black tracking-tight">📢 공지사항 관리</h2>
+                <p class="text-xs text-primary/40 mt-0.5">사용자 및 전문가에게 전달할 중요한 소식을 관리하세요.</p>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <div class="relative group">
+                    <button class="w-10 h-10 rounded-xl bg-white border border-border/50 flex items-center justify-center hover:bg-surface transition-all">
+                        🔔
+                        <span class="absolute top-2 right-2 w-2 h-2 bg-danger rounded-full border-2 border-white"></span>
+                    </button>
+                </div>
+                <button class="px-5 py-2.5 bg-primary text-white rounded-xl text-sm font-bold shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
+                    + 신규 공지 작성
+                </button>
+            </div>
+        </header>
+
+        <div class="p-10 space-y-8 flex-1">
+            <!-- Filter Bar -->
+            <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
+                <div class="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-border/30 shadow-sm">
+                    <button class="px-5 py-2 text-xs font-bold bg-secondary text-white rounded-xl shadow-md">전체</button>
+                    <button class="px-5 py-2 text-xs font-bold text-primary/50 hover:bg-background rounded-xl transition-all">운영/시스템</button>
+                    <button class="px-5 py-2 text-xs font-bold text-primary/50 hover:bg-background rounded-xl transition-all">비즈니스/정책</button>
+                    <button class="px-5 py-2 text-xs font-bold text-primary/50 hover:bg-background rounded-xl transition-all">가이드/교육</button>
+                </div>
+                
+                <div class="relative w-full md:w-80">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-primary/30">🔍</span>
+                    <input type="text" placeholder="공지사항 내용 검색..." class="w-full pl-10 pr-4 py-3 bg-white border border-border/30 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-secondary/20 transition-all shadow-sm" />
+                </div>
+            </div>
+
+            <!-- Notice Table -->
+            <div class="bg-white rounded-[32px] border border-border/30 shadow-sm overflow-hidden">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-background/50 border-b border-border/20">
+                            <th class="px-8 py-5 text-[10px] font-bold text-primary/40 uppercase tracking-widest">번호</th>
+                            <th class="px-4 py-5 text-[10px] font-bold text-primary/40 uppercase tracking-widest">카테고리</th>
+                            <th class="px-4 py-5 text-[10px] font-bold text-primary/40 uppercase tracking-widest">제목</th>
+                            <th class="px-4 py-5 text-[10px] font-bold text-primary/40 uppercase tracking-widest">작성자</th>
+                            <th class="px-4 py-5 text-[10px] font-bold text-primary/40 uppercase tracking-widest">작성일</th>
+                            <th class="px-4 py-5 text-[10px] font-bold text-primary/40 uppercase tracking-widest">조회수</th>
+                            <th class="px-8 py-5 text-right text-[10px] font-bold text-primary/40 uppercase tracking-widest">관리</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-border/10">
+                        <!-- Pinned Notice -->
+                        <tr class="notice-row group bg-secondary/[0.03] transition-all">
+                            <td class="px-8 py-6">
+                                <span class="text-xl">📌</span>
+                            </td>
+                            <td class="px-4 py-6">
+                                <span class="badge badge-secondary">운영/시스템</span>
+                            </td>
+                            <td class="px-4 py-6">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm font-black group-hover:text-secondary transition-colors cursor-pointer">Linker 서비스 정기 점검 안내 (2026.05.20)</span>
+                                    <span class="w-4 h-4 bg-danger text-[8px] text-white flex items-center justify-center rounded-full font-bold shadow-sm shadow-danger/20">N</span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-6">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold">A</div>
+                                    <span class="text-xs font-medium">최고관리자</span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-6 text-xs text-primary/40">2026.05.14</td>
+                            <td class="px-4 py-6 text-xs text-primary/40 font-bold">1,204</td>
+                            <td class="px-8 py-6 text-right">
+                                <button class="p-2 hover:bg-white rounded-lg transition-all text-primary/30 hover:text-primary">⋮</button>
+                            </td>
+                        </tr>
+
+                        <!-- Regular Notices -->
+                        <tr class="notice-row group hover:bg-primary/[0.01] transition-all">
+                            <td class="px-8 py-6 text-xs text-primary/40 font-bold">48</td>
+                            <td class="px-4 py-6">
+                                <span class="badge badge-primary">비즈니스/정책</span>
+                            </td>
+                            <td class="px-4 py-6">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm font-bold group-hover:text-secondary transition-colors cursor-pointer">매칭 수수료 정책 변경 안내 (시행일: 2026.07.01)</span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-6">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold">O</div>
+                                    <span class="text-xs font-medium">운영본부</span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-6 text-xs text-primary/40">2026.05.12</td>
+                            <td class="px-4 py-6 text-xs text-primary/40 font-bold">856</td>
+                            <td class="px-8 py-6 text-right">
+                                <button class="p-2 hover:bg-white rounded-lg transition-all text-primary/30 hover:text-primary">⋮</button>
+                            </td>
+                        </tr>
+
+                        <tr class="notice-row group hover:bg-primary/[0.01] transition-all">
+                            <td class="px-8 py-6 text-xs text-primary/40 font-bold">47</td>
+                            <td class="px-4 py-6">
+                                <span class="badge badge-success">가이드/교육</span>
+                            </td>
+                            <td class="px-4 py-6">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm font-bold group-hover:text-secondary transition-colors cursor-pointer">전문가 이력서 작성을 위한 '필수 스택' 표기 가이드</span>
+                                    <span class="text-[10px] text-secondary font-bold">📎</span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-6">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold">S</div>
+                                    <span class="text-xs font-medium">지원팀</span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-6 text-xs text-primary/40">2026.05.10</td>
+                            <td class="px-4 py-6 text-xs text-primary/40 font-bold">2,431</td>
+                            <td class="px-8 py-6 text-right">
+                                <button class="p-2 hover:bg-white rounded-lg transition-all text-primary/30 hover:text-primary">⋮</button>
+                            </td>
+                        </tr>
+
+                        <tr class="notice-row group hover:bg-primary/[0.01] transition-all">
+                            <td class="px-8 py-6 text-xs text-primary/40 font-bold">46</td>
+                            <td class="px-4 py-6">
+                                <span class="badge badge-secondary">운영/시스템</span>
+                            </td>
+                            <td class="px-4 py-6">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm font-bold group-hover:text-secondary transition-colors cursor-pointer">어드민 통계 대시보드 리뉴얼 완료 및 기능 안내</span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-6">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold">D</div>
+                                    <span class="text-xs font-medium">개발팀</span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-6 text-xs text-primary/40">2026.05.05</td>
+                            <td class="px-4 py-6 text-xs text-primary/40 font-bold">429</td>
+                            <td class="px-8 py-6 text-right">
+                                <button class="p-2 hover:bg-white rounded-lg transition-all text-primary/30 hover:text-primary">⋮</button>
+                            </td>
+                        </tr>
+
+                        <tr class="notice-row group hover:bg-primary/[0.01] transition-all">
+                            <td class="px-8 py-6 text-xs text-primary/40 font-bold">45</td>
+                            <td class="px-4 py-6">
+                                <span class="badge badge-primary">비즈니스/정책</span>
+                            </td>
+                            <td class="px-4 py-6">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm font-bold group-hover:text-secondary transition-colors cursor-pointer">대형 SI 기업 협약 체결 및 신규 매칭 프로세스 안내</span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-6">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold">M</div>
+                                    <span class="text-xs font-medium">마케팅팀</span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-6 text-xs text-primary/40">2026.04.28</td>
+                            <td class="px-4 py-6 text-xs text-primary/40 font-bold">312</td>
+                            <td class="px-8 py-6 text-right">
+                                <button class="p-2 hover:bg-white rounded-lg transition-all text-primary/30 hover:text-primary">⋮</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="flex items-center justify-center gap-2 pb-10">
+                <button class="w-10 h-10 rounded-xl bg-white border border-border/30 flex items-center justify-center text-primary/30 hover:bg-background transition-all">⟨</button>
+                <button class="w-10 h-10 rounded-xl bg-secondary text-white font-bold shadow-lg shadow-secondary/20">1</button>
+                <button class="w-10 h-10 rounded-xl bg-white border border-border/30 flex items-center justify-center font-bold hover:bg-background transition-all">2</button>
+                <button class="w-10 h-10 rounded-xl bg-white border border-border/30 flex items-center justify-center font-bold hover:bg-background transition-all">3</button>
+                <button class="w-10 h-10 rounded-xl bg-white border border-border/30 flex items-center justify-center font-bold hover:bg-background transition-all">4</button>
+                <button class="w-10 h-10 rounded-xl bg-white border border-border/30 flex items-center justify-center text-primary/30 hover:bg-background transition-all">⟩</button>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="p-10 text-center border-t border-border/10">
+            <div class="flex items-baseline justify-center gap-0.5 mb-2 opacity-50">
+                <span class="text-2xl font-serif font-bold text-[#1A4266] tracking-tight">lin</span>
+                <span class="text-2xl font-serif font-bold text-[#FBBF24] tracking-tight">k</span>
+                <span class="text-2xl font-serif font-bold text-[#1A4266] tracking-tight">er</span>
+            </div>
+            <p class="text-[10px] text-primary/30 font-bold tracking-widest uppercase">Linker Service Administration Console v1.0.4</p>
+        </footer>
+    </main>
+
+    <!-- Detail Preview Modal (Overlay) -->
+    <div id="noticeModal" class="fixed inset-0 bg-primary/20 backdrop-blur-sm z-50 hidden flex items-center justify-center p-10">
+        <div class="bg-background w-full max-w-4xl h-full max-h-[80vh] rounded-[40px] shadow-2xl border border-white/50 overflow-hidden flex flex-col scale-95 opacity-0 transition-all duration-300 transform" id="modalContent">
+            <!-- Modal Header -->
+            <div class="px-12 py-8 bg-white border-b border-border/20 flex justify-between items-start">
+                <div class="space-y-3">
+                    <div class="flex items-center gap-3">
+                        <span class="badge badge-secondary">운영/시스템</span>
+                        <span class="text-xs text-primary/40 font-bold">작성일: 2026.05.14 · 조회수: 1,204</span>
+                    </div>
+                    <h3 class="text-2xl font-black tracking-tight">Linker 서비스 정기 점검 안내 (2026.05.20)</h3>
+                </div>
+                <button onclick="closeModal()" class="w-10 h-10 rounded-full bg-background flex items-center justify-center hover:bg-danger hover:text-white transition-all">✕</button>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="flex-1 overflow-y-auto px-12 py-10 custom-scrollbar">
+                <div class="prose prose-sm max-w-none text-primary/80 leading-relaxed space-y-6">
+                    <p class="font-bold">안녕하세요, Linker 팀입니다.</p>
+                    <p>안정적인 서비스 제공과 신규 기능 업데이트를 위해 아래와 같이 정기 점검을 실시할 예정입니다. 점검 시간에는 서비스 이용이 일시 중단되오니, 이용에 참고 부탁드립니다.</p>
+                    
+                    <div class="bg-white p-6 rounded-2xl border border-border/30 space-y-2">
+                        <p class="font-bold text-secondary">점검 일정</p>
+                        <p class="text-sm">• 2026년 5월 20일 (수) 오전 02:00 ~ 06:00 (약 4시간)</p>
+                        <p class="font-bold text-secondary mt-4">점검 내용</p>
+                        <p class="text-sm">• 데이터베이스 최적화 및 보안 패치 적용</p>
+                        <p class="text-sm">• AI 매칭 알고리즘 고도화 엔진 v2.1 업데이트</p>
+                    </div>
+
+                    <p>점검 시간은 작업 상황에 따라 다소 연장되거나 조기 종료될 수 있습니다. 더욱 쾌적한 서비스를 제공하기 위해 항상 노력하겠습니다.</p>
+                    <p>감사합니다.</p>
+
+                    <div class="mt-10 pt-10 border-t border-border/10 flex items-center gap-4">
+                        <p class="text-[10px] font-bold text-primary/30 uppercase tracking-widest">Attached Files</p>
+                        <a href="#" class="flex items-center gap-2 px-3 py-2 bg-white border border-border/30 rounded-xl text-xs font-bold hover:bg-background transition-all">
+                            <span>📎</span> 점검_매뉴얼_v1.pdf (2.4MB)
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="px-12 py-6 bg-white border-t border-border/20 flex justify-between items-center">
+                <div class="flex gap-2">
+                    <button class="px-5 py-2 bg-background border border-border/30 rounded-xl text-xs font-bold hover:bg-white transition-all">삭제</button>
+                    <button class="px-5 py-2 bg-background border border-border/30 rounded-xl text-xs font-bold hover:bg-white transition-all">숨기기</button>
+                </div>
+                <button class="px-8 py-3 bg-secondary text-white rounded-xl text-sm font-bold shadow-lg shadow-secondary/20 hover:scale-105 active:scale-95 transition-all">수정하기</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const modal = document.getElementById('noticeModal');
+        const modalContent = document.getElementById('modalContent');
+
+        function openModal() {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeModal() {
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        // Add event listeners to notice rows to open modal
+        document.querySelectorAll('.notice-row').forEach(row => {
+            row.addEventListener('click', (e) => {
+                // Prevent modal if clicking on the action button
+                if (e.target.innerText === '⋮') return;
+                openModal();
+            });
+        });
+
+        // Close modal when clicking outside content
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+    </script>
+</body>
+</html>

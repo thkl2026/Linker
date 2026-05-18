@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linker 서비스 동선 가이드</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#451A03',
+                        secondary: '#B45309',
+                        accent: '#FDE68A',
+                        background: '#FFFBEB',
+                        surface: '#FFF8F0',
+                        border: '#D6C4A8',
+                    },
+                    fontFamily: {
+                        sans: ['Pretendard', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+</head>
+<body class="bg-background font-sans text-primary min-h-screen py-12 px-6">
+
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-16">
+            <h1 class="text-5xl font-black mb-4 tracking-tight">Linker User Flow Guide</h1>
+            <p class="text-primary/60 text-lg font-medium">사용자 역할에 따른 최적화된 동선을 확인하고 목업을 탐색해보세요.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+            
+            <!-- Persona A: Expert / Freelancer -->
+            <section class="bg-white rounded-[40px] border border-border/50 shadow-xl overflow-hidden flex flex-col">
+                <div class="p-10 bg-primary text-white">
+                    <div class="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center text-3xl mb-6 backdrop-blur-sm border border-white/20">
+                        🧑‍💻
+                    </div>
+                    <h2 class="text-3xl font-black mb-2">전문가 (Expert)</h2>
+                    <p class="text-amber-200/80 font-medium">자신의 커리어를 인증하고 리포트를 발행하여 신뢰를 얻습니다.</p>
+                </div>
+                
+                <div class="p-10 flex-1 space-y-8">
+                    <div class="space-y-6">
+                        <h3 class="text-xs font-black text-primary/40 uppercase tracking-widest border-b border-border/30 pb-2">Main Flow</h3>
+                        
+                        <!-- Flow Step 1 -->
+                        <a href="career_management_mockup.html" class="group flex items-center gap-6 p-5 rounded-3xl border border-border/50 hover:border-secondary hover:shadow-lg transition-all">
+                            <div class="w-12 h-12 rounded-2xl bg-surface flex items-center justify-center font-black text-secondary group-hover:scale-110 transition-transform">01</div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-primary">커리어 대시보드</h4>
+                                <p class="text-xs text-primary/50 mt-1 font-medium">전체 경력 요약, 역량 정보 확인 및 관리</p>
+                            </div>
+                            <span class="text-xl group-hover:translate-x-1 transition-transform">→</span>
+                        </a>
+
+                        <!-- Flow Step 2 -->
+                        <a href="participated_project_registration_mockup.html" class="group flex items-center gap-6 p-5 rounded-3xl border border-border/50 hover:border-secondary hover:shadow-lg transition-all">
+                            <div class="w-12 h-12 rounded-2xl bg-surface flex items-center justify-center font-black text-secondary group-hover:scale-110 transition-transform">02</div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-primary">경력 등록 (상세)</h4>
+                                <p class="text-xs text-primary/50 mt-1 font-medium">참여 프로젝트의 역할, 기술, 기여도 등록 및 인증 요청</p>
+                            </div>
+                            <span class="text-xl group-hover:translate-x-1 transition-transform">→</span>
+                        </a>
+
+                        <!-- Flow Step 3 -->
+                        <a href="career_history_download_mockup.html" class="group flex items-center gap-6 p-5 rounded-3xl border border-border/50 hover:border-secondary hover:shadow-lg transition-all">
+                            <div class="w-12 h-12 rounded-2xl bg-surface flex items-center justify-center font-black text-secondary group-hover:scale-110 transition-transform">03</div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-primary">경력 내역서 발행</h4>
+                                <p class="text-xs text-primary/50 mt-1 font-medium">인증된 정보를 바탕으로 프리미엄 리포트 다운로드</p>
+                            </div>
+                            <span class="text-xl group-hover:translate-x-1 transition-transform">→</span>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Persona B: Client / PM -->
+            <section class="bg-white rounded-[40px] border border-border/50 shadow-xl overflow-hidden flex flex-col">
+                <div class="p-10 bg-secondary text-white">
+                    <div class="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center text-3xl mb-6 backdrop-blur-sm border border-white/20">
+                        🏢
+                    </div>
+                    <h2 class="text-3xl font-black mb-2">발주처 / PM (Client)</h2>
+                    <p class="text-amber-100/80 font-medium">프로젝트를 정의하고 최적의 전문가 팀을 빌딩합니다.</p>
+                </div>
+                
+                <div class="p-10 flex-1 space-y-8">
+                    <div class="space-y-6">
+                        <h3 class="text-xs font-black text-primary/40 uppercase tracking-widest border-b border-border/30 pb-2">Main Flow</h3>
+                        
+                        <!-- Flow Step 1 -->
+                        <a href="project_creation_mockup.html" class="group flex items-center gap-6 p-5 rounded-3xl border border-border/50 hover:border-secondary hover:shadow-lg transition-all">
+                            <div class="w-12 h-12 rounded-2xl bg-surface flex items-center justify-center font-black text-secondary group-hover:scale-110 transition-transform">01</div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-primary">프로젝트 기본 정보 (Step 1)</h4>
+                                <p class="text-xs text-primary/50 mt-1 font-medium">명칭, 발주사, 전체 기술 스택 및 범위 정의</p>
+                            </div>
+                            <span class="text-xl group-hover:translate-x-1 transition-transform">→</span>
+                        </a>
+
+                        <!-- Flow Step 2 -->
+                        <a href="project_creation_step2_mockup.html" class="group flex items-center gap-6 p-5 rounded-3xl border border-border/50 hover:border-secondary hover:shadow-lg transition-all">
+                            <div class="w-12 h-12 rounded-2xl bg-surface flex items-center justify-center font-black text-secondary group-hover:scale-110 transition-transform">02</div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-primary">모집 상세 구성 (Step 2)</h4>
+                                <p class="text-xs text-primary/50 mt-1 font-medium">AA, PL 등 다양한 전문 인력의 상세 요건 구성</p>
+                            </div>
+                            <span class="text-xl group-hover:translate-x-1 transition-transform">→</span>
+                        </a>
+
+                        <!-- Flow Step 3 -->
+                        <a href="project_creation_step3_mockup.html" class="group flex items-center gap-6 p-5 rounded-3xl border border-border/50 hover:border-secondary hover:shadow-lg transition-all">
+                            <div class="w-12 h-12 rounded-2xl bg-surface flex items-center justify-center font-black text-secondary group-hover:scale-110 transition-transform">03</div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-primary">최종 검토 및 등록 (Step 3)</h4>
+                                <p class="text-xs text-primary/50 mt-1 font-medium">배경 설명 추가 및 프로젝트 공고 게시</p>
+                            </div>
+                            <span class="text-xl group-hover:translate-x-1 transition-transform">→</span>
+                        </a>
+                    </div>
+
+                    <div class="pt-4">
+                        <a href="project_registration_pm_mockup.html" class="block w-full py-4 bg-primary text-white text-center font-bold rounded-2xl hover:bg-black transition-all shadow-md">
+                            🚀 빠른 프로젝트 등록 (한 화면 버전) 바로가기
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- Footer Info -->
+        <div class="mt-16 text-center text-primary/30 text-sm font-medium">
+            Linker Design System v1.0 • All Mockups are built with Premium Aesthetic Guidelines
+        </div>
+    </div>
+
+</body>
+</html>

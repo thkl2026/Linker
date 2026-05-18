@@ -1,0 +1,121 @@
+{
+  "title": "Linker — 비즈니스 메트릭",
+  "uid": "linker-business",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "1m",
+  "time": { "from": "now-24h", "to": "now" },
+  "tags": ["linker", "business"],
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "AI 매칭 제안 생성 (24h)",
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+      "targets": [{
+        "datasource": "Prometheus",
+        "expr": "increase(linker_match_proposals_created_total[24h])",
+        "legendFormat": "proposals"
+      }],
+      "fieldConfig": { "defaults": { "unit": "short" } }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "계약 서명 (24h)",
+      "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+      "targets": [{
+        "datasource": "Prometheus",
+        "expr": "increase(linker_contracts_signed_total[24h])",
+        "legendFormat": "signed"
+      }],
+      "fieldConfig": { "defaults": { "unit": "short" } }
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "타임시트 승인 (24h)",
+      "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
+      "targets": [{
+        "datasource": "Prometheus",
+        "expr": "increase(linker_timesheets_approved_total[24h])",
+        "legendFormat": "approved"
+      }],
+      "fieldConfig": { "defaults": { "unit": "short" } }
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "AI 이상 감지 (24h)",
+      "gridPos": { "x": 18, "y": 0, "w": 6, "h": 4 },
+      "targets": [{
+        "datasource": "Prometheus",
+        "expr": "increase(linker_timesheet_anomaly_flags_total[24h])",
+        "legendFormat": "anomalies"
+      }],
+      "fieldConfig": { "defaults": { "unit": "short", "thresholds": {
+        "mode": "absolute",
+        "steps": [
+          { "color": "green",  "value": null },
+          { "color": "yellow", "value": 5 },
+          { "color": "red",    "value": 10 }
+        ]
+      }}}
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "AI 작업 처리 현황 (이력서 파싱·스코어링·매칭)",
+      "gridPos": { "x": 0, "y": 4, "w": 16, "h": 8 },
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "rate(linker_ai_jobs_completed_total[5m])",
+          "legendFormat": "completed"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "rate(linker_ai_jobs_failed_total[5m])",
+          "legendFormat": "failed"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "linker_ai_jobs_queue_size",
+          "legendFormat": "queue size"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "short" } }
+    },
+    {
+      "id": 6,
+      "type": "gauge",
+      "title": "리스크 ALERT 발송 현황",
+      "gridPos": { "x": 16, "y": 4, "w": 8, "h": 8 },
+      "targets": [{
+        "datasource": "Prometheus",
+        "expr": "increase(linker_risk_alerts_sent_total[24h])",
+        "legendFormat": "alerts"
+      }],
+      "fieldConfig": { "defaults": { "unit": "short", "min": 0, "max": 50, "thresholds": {
+        "mode": "absolute",
+        "steps": [
+          { "color": "green",  "value": null },
+          { "color": "yellow", "value": 10 },
+          { "color": "red",    "value": 30 }
+        ]
+      }}}
+    },
+    {
+      "id": 7,
+      "type": "logs",
+      "title": "AI 리스크 ALERT 로그",
+      "gridPos": { "x": 0, "y": 12, "w": 24, "h": 6 },
+      "targets": [{
+        "datasource": "Loki",
+        "expr": "{job=\"linker-backend\"} |= \"RISK_ALERT\"",
+        "legendFormat": ""
+      }],
+      "options": { "showTime": true, "wrapLogMessage": false }
+    }
+  ]
+}

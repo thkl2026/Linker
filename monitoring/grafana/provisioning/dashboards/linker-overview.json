@@ -1,0 +1,184 @@
+{
+  "title": "Linker — 운영 대시보드",
+  "uid": "linker-overview",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "30s",
+  "time": { "from": "now-1h", "to": "now" },
+  "tags": ["linker", "backend"],
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "API 요청 수 (1m)",
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+      "targets": [{
+        "datasource": "Prometheus",
+        "expr": "sum(rate(http_server_requests_seconds_count{job=\"linker-backend\"}[1m]))",
+        "legendFormat": "req/s"
+      }],
+      "fieldConfig": { "defaults": { "unit": "reqps", "thresholds": {
+        "mode": "absolute",
+        "steps": [
+          { "color": "green", "value": null },
+          { "color": "yellow", "value": 50 },
+          { "color": "red",   "value": 200 }
+        ]
+      }}}
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "API 오류율",
+      "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+      "targets": [{
+        "datasource": "Prometheus",
+        "expr": "sum(rate(http_server_requests_seconds_count{job=\"linker-backend\",status=~\"5..\"}[1m])) / sum(rate(http_server_requests_seconds_count{job=\"linker-backend\"}[1m])) * 100",
+        "legendFormat": "error %"
+      }],
+      "fieldConfig": { "defaults": { "unit": "percent", "thresholds": {
+        "mode": "absolute",
+        "steps": [
+          { "color": "green",  "value": null },
+          { "color": "yellow", "value": 1 },
+          { "color": "red",    "value": 5 }
+        ]
+      }}}
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "P99 응답 시간",
+      "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
+      "targets": [{
+        "datasource": "Prometheus",
+        "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket{job=\"linker-backend\"}[5m])) by (le))",
+        "legendFormat": "p99"
+      }],
+      "fieldConfig": { "defaults": { "unit": "s", "thresholds": {
+        "mode": "absolute",
+        "steps": [
+          { "color": "green",  "value": null },
+          { "color": "yellow", "value": 1 },
+          { "color": "red",    "value": 3 }
+        ]
+      }}}
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "JVM Heap 사용률",
+      "gridPos": { "x": 18, "y": 0, "w": 6, "h": 4 },
+      "targets": [{
+        "datasource": "Prometheus",
+        "expr": "jvm_memory_used_bytes{area=\"heap\",job=\"linker-backend\"} / jvm_memory_max_bytes{area=\"heap\",job=\"linker-backend\"} * 100",
+        "legendFormat": "heap %"
+      }],
+      "fieldConfig": { "defaults": { "unit": "percent", "min": 0, "max": 100, "thresholds": {
+        "mode": "absolute",
+        "steps": [
+          { "color": "green",  "value": null },
+          { "color": "yellow", "value": 70 },
+          { "color": "red",    "value": 90 }
+        ]
+      }}}
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "HTTP 요청 처리율 (엔드포인트별)",
+      "gridPos": { "x": 0, "y": 4, "w": 12, "h": 8 },
+      "targets": [{
+        "datasource": "Prometheus",
+        "expr": "sum(rate(http_server_requests_seconds_count{job=\"linker-backend\"}[2m])) by (uri)",
+        "legendFormat": "{{uri}}"
+      }],
+      "fieldConfig": { "defaults": { "unit": "reqps" } },
+      "options": { "tooltip": { "mode": "multi" } }
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "응답 시간 분포 (p50 / p95 / p99)",
+      "gridPos": { "x": 12, "y": 4, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "datasource": "Prometheus",
+          "expr": "histogram_quantile(0.50, sum(rate(http_server_requests_seconds_bucket{job=\"linker-backend\"}[5m])) by (le))",
+          "legendFormat": "p50"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{job=\"linker-backend\"}[5m])) by (le))",
+          "legendFormat": "p95"
+        },
+        {
+          "datasource": "Prometheus",
+          "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket{job=\"linker-backend\"}[5m])) by (le))",
+          "legendFormat": "p99"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s" } }
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "JVM 스레드 수 (Virtual Thread 포함)",
+      "gridPos": { "x": 0, "y": 12, "w": 8, "h": 6 },
+      "targets": [{
+        "datasource": "Prometheus",
+        "expr": "jvm_threads_live_threads{job=\"linker-backend\"}",
+        "legendFormat": "live"
+      }, {
+        "datasource": "Prometheus",
+        "expr": "jvm_threads_peak_threads{job=\"linker-backend\"}",
+        "legendFormat": "peak"
+      }],
+      "fieldConfig": { "defaults": { "unit": "short" } }
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "DB 커넥션 풀 (HikariCP)",
+      "gridPos": { "x": 8, "y": 12, "w": 8, "h": 6 },
+      "targets": [{
+        "datasource": "Prometheus",
+        "expr": "hikaricp_connections_active{job=\"linker-backend\"}",
+        "legendFormat": "active"
+      }, {
+        "datasource": "Prometheus",
+        "expr": "hikaricp_connections_idle{job=\"linker-backend\"}",
+        "legendFormat": "idle"
+      }, {
+        "datasource": "Prometheus",
+        "expr": "hikaricp_connections_pending{job=\"linker-backend\"}",
+        "legendFormat": "pending"
+      }],
+      "fieldConfig": { "defaults": { "unit": "short" } }
+    },
+    {
+      "id": 9,
+      "type": "timeseries",
+      "title": "GC Pause 시간",
+      "gridPos": { "x": 16, "y": 12, "w": 8, "h": 6 },
+      "targets": [{
+        "datasource": "Prometheus",
+        "expr": "rate(jvm_gc_pause_seconds_sum{job=\"linker-backend\"}[1m])",
+        "legendFormat": "GC pause (s/s)"
+      }],
+      "fieldConfig": { "defaults": { "unit": "s" } }
+    },
+    {
+      "id": 10,
+      "type": "logs",
+      "title": "최근 ERROR 로그 (Loki)",
+      "gridPos": { "x": 0, "y": 18, "w": 24, "h": 8 },
+      "targets": [{
+        "datasource": "Loki",
+        "expr": "{job=\"linker-backend\"} |= \"ERROR\"",
+        "legendFormat": ""
+      }],
+      "options": { "showTime": true, "wrapLogMessage": true, "dedupStrategy": "none" }
+    }
+  ]
+}

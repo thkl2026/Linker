@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>내 경력 관리 - Linker Mockup</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#451A03',
+                        secondary: '#B45309',
+                        accent: '#FDE68A',
+                        background: '#FFFBEB',
+                        surface: '#FFF8F0',
+                        border: '#D6C4A8',
+                        success: '#166534',
+                        warning: '#D97706',
+                        danger: '#991B1B',
+                        info: '#1E293B',
+                    },
+                    fontFamily: {
+                        sans: ['Pretendard', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    
+    <!-- Simple script for modal toggling -->
+    <script>
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+    </script>
+</head>
+<body class="bg-background font-sans text-primary min-h-screen p-4 md:p-8">
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto space-y-8">
+        
+        <!-- Summary Header -->
+        <section class="bg-surface rounded-3xl shadow-md border border-border/50 p-8">
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+                <h1 class="text-2xl font-bold text-primary flex items-center gap-2">
+                    <span class="text-secondary text-2xl">🏆</span> 내 경력 관리
+                </h1>
+                <button class="px-4 py-2 bg-white border border-border/50 hover:bg-surface hover:border-secondary transition-colors rounded-xl text-sm font-bold text-primary flex items-center gap-2 shadow-sm w-max">
+                    <span class="text-lg">📄</span> 경력내역서 다운로드
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-white p-5 rounded-2xl border border-border/40 shadow-sm flex items-center gap-4">
+                    <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-xl">
+                        💼
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-primary/50 mb-1">총 등록 경력</p>
+                        <p class="text-xl font-black text-primary">6년 8개월</p>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-border/40 shadow-sm flex items-center gap-4 relative overflow-hidden">
+                    <div class="w-12 h-12 bg-success/10 rounded-xl flex items-center justify-center text-xl">
+                        ✅
+                    </div>
+                    <div class="relative z-10">
+                        <p class="text-xs font-bold text-primary/50 mb-1">인증 완료 경력</p>
+                        <p class="text-xl font-black text-success">5년 2개월</p>
+                    </div>
+                    <div class="absolute bottom-0 left-0 h-1 bg-success/20 w-full"></div>
+                    <div class="absolute bottom-0 left-0 h-1 bg-success w-[75%]"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Competency & Skills Section -->
+        <section class="bg-surface rounded-3xl shadow-sm border border-border/50 p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-lg font-bold text-primary flex items-center gap-2">
+                    <span class="text-secondary text-lg">💡</span> 나의 핵심 역량 및 기술
+                </h2>
+                <button class="text-sm font-bold text-secondary hover:text-primary transition-colors">수정하기</button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Tech Stacks -->
+                <div>
+                    <h3 class="text-sm font-bold text-primary/70 mb-3">주요 기술 스택 (Top Skills)</h3>
+                    <div class="space-y-3">
+                        <div class="relative pt-1">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-xs font-bold text-primary bg-white px-2 py-0.5 rounded border border-border/50 shadow-sm">React</span>
+                                <span class="text-xs font-bold text-secondary">고급 (4년+)</span>
+                            </div>
+                            <div class="overflow-hidden h-1.5 text-xs flex rounded-full bg-border/40">
+                                <div style="width: 90%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-secondary"></div>
+                            </div>
+                        </div>
+                        <div class="relative pt-1">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-xs font-bold text-primary bg-white px-2 py-0.5 rounded border border-border/50 shadow-sm">TypeScript</span>
+                                <span class="text-xs font-bold text-secondary">중급 (2년+)</span>
+                            </div>
+                            <div class="overflow-hidden h-1.5 text-xs flex rounded-full bg-border/40">
+                                <div style="width: 70%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-secondary/80"></div>
+                            </div>
+                        </div>
+                        <div class="relative pt-1">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-xs font-bold text-primary bg-white px-2 py-0.5 rounded border border-border/50 shadow-sm">Vue.js</span>
+                                <span class="text-xs font-bold text-secondary">중급 (1년+)</span>
+                            </div>
+                            <div class="overflow-hidden h-1.5 text-xs flex rounded-full bg-border/40">
+                                <div style="width: 50%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-secondary/60"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Soft Skills & Badges -->
+                <div>
+                    <h3 class="text-sm font-bold text-primary/70 mb-3">인증된 역량 배지</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <div class="px-3 py-2 bg-white border border-border/50 rounded-xl flex items-center gap-2 shadow-sm">
+                            <span class="text-lg">🤝</span>
+                            <span class="text-xs font-bold text-primary">우수 소통 능력</span>
+                        </div>
+                        <div class="px-3 py-2 bg-white border border-border/50 rounded-xl flex items-center gap-2 shadow-sm">
+                            <span class="text-lg">⏱️</span>
+                            <span class="text-xs font-bold text-primary">납기 준수율 100%</span>
+                        </div>
+                        <div class="px-3 py-2 bg-white border border-border/50 rounded-xl flex items-center gap-2 shadow-sm">
+                            <span class="text-lg">✨</span>
+                            <span class="text-xs font-bold text-primary">클라이언트 만족도 1위</span>
+                        </div>
+                        <div class="px-3 py-2 bg-white border border-border/50 rounded-xl flex items-center gap-2 shadow-sm opacity-50 border-dashed hover:opacity-100 cursor-pointer transition-opacity">
+                            <span class="text-lg">➕</span>
+                            <span class="text-xs font-bold text-primary">역량 추가</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Domain Knowledge -->
+                <div>
+                    <h3 class="text-sm font-bold text-primary/70 mb-3">도메인 및 업무 지식</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <div class="px-3 py-1.5 bg-primary/5 border border-primary/20 rounded-lg flex items-center gap-2 shadow-sm text-primary">
+                            <span class="text-sm">🛒</span>
+                            <span class="text-xs font-bold">이커머스</span>
+                        </div>
+                        <div class="px-3 py-1.5 bg-primary/5 border border-primary/20 rounded-lg flex items-center gap-2 shadow-sm text-primary">
+                            <span class="text-sm">🏭</span>
+                            <span class="text-xs font-bold">제조 / MES</span>
+                        </div>
+                        <div class="px-3 py-1.5 bg-primary/5 border border-primary/20 rounded-lg flex items-center gap-2 shadow-sm text-primary">
+                            <span class="text-sm">📊</span>
+                            <span class="text-xs font-bold">ERP 구축</span>
+                        </div>
+                        <div class="px-3 py-1.5 bg-primary/5 border border-primary/20 rounded-lg flex items-center gap-2 shadow-sm text-primary">
+                            <span class="text-sm">💳</span>
+                            <span class="text-xs font-bold">금융 / 핀테크</span>
+                        </div>
+                        <div class="px-3 py-1.5 bg-white border border-border/50 rounded-lg flex items-center gap-2 shadow-sm opacity-50 border-dashed hover:opacity-100 cursor-pointer transition-opacity">
+                            <span class="text-sm">➕</span>
+                            <span class="text-xs font-bold text-primary">도메인 추가</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Add Career Actions -->
+        <section class="bg-white rounded-3xl shadow-sm border border-border/50 p-8 text-center">
+            <h2 class="text-lg font-bold text-primary mb-2">신규 경력 등록하기</h2>
+            <p class="text-sm text-primary/60 mb-6">수동으로 입력하거나, 기존 파일을 업로드하여 자동으로 등록하세요.</p>
+            
+            <!-- AI Auto Register Banner -->
+            <button class="w-full mb-2 p-5 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 border border-secondary/20 hover:border-secondary/50 hover:shadow-md transition-all group flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-4 text-left w-full md:w-auto">
+                    <div class="w-12 h-12 flex-shrink-0 bg-white rounded-xl shadow-sm flex items-center justify-center text-2xl group-hover:scale-110 transition-transform border border-border/50">
+                        ✨
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-primary text-lg flex items-center gap-2">기존 이력서/경력기술서 파일로 자동 등록 <span class="bg-primary text-white text-[10px] px-2 py-0.5 rounded-full font-bold shadow-sm">AI 추출</span></h3>
+                        <p class="text-xs text-primary/70 font-medium mt-1">Excel, Word, PDF 파일을 업로드하면 AI가 경력 정보를 자동으로 분석하여 채워줍니다.</p>
+                    </div>
+                </div>
+                <div class="w-full md:w-auto px-6 py-3 bg-white text-primary font-bold text-sm border border-border/50 rounded-xl shadow-sm group-hover:bg-primary group-hover:text-white transition-colors flex-shrink-0">
+                    파일 업로드 📎
+                </div>
+            </button>
+
+            <div class="flex items-center gap-4 my-6 px-4">
+                <div class="h-px bg-border/50 flex-1"></div>
+                <span class="text-xs font-bold text-primary/40 uppercase tracking-widest">직접 입력하기 (수동 등록)</span>
+                <div class="h-px bg-border/50 flex-1"></div>
+            </div>
+
+            <!-- Manual Registration Buttons -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <button onclick="openModal('modal-company')" class="p-6 rounded-2xl border-2 border-border/50 hover:border-secondary hover:bg-surface transition-all group text-left flex flex-col justify-between min-h-[120px]">
+                    <div class="flex items-center gap-3 mb-2">
+                        <span class="text-3xl group-hover:scale-110 transition-transform">🏢</span>
+                        <h3 class="font-bold text-primary text-lg">근무 회사 등록</h3>
+                    </div>
+                    <p class="text-xs text-primary/60 font-medium">정규직, 계약직 등 특정 회사에 소속되어 근무한 이력을 등록합니다.</p>
+                </button>
+                
+                <button onclick="openModal('modal-project')" class="p-6 rounded-2xl border-2 border-secondary/50 bg-secondary/5 hover:border-secondary hover:bg-secondary/10 transition-all group text-left flex flex-col justify-between min-h-[120px]">
+                    <div class="flex items-center gap-3 mb-2">
+                        <span class="text-3xl group-hover:scale-110 transition-transform">🚀</span>
+                        <h3 class="font-bold text-secondary text-lg">참여 프로젝트 등록</h3>
+                    </div>
+                    <p class="text-xs text-primary/60 font-medium">프리랜서, 외주 등 프로젝트 단위로 참여한 경력을 상세히 등록합니다.</p>
+                </button>
+            </div>
+        </section>
+
+        <!-- Career Timeline -->
+        <section class="bg-white rounded-3xl shadow-sm border border-border/50 p-8">
+            <h2 class="text-lg font-bold text-primary mb-6 flex items-center gap-2">
+                <span class="text-secondary text-lg">📝</span> 경력 상세 내역
+            </h2>
+            
+            <div class="relative border-l-2 border-border/40 ml-4 space-y-10 pb-4">
+                <!-- Item 1 (Company) -->
+                <div class="relative pl-8">
+                    <div class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-success ring-4 ring-white"></div>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs bg-primary/10 text-primary font-bold px-2 py-0.5 rounded-md">🏢 근무 회사</span>
+                            <h3 class="text-lg font-bold text-primary">테크솔루션즈(주)</h3>
+                        </div>
+                        <span class="inline-block px-2.5 py-1 bg-success/10 text-success text-xs font-bold rounded-md border border-success/20 w-max">
+                            🛡️ 공식 인증됨
+                        </span>
+                    </div>
+                    <p class="text-secondary font-semibold mb-2">웹 개발팀 / 시니어 개발자 (정규직)</p>
+                    <p class="text-sm font-medium text-primary/60 mb-3">2023. 03 ~ 2025. 10 (2년 7개월)</p>
+                    <p class="text-sm text-primary/80 leading-relaxed bg-surface/50 p-4 rounded-xl border border-border/30">
+                        사내 B2B SaaS 플랫폼 초기 설계 및 개발 리딩, React 기반 UI 컴포넌트 시스템 구축
+                    </p>
+                </div>
+
+                <!-- Item 2 (Project - Linker Auto Verified) -->
+                <div class="relative pl-8">
+                    <div class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-primary ring-4 ring-white"></div>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs bg-secondary/10 text-secondary font-bold px-2 py-0.5 rounded-md">🚀 프로젝트</span>
+                            <h3 class="text-lg font-bold text-primary">(주)대한로지스틱스 <span class="text-xs font-normal text-secondary ml-1 bg-secondary/10 px-2 py-0.5 rounded-md">Linker 플랫폼</span></h3>
+                        </div>
+                        <span class="inline-block px-2.5 py-1 bg-success/10 text-success text-xs font-bold rounded-md border border-success/20 w-max">
+                            🛡️ 공식 인증됨
+                        </span>
+                    </div>
+                    <p class="text-secondary font-semibold mb-2">프론트엔드 리드</p>
+                    <p class="text-sm font-medium text-primary/60 mb-3">2022. 05 ~ 2023. 02 (10개월)</p>
+                    <div class="flex gap-2 mb-3">
+                        <span class="text-[10px] font-bold bg-gray-100 text-gray-600 px-2 py-1 rounded">React</span>
+                        <span class="text-[10px] font-bold bg-gray-100 text-gray-600 px-2 py-1 rounded">TypeScript</span>
+                    </div>
+                    <p class="text-sm text-primary/80 leading-relaxed bg-surface/50 p-4 rounded-xl border border-border/30">
+                        차세대 물류 관리 시스템 대시보드 화면 120종 개발 및 성능 최적화 진행.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ============================================== -->
+    <!-- MODAL 1: COMPANY EMPLOYMENT REGISTRATION       -->
+    <!-- ============================================== -->
+    <div id="modal-company" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-primary/40 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            
+            <div class="p-6 border-b border-border/50 flex justify-between items-center bg-surface">
+                <h2 class="text-xl font-bold text-primary flex items-center gap-2">
+                    <span class="text-2xl">🏢</span> 근무 회사 등록
+                </h2>
+                <button onclick="closeModal('modal-company')" class="text-primary/40 hover:text-danger text-2xl font-bold">&times;</button>
+            </div>
+            
+            <div class="p-8 overflow-y-auto custom-scrollbar">
+                <form class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-bold text-primary mb-1.5">회사명 <span class="text-danger">*</span></label>
+                        <input type="text" placeholder="예: 구글 코리아" class="w-full px-4 py-3 rounded-xl border border-border focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none text-sm font-medium" />
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-bold text-primary mb-1.5">소속 부서 <span class="text-danger">*</span></label>
+                            <input type="text" placeholder="예: 플랫폼 개발팀" class="w-full px-4 py-3 rounded-xl border border-border focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none text-sm font-medium" />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-primary mb-1.5">직급/직책 <span class="text-danger">*</span></label>
+                            <input type="text" placeholder="예: 과장 / 팀장" class="w-full px-4 py-3 rounded-xl border border-border focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none text-sm font-medium" />
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-bold text-primary mb-1.5">근무 형태 <span class="text-danger">*</span></label>
+                            <select class="w-full px-4 py-3 rounded-xl border border-border focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none text-sm font-medium bg-white">
+                                <option>정규직</option>
+                                <option>계약직</option>
+                                <option>인턴</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-primary mb-1.5">근무 기간 <span class="text-danger">*</span></label>
+                            <div class="flex items-center gap-2">
+                                <input type="month" class="w-full px-3 py-3 rounded-xl border border-border focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none text-sm font-medium" />
+                                <span class="text-primary/50 font-bold">~</span>
+                                <input type="month" class="w-full px-3 py-3 rounded-xl border border-border focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none text-sm font-medium" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-primary mb-1.5">주요 업무 <span class="text-danger">*</span></label>
+                        <textarea rows="3" placeholder="소속 회사에서 주로 담당했던 업무를 간략히 작성해주세요." class="w-full px-4 py-3 rounded-xl border border-border focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none text-sm font-medium resize-none"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-primary mb-1.5">증빙 서류 (인증용)</label>
+                        <div class="border-2 border-dashed border-border/70 rounded-xl p-4 text-center hover:bg-surface cursor-pointer">
+                            <span class="text-xl mb-1 block">📎</span>
+                            <p class="text-xs font-bold text-primary/70">경력증명서, 건강보험자격득실확인서 업로드</p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="p-6 border-t border-border/50 bg-gray-50 flex justify-end gap-3">
+                <button onclick="closeModal('modal-company')" class="px-6 py-2.5 rounded-xl border border-border font-bold text-primary/70 hover:bg-white">취소</button>
+                <button class="px-8 py-2.5 rounded-xl bg-primary text-white font-bold hover:bg-amber-900 shadow-md">등록 및 인증 요청</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ============================================== -->
+    <!-- MODAL 2: PROJECT PARTICIPATION REGISTRATION    -->
+    <!-- ============================================== -->
+    <div id="modal-project" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-primary/40 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-3xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            
+            <div class="p-6 border-b border-border/50 flex justify-between items-center bg-surface">
+                <h2 class="text-xl font-bold text-primary flex items-center gap-2">
+                    <span class="text-2xl">🚀</span> 참여 프로젝트 등록
+                </h2>
+                <button onclick="closeModal('modal-project')" class="text-primary/40 hover:text-danger text-2xl font-bold">&times;</button>
+            </div>
+            
+            <div class="p-8 overflow-y-auto custom-scrollbar bg-gray-50/50">
+                <form class="space-y-6">
+                    <!-- Client and Project Name -->
+                    <div class="bg-white p-6 rounded-2xl border border-border/50 shadow-sm">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-bold text-primary mb-1.5">발주처(클라이언트) <span class="text-danger">*</span></label>
+                                <input type="text" placeholder="예: (주)대한로지스틱스" class="w-full px-4 py-3 rounded-xl border border-border focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none text-sm font-medium" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-primary mb-1.5">프로젝트명 <span class="text-danger">*</span></label>
+                                <input type="text" placeholder="예: 물류 관리 시스템 구축" class="w-full px-4 py-3 rounded-xl border border-border focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none text-sm font-medium" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Roles Container -->
+                    <div class="bg-white p-6 rounded-2xl border border-border/50 shadow-sm space-y-4">
+                        <div class="flex items-center justify-between border-b border-border/30 pb-3">
+                            <label class="block text-sm font-bold text-primary">직무 및 역할 상세</label>
+                            <span class="text-xs text-primary/50 font-medium">동일 프로젝트 내 여러 직무 등록 가능</span>
+                        </div>
+                        
+                        <!-- Role Item 1 -->
+                        <div class="p-5 rounded-2xl border border-border/70 bg-surface/40 space-y-5 relative">
+                            <button type="button" class="absolute top-4 right-4 text-primary/30 hover:text-danger transition-colors font-bold text-lg">&times;</button>
+                            
+                            <div>
+                                <label class="block text-xs font-bold text-primary/70 mb-1.5">담당 직무 (포지션)</label>
+                                <input type="text" placeholder="예: 프론트엔드 리드" class="w-full px-4 py-2.5 rounded-xl border border-border focus:border-secondary outline-none text-sm font-medium" />
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-primary/70 mb-1.5">수행 기간</label>
+                                <div class="flex items-center gap-2">
+                                    <input type="month" class="w-full px-3 py-2.5 rounded-xl border border-border focus:border-secondary outline-none text-sm font-medium" />
+                                    <span class="text-primary/50 font-bold">~</span>
+                                    <input type="month" class="w-full px-3 py-2.5 rounded-xl border border-border focus:border-secondary outline-none text-sm font-medium" />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-primary/70 mb-1.5">구체적인 역할 및 개발 기능 <span class="text-danger">*</span></label>
+                                <textarea rows="3" placeholder="개발했던 구체적인 업무와 기능을 작성해주세요." class="w-full px-4 py-3 rounded-xl border border-border focus:border-secondary outline-none text-sm font-medium resize-none"></textarea>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-primary/70 mb-1.5">사용 기술 스택 <span class="text-danger">*</span></label>
+                                <div class="p-2 border border-border bg-white rounded-xl focus-within:border-secondary focus-within:ring-2 focus-within:ring-secondary/20 transition-all shadow-sm">
+                                    <div class="flex flex-wrap gap-2 mb-2 px-1 pt-1">
+                                        <span class="px-2.5 py-1 bg-surface border border-border/50 rounded-md text-xs font-bold text-primary/80 flex items-center gap-1">
+                                            React <button type="button" class="text-primary/40 hover:text-danger">&times;</button>
+                                        </span>
+                                        <span class="px-2.5 py-1 bg-surface border border-border/50 rounded-md text-xs font-bold text-primary/80 flex items-center gap-1">
+                                            TypeScript <button type="button" class="text-primary/40 hover:text-danger">&times;</button>
+                                        </span>
+                                    </div>
+                                    <input type="text" placeholder="사용한 기술을 입력하고 Enter를 누르세요" class="w-full px-2 py-1 bg-transparent outline-none text-sm placeholder:text-primary/30 font-medium" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="button" class="w-full py-3 rounded-xl border border-dashed border-secondary/50 text-secondary font-bold text-sm hover:bg-secondary/5 transition-all flex items-center justify-center gap-2">
+                            <span>➕</span> 다른 직무 / 역할 추가하기
+                        </button>
+                    </div>
+
+                    <!-- Coworkers & Client Manager -->
+                    <div class="bg-white p-6 rounded-2xl border border-border/50 shadow-sm">
+                        <label class="block text-sm font-bold text-primary mb-1.5">함께 참여한 동료 및 발주처 담당자 <span class="text-primary/50 text-xs font-normal">(선택)</span></label>
+                        <div class="p-2 border border-border bg-white rounded-xl focus-within:border-secondary focus-within:ring-2 focus-within:ring-secondary/20 transition-all shadow-sm mt-2">
+                            <div class="flex flex-wrap gap-2 mb-2 px-1 pt-1">
+                                <!-- Coworker Chip 1 -->
+                                <span class="pl-1 pr-2.5 py-1 bg-surface border border-border/50 rounded-lg text-xs font-bold text-primary flex items-center gap-2 shadow-sm hover:border-secondary/50 cursor-default transition-colors">
+                                    <div class="w-5 h-5 bg-amber-200 rounded-md flex items-center justify-center text-[10px] shadow-inner">👩‍🎨</div>
+                                    이지은 (디자이너)
+                                    <button type="button" class="text-primary/40 hover:text-danger ml-1">&times;</button>
+                                </span>
+                                <!-- Coworker Chip 2 -->
+                                <span class="pl-1 pr-2.5 py-1 bg-surface border border-border/50 rounded-lg text-xs font-bold text-primary flex items-center gap-2 shadow-sm hover:border-secondary/50 cursor-default transition-colors">
+                                    <div class="w-5 h-5 bg-blue-200 rounded-md flex items-center justify-center text-[10px] shadow-inner">🧑‍💻</div>
+                                    박민수 (백엔드)
+                                    <button type="button" class="text-primary/40 hover:text-danger ml-1">&times;</button>
+                                </span>
+                                <!-- Client Manager Chip 3 -->
+                                <span class="pl-1 pr-2.5 py-1 bg-secondary/10 border border-secondary/30 rounded-lg text-xs font-bold text-secondary flex items-center gap-2 shadow-sm hover:border-secondary transition-colors cursor-pointer" title="이메일 인증 대기중">
+                                    <div class="w-5 h-5 bg-white rounded-md flex items-center justify-center text-[10px] shadow-sm">🏢</div>
+                                    김담당 (발주처) <span class="text-[10px] font-normal text-secondary/70">✉️ 미인증</span>
+                                    <button type="button" class="text-secondary/50 hover:text-danger ml-1">&times;</button>
+                                </span>
+                            </div>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-2 flex items-center text-primary/40 text-xs">🔍</span>
+                                <input type="text" placeholder="이름 또는 이메일로 검색 및 초대 (이메일 인증 가능)" class="w-full pl-7 pr-2 py-1 bg-transparent outline-none text-sm placeholder:text-primary/30 font-medium" />
+                            </div>
+                        </div>
+                        <p class="text-[11px] text-primary/50 mt-2 font-medium leading-relaxed">
+                            동료나 발주처 담당자를 등록하면 서로의 경력을 <strong class="text-secondary/80">교차 인증(Cross-Verification)</strong>할 수 있습니다. 특히 발주처 담당자의 이메일 인증은 가장 강력한 경력 증빙 수단입니다.
+                        </p>
+                    </div>
+
+                    <!-- File Upload -->
+                    <div class="bg-white p-6 rounded-2xl border border-border/50 shadow-sm">
+                        <label class="block text-sm font-bold text-primary mb-1.5">증빙 서류 (인증용)</label>
+                        <div class="border-2 border-dashed border-border/70 rounded-xl p-4 text-center hover:bg-surface cursor-pointer">
+                            <span class="text-2xl mb-1 block">📎</span>
+                            <p class="text-xs font-bold text-primary/70">계약서, 세금계산서, 검수확인서 등 파일 업로드</p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="p-6 border-t border-border/50 bg-gray-50 flex justify-end gap-3">
+                <button onclick="closeModal('modal-project')" class="px-6 py-2.5 rounded-xl border border-border font-bold text-primary/70 hover:bg-white">취소</button>
+                <button class="px-8 py-2.5 rounded-xl bg-secondary text-white font-bold hover:bg-amber-900 shadow-md">프로젝트 등록 및 인증 요청</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #D6C4A8; 
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #B45309; 
+        }
+    </style>
+</body>
+</html>
