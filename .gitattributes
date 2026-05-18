@@ -1,0 +1,22 @@
+# 기본: 텍스트 파일은 OS 줄바꿈 자동 변환
+* text=auto
+
+# Unix 실행 스크립트 — 반드시 LF, 실행 권한 유지
+gradlew        text eol=lf
+*.sh           text eol=lf
+.husky/*       text eol=lf
+
+# Windows 배치 파일 — CRLF 유지
+*.bat          text eol=crlf
+*.cmd          text eol=crlf
+
+# 바이너리 — 변환 금지
+*.jar          binary
+*.png          binary
+*.jpg          binary
+*.jpeg         binary
+*.gif          binary
+*.ico          binary
+*.pdf          binary
+*.zip          binary
+*.gz           binary
