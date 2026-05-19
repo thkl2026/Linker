@@ -6,17 +6,11 @@ on:
   pull_request:
     branches: [main, develop]
   workflow_dispatch:
-    inputs:
-      deploy_only:
-        description: 'deploy only (skip build/test)'
-        required: false
-        default: 'false'
-        type: choice
-        options: ['false', 'true']
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}/linker-backend
+  BACKEND_IMAGE: ${{ github.repository }}/linker-backend
+  FRONTEND_IMAGE: ${{ github.repository }}/linker-frontend
 
 jobs:
   # ── 시크릿 스캔 (Rule 4: GitLeaks) ────────────────────────────────────────
@@ -176,9 +170,9 @@ jobs:
       - run: npm install --global @commitlint/cli @commitlint/config-conventional
       - run: npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
 
-  # ── Docker 이미지 빌드·푸시 (main 브랜치 머지 시) ─────────────────────────
-  docker:
-    name: Docker Build & Push
+  # ── 백엔드 Docker 이미지 빌드·푸시 ───────────────────────────────────────
+  docker-backend:
+    name: Backend Docker Build & Push
     runs-on: ubuntu-latest
     needs: [backend, frontend-web, e2e]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
@@ -195,42 +189,62 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=sha,prefix=sha-
-            type=ref,event=branch
-            latest
-
       - name: Build and push backend image
         uses: docker/build-push-action@v5
         with:
           context: backend
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE }}:sha-${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  # ── 서버 배포 (main 브랜치 Docker 이미지 빌드 후 자동 배포) ──────────────
+  # ── 프론트엔드 Docker 이미지 빌드·푸시 ──────────────────────────────────
+  docker-frontend:
+    name: Frontend Docker Build & Push
+    runs-on: ubuntu-latest
+    needs: [backend, frontend-web, e2e]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v5
+        with:
+          context: frontend/web
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE }}:sha-${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE }}:latest
+          build-args: |
+            VITE_API_BASE_URL=/api/v1
+            VITE_WS_URL=ws://${{ secrets.SERVER_IP }}/ws
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ── 서버 배포 (self-hosted runner가 서버에서 직접 실행) ──────────────────
   deploy:
     name: Deploy to Server
-    runs-on: ubuntu-latest
-    needs: docker
-    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: self-hosted
+    needs: [docker-backend, docker-frontend]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script: |
-            cd /opt/linker
-            echo ${{ secrets.GHCR_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            docker pull ghcr.io/${{ github.repository }}/linker-backend:latest
-            docker compose up -d --no-deps --pull always backend
-            docker image prune -f
+      - name: Pull latest images and restart services
+        run: |
+          cd /opt/linker
+          echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          docker pull ghcr.io/${{ github.repository }}/linker-backend:latest
+          docker pull ghcr.io/${{ github.repository }}/linker-frontend:latest
+          docker compose up -d --no-deps --pull always backend nginx
+          docker image prune -f

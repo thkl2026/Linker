@@ -75,6 +75,53 @@ services:
       timeout: 10s
       retries: 10
 
+  # ── Backend (Spring Boot) ─────────────────────────────────────────────────
+  backend:
+    image: ghcr.io/thkl2026/linker/linker-backend:latest
+    container_name: linker-backend
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILE: onprem
+      DB_HOST: postgres
+      DB_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
+      MINIO_BUCKET: linker
+      CLAMAV_HOST: clamav
+      JWT_SECRET: ${JWT_SECRET}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # ── Nginx + Frontend (React) ──────────────────────────────────────────────
+  nginx:
+    image: ghcr.io/thkl2026/linker/linker-frontend:latest
+    container_name: linker-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
   # ── ClamAV (바이러스 스캔) ────────────────────────────────────────────────
   clamav:
     image: clamav/clamav:latest
