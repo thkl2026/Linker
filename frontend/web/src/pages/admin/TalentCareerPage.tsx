@@ -497,7 +497,7 @@ async function printCareerCard(
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Pretendard',sans-serif;color:#451a03;background:#f3f4f6;}
-.page{width:210mm;min-height:297mm;padding:22mm 20mm;margin:20px auto;background:#fff;box-shadow:0 10px 30px rgba(0,0,0,.1);}
+.page{width:210mm;min-height:297mm;padding:11mm 20mm 22mm;margin:20px auto;background:#fff;box-shadow:0 10px 30px rgba(0,0,0,.1);}
 .sec-title{font-size:9px;font-weight:900;color:rgba(69,26,3,.3);letter-spacing:.2em;text-transform:uppercase;padding-bottom:6px;border-bottom:2px solid rgba(69,26,3,.05);margin-bottom:16px;page-break-after:avoid;break-after:avoid;}
 section{page-break-inside:auto;}
 section>.sec-title+*{page-break-before:avoid;break-before:avoid;}
