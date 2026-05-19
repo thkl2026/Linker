@@ -79,6 +79,8 @@ dependencies {
     implementation("org.apache.pdfbox:pdfbox:3.0.3")
     // 이력서 파싱 — DOCX 텍스트 추출
     implementation("org.apache.poi:poi-ooxml:5.3.0")
+    // 이력서 파싱 — DOC(구형 Word) 텍스트 추출
+    implementation("org.apache.poi:poi-scratchpad:5.3.0")
 
     // Logstash Logback Encoder (logback-spring.xml에서 사용)
     implementation("net.logstash.logback:logstash-logback-encoder:7.4")

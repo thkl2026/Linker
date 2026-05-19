@@ -356,8 +356,8 @@ function categorizeTechStack(stack: string[]) {
 
 function envRow(label: string, items: string[]) {
   if (!items.length) return ''
-  return `<div style="display:flex;gap:6px;margin-bottom:3px;font-size:12px;">
-    <span style="width:52px;flex-shrink:0;color:#b45309;font-weight:700;padding-top:1px;">${label}</span>
+  return `<div style="display:flex;gap:10px;margin-bottom:3px;font-size:12px;">
+    <span style="width:58px;flex-shrink:0;color:#b45309;font-weight:700;padding-top:1px;">${label}</span>
     <span style="color:#1e293b;">${items.join(', ')}</span>
   </div>`
 }
@@ -444,7 +444,7 @@ async function printCareerCard(
   const workRows = companyExps.map(e => {
     const role = [e.role, e.department, e.employmentType ? `(${e.employmentType})` : null].filter(Boolean).join(' / ')
     const dur = calcDuration(e.startDate, e.endDate)
-    return `<tr>
+    return `<tr style="page-break-inside:avoid;break-inside:avoid;">
       <td style="padding:10px 8px;font-size:12px;font-weight:700;color:#1e293b;">${e.companyName || '—'}</td>
       <td style="padding:10px 8px;font-size:12px;font-weight:700;color:#b45309;">${role || '—'}</td>
       <td style="padding:10px 8px;font-size:12px;color:#1e293b;white-space:nowrap;">
@@ -465,7 +465,7 @@ async function printCareerCard(
       envRow('개발도구', tools),
     ].join('')
     const dur = calcDuration(e.startDate, e.endDate)
-    return `<tr style="border-top:1px solid #f1e8dd;">
+    return `<tr style="border-top:1px solid #f1e8dd;page-break-inside:avoid;break-inside:avoid;">
       <td style="padding:12px 8px 12px 0;vertical-align:top;">
         <div style="font-size:13px;font-weight:700;color:#1e293b;line-height:1.4;margin-bottom:3px;word-break:keep-all;">${e.projectName}</div>
         ${e.companyName ? `<div style="font-size:12px;color:#b45309;font-weight:700;">${e.companyName}</div>` : ''}
@@ -498,9 +498,9 @@ async function printCareerCard(
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Pretendard',sans-serif;color:#451a03;background:#f3f4f6;}
 .page{width:210mm;min-height:297mm;padding:4mm 20mm 22mm;margin:20px auto;background:#fff;box-shadow:0 10px 30px rgba(0,0,0,.1);}
-.sec-title{font-size:9px;font-weight:900;color:rgba(69,26,3,.3);letter-spacing:.2em;text-transform:uppercase;padding-bottom:6px;border-bottom:2px solid rgba(69,26,3,.05);margin-bottom:16px;page-break-after:avoid !important;break-after:avoid !important;}
+.sec-title{font-size:9px;font-weight:900;color:rgba(69,26,3,.3);letter-spacing:.2em;text-transform:uppercase;padding-bottom:6px;border-bottom:2px solid rgba(69,26,3,.05);margin-bottom:16px;}
 section{page-break-inside:auto;}
-section>.sec-title+*{page-break-before:avoid !important;break-before:avoid !important;}
+.sec-head{page-break-inside:avoid;break-inside:avoid;}
 table{border-collapse:collapse;}
 th{font-size:9px;font-weight:900;color:rgba(69,26,3,.3);text-transform:uppercase;letter-spacing:.05em;padding:8px 6px;border-bottom:1px solid rgba(69,26,3,.05);}
 .no-print{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.9);backdrop-filter:blur(8px);border-bottom:1px solid #e5e7eb;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;}
@@ -544,14 +544,14 @@ th{font-size:9px;font-weight:900;color:rgba(69,26,3,.3);text-transform:uppercase
   <!-- 1. Profile Summary -->
   ${talent.notes ? `
   <section style="margin-bottom:36px;">
-    <div class="sec-title">1. Profile Summary</div>
+    <div class="sec-head"><div class="sec-title">1. Profile Summary</div><div style="height:1px;"></div></div>
     <p style="font-size:13px;line-height:1.8;color:#475569;font-weight:500;">${talent.notes}</p>
   </section>` : ''}
 
   <!-- 1. Education & Certifications -->
   ${(eduExps.length > 0 || certExps.length > 0) ? `
   <section style="margin-bottom:36px;">
-    <div class="sec-title">1. Education &amp; Certifications</div>
+    <div class="sec-head"><div class="sec-title">1. Education &amp; Certifications</div><div style="height:1px;"></div></div>
     ${eduExps.length > 0 ? `
     <table style="width:100%;text-align:left;margin-bottom:20px;">
       <colgroup>
@@ -590,8 +590,8 @@ th{font-size:9px;font-weight:900;color:rgba(69,26,3,.3);text-transform:uppercase
       <p style="font-size:12px;line-height:1.8;color:#475569;font-weight:500;margin-bottom:16px;">${ins.summary}</p>` : ''
 
     const riskHtml = ins.riskFlags && ins.riskFlags.length > 0 ? `
-      <div style="margin-bottom:16px;">
-        <div style="font-size:10px;font-weight:800;color:#7c3aed;letter-spacing:.05em;margin-bottom:6px;">RISK FLAGS</div>
+      <div style="margin-bottom:16px;page-break-inside:avoid;break-inside:avoid;">
+        <div style="font-size:10px;font-weight:800;color:#7c3aed;letter-spacing:.05em;margin-bottom:6px;page-break-after:avoid;break-after:avoid;">RISK FLAGS</div>
         ${ins.riskFlags.map(r => `
           <div style="display:flex;align-items:flex-start;gap:6px;margin-bottom:4px;">
             ${badge(r.severity)}
@@ -600,8 +600,8 @@ th{font-size:9px;font-weight:900;color:rgba(69,26,3,.3);text-transform:uppercase
       </div>` : ''
 
     const careerHtml = ins.careerPattern ? `
-      <div style="margin-bottom:16px;">
-        <div style="font-size:10px;font-weight:800;color:#0369a1;letter-spacing:.05em;margin-bottom:6px;">CAREER PATTERN</div>
+      <div style="margin-bottom:16px;page-break-inside:avoid;break-inside:avoid;">
+        <div style="font-size:10px;font-weight:800;color:#0369a1;letter-spacing:.05em;margin-bottom:6px;page-break-after:avoid;break-after:avoid;">CAREER PATTERN</div>
         <div style="font-size:11px;color:#475569;line-height:1.7;">
           ${ins.careerPattern.consistencyReason ? `<div>일관성: ${badge(ins.careerPattern.consistency)} <span style="margin-left:4px;">${ins.careerPattern.consistencyReason}</span></div>` : ''}
           ${ins.careerPattern.persistenceReason ? `<div>지속성: ${badge(ins.careerPattern.persistenceLevel)} <span style="margin-left:4px;">${ins.careerPattern.persistenceReason}</span></div>` : ''}
@@ -610,8 +610,8 @@ th{font-size:9px;font-weight:900;color:rgba(69,26,3,.3);text-transform:uppercase
       </div>` : ''
 
     const techHtml = ins.technicalProfile ? `
-      <div style="margin-bottom:16px;">
-        <div style="font-size:10px;font-weight:800;color:#0369a1;letter-spacing:.05em;margin-bottom:6px;">TECHNICAL PROFILE</div>
+      <div style="margin-bottom:16px;page-break-inside:avoid;break-inside:avoid;">
+        <div style="font-size:10px;font-weight:800;color:#0369a1;letter-spacing:.05em;margin-bottom:6px;page-break-after:avoid;break-after:avoid;">TECHNICAL PROFILE</div>
         <div style="font-size:11px;color:#475569;line-height:1.7;">
           ${ins.technicalProfile.coreSkills && ins.technicalProfile.coreSkills.length > 0 ? `
           <div style="margin-bottom:4px;">핵심 스킬:
@@ -622,8 +622,8 @@ th{font-size:9px;font-weight:900;color:rgba(69,26,3,.3);text-transform:uppercase
       </div>` : ''
 
     const domainHtml = ins.domainProfile && ins.domainProfile.domains && ins.domainProfile.domains.length > 0 ? `
-      <div style="margin-bottom:16px;">
-        <div style="font-size:10px;font-weight:800;color:#0369a1;letter-spacing:.05em;margin-bottom:6px;">DOMAIN</div>
+      <div style="margin-bottom:16px;page-break-inside:avoid;break-inside:avoid;">
+        <div style="font-size:10px;font-weight:800;color:#0369a1;letter-spacing:.05em;margin-bottom:6px;page-break-after:avoid;break-after:avoid;">DOMAIN</div>
         <div style="font-size:11px;color:#475569;">
           ${ins.domainProfile.primaryDomain ? `<span style="font-weight:700;">주요: ${ins.domainProfile.primaryDomain}</span> &nbsp;` : ''}
           ${ins.domainProfile.domains.map(d => `${d.name}(${d.pct}%)`).join(' · ')}
@@ -632,7 +632,7 @@ th{font-size:9px;font-weight:900;color:rgba(69,26,3,.3);text-transform:uppercase
       </div>` : ''
 
     return `<section style="margin-bottom:36px;">
-      <div class="sec-title">2. Linker AI Expert Analysis</div>
+      <div class="sec-head"><div class="sec-title">2. Linker AI Expert Analysis</div><div style="height:1px;"></div></div>
       <div style="font-size:10px;color:#94a3b8;margin-bottom:12px;">※ 본 분석은 생성형 AI에 의해 작성되었으며, 일부 오정보가 포함될 수 있습니다.</div>
       ${summaryHtml}${riskHtml}${careerHtml}${techHtml}${domainHtml}
     </section>`
@@ -640,14 +640,14 @@ th{font-size:9px;font-weight:900;color:rgba(69,26,3,.3);text-transform:uppercase
 
   <!-- 3. Tech Stack -->
   <section style="margin-bottom:36px;">
-    <div class="sec-title">3. Tech Stack</div>
+    <div class="sec-head"><div class="sec-title">3. Tech Stack</div><div style="height:1px;"></div></div>
     <div style="margin-top:4px;">${skillTags}</div>
   </section>
 
   <!-- 4. Work Experience -->
   ${companyExps.length > 0 ? `
   <section style="margin-bottom:36px;">
-    <div class="sec-title">4. Work Experience</div>
+    <div class="sec-head"><div class="sec-title">4. Work Experience</div><div style="height:1px;"></div></div>
     <table style="width:100%;text-align:left;">
       <thead><tr>
         <th style="width:40%;">Company</th>
@@ -661,7 +661,7 @@ th{font-size:9px;font-weight:900;color:rgba(69,26,3,.3);text-transform:uppercase
   <!-- 5. Project Experience -->
   ${projectExps.length > 0 ? `
   <section style="margin-bottom:36px;">
-    <div class="sec-title">5. Project Experience</div>
+    <div class="sec-head"><div class="sec-title">5. Project Experience</div><div style="height:1px;"></div></div>
     <table style="width:100%;text-align:left;table-layout:fixed;">
       <colgroup>
         <col style="width:28%;">
@@ -680,8 +680,8 @@ th{font-size:9px;font-weight:900;color:rgba(69,26,3,.3);text-transform:uppercase
   </section>` : ''}
 
   <!-- Footer -->
-  <footer style="margin-top:48px;padding-top:20px;border-top:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;font-size:10px;font-weight:700;">
-    <span style="opacity:.35;">본 이력서는 씽클레어 전문가 분석 관리 플랫폼 Linker를 통해 생성되었으며 전문가가 입력한 성과와 업적을 기반으로 작성되었습니다.</span>
+  <footer style="margin-top:48px;padding-top:20px;display:flex;justify-content:space-between;align-items:center;font-size:10px;font-weight:700;">
+    <span style="opacity:.35;">본 문서는 전문가 정보를 기반으로 씽클레어 분석 플랫폼 Linker에서 생성되었습니다.</span>
     <span style="opacity:.35;">발행일 ${issueDate}</span>
   </footer>
 
@@ -710,13 +710,14 @@ function savePdf(){
       var totalPages = pdf.internal.getNumberOfPages();
       var pw = pdf.internal.pageSize.getWidth();
       var ph = pdf.internal.pageSize.getHeight();
-      var footerY = ph - bottomMargin - 2;
+      // 컷 라인(ph-bottomMargin=282mm) 아래 여백 영역에 배치 → 컨텐츠와 겹침 없음
+      var footerY = ph - bottomMargin + logoH + 3;
       for (var i = 1; i <= totalPages; i++) {
         pdf.setPage(i);
         pdf.setFontSize(8);
         pdf.setTextColor(180, 180, 180);
-        pdf.text(i + ' / ' + totalPages, pw / 2, footerY, { align: 'center' });
-        try { pdf.addImage(logoSrc, 'PNG', pw - logoW - 4, footerY - logoH, logoW, logoH); } catch(e){}
+        pdf.text(i + ' / ' + totalPages, pw / 2, footerY + 2, { align: 'center' });
+        try { pdf.addImage(logoSrc, 'PNG', pw - 20 - logoW, footerY - logoH, logoW, logoH); } catch(e){}
       }
     }).save().then(function(){
       btn.disabled = false;
@@ -823,6 +824,8 @@ function TalentDetailModal({
   const displayInsight = insight ?? savedInsightData?.insight ?? null
   const displayKeywords = insightKeywords || savedInsightData?.keywords || ''
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const resumeUploadRef = useRef<HTMLInputElement>(null)
+  const [uploadingResume, setUploadingResume] = useState(false)
   const [expFormOpen, setExpFormOpen] = useState(false)
   const [expFormType, setExpFormType] = useState<ExperienceType>('PROJECT')
   const [editingExp, setEditingExp] = useState<(ExperienceResponse & { _edit: true }) | null>(null)
@@ -918,6 +921,25 @@ function TalentDetailModal({
       addToast('이력서 분석 완료. 저장 시 경력 정보도 함께 반영됩니다.', 'success')
     } catch { addToast('이력서 분석에 실패했습니다.', 'error') }
     finally { setAnalyzing(false) }
+  }
+
+  const uploadResumeOnly = async (file: File) => {
+    setUploadingResume(true)
+    try {
+      const { data } = await serviceAdminApi.analyzeResume(file)
+      if (!data.resumeKey) {
+        addToast('파일 저장에 실패했습니다.', 'error')
+        return
+      }
+      await serviceAdminApi.updateTalent(talent.id, { ...form, resumeKey: data.resumeKey })
+      qc.invalidateQueries({ queryKey: ['admin', 'talents'] })
+      addToast('이력서 파일이 저장되었습니다.', 'success')
+      onUpdated()
+    } catch {
+      addToast('파일 업로드 중 오류가 발생했습니다.', 'error')
+    } finally {
+      setUploadingResume(false)
+    }
   }
 
   const handleAnalyzeInsights = async (keywords: string) => {
@@ -1795,6 +1817,29 @@ function TalentDetailModal({
                 )}
               </section>
 
+              {/* 업로드 파일 */}
+              <section className="bg-white rounded-xl border border-border/50 px-5 py-3.5 shadow-sm flex items-center justify-between gap-4">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="text-base">📎</span>
+                  <span className="text-sm font-semibold text-primary/70">업로드 파일</span>
+                </div>
+                {talent.resumeUrl
+                  ? <a href={talent.resumeUrl} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface border border-border hover:border-secondary/50 hover:text-secondary transition-all text-xs font-semibold text-primary/60 shrink-0">
+                      <span>⬇︎</span>
+                      <span>다운로드</span>
+                    </a>
+                  : <>
+                      <input ref={resumeUploadRef} type="file" accept=".pdf,.docx,.txt" className="hidden"
+                        onChange={async e => { const f = e.target.files?.[0]; if (!f) return; e.target.value = ''; await uploadResumeOnly(f) }} />
+                      <button onClick={() => resumeUploadRef.current?.click()} disabled={uploadingResume}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface border border-dashed border-secondary/40 hover:border-secondary hover:text-secondary transition-all text-xs font-semibold text-primary/50 shrink-0 disabled:opacity-50">
+                        {uploadingResume ? '업로드 중...' : '📤 파일 업로드'}
+                      </button>
+                    </>
+                }
+              </section>
+
               {/* 신규 경력 등록하기 (모달 하단 분리) */}
               <section className="bg-white rounded-xl border border-border/50 p-6 text-center shadow-sm">
                 <h2 className="text-base font-bold text-primary mb-1.5">신규 경력 추가</h2>
@@ -1844,6 +1889,14 @@ function TalentDetailModal({
               </div>
               <input ref={fileInputRef} type="file" accept=".pdf,.docx,.txt" className="hidden"
                 onChange={async e => { const f = e.target.files?.[0]; if (!f) return; e.target.value = ''; await processFile(f) }} />
+
+              {talent.resumeUrl && (
+                <a href={talent.resumeUrl} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-surface hover:bg-white hover:border-secondary/50 transition-all text-sm text-primary/70 hover:text-secondary w-fit">
+                  <span>📎</span>
+                  <span className="font-medium">저장된 이력서 다운로드</span>
+                </a>
+              )}
 
               <div className="grid grid-cols-2 gap-4">
                 <div>

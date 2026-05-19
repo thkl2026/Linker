@@ -115,13 +115,18 @@ public class ResumeAnalysisService {
                 log.info("[AI_RESUME] 캐시 히트 (hash={}...) — 저장된 결과 반환", hash.substring(0, 8));
                 try {
                     ResumeAnalysisResult r = objectMapper.readValue(cached.get().getRawContent(), ResumeAnalysisResult.class);
-                    return new ResumeAnalysisResult(
-                            r.name(), r.nameEn(), r.phone(), r.workType(), r.desiredRate(),
-                            r.category(), r.field(), r.skills(), r.birthDate(),
-                            r.email(), r.address(), r.skillGrade(), r.title(),
-                            r.educations(), r.companyExps(), r.projectExps(), r.certifications(),
-                            r.itCareerMonths(), r.photoKey(), resumeKey,
-                            r.confidenceScore(), r.needsManualReview());
+                    // 캐시된 이름이 블랙리스트 단어면 재분석
+                    if (r.name() != null && !r.name().isBlank() && RESUME_SECTION_HEADERS.contains(r.name())) {
+                        log.info("[AI_RESUME] 캐시 이름 무효 ({}), 재분석 진행", r.name());
+                    } else {
+                        return new ResumeAnalysisResult(
+                                r.name(), r.nameEn(), r.phone(), r.workType(), r.desiredRate(),
+                                r.category(), r.field(), r.skills(), r.birthDate(),
+                                r.email(), r.address(), r.skillGrade(), r.title(),
+                                r.educations(), r.companyExps(), r.projectExps(), r.certifications(),
+                                r.itCareerMonths(), r.photoKey(), resumeKey,
+                                r.confidenceScore(), r.needsManualReview());
+                    }
                 } catch (Exception e) {
                     log.warn("[AI_RESUME] 캐시 역직렬화 실패, 재분석 진행", e);
                 }
@@ -169,7 +174,7 @@ public class ResumeAnalysisService {
     private ResumeAnalysisResult parseBasicInfo(String text) {
         String prompt = promptLoader.load("resume-basic-info", Map.of("resumeText", text));
         ResumeAnalysisResult res = callGemini(prompt);
-        if (res.name() == null || res.name().isBlank()) {
+        if (res.name() == null || res.name().isBlank() || RESUME_SECTION_HEADERS.contains(res.name())) {
             String fallbackName = findNameInText(text);
             res = new ResumeAnalysisResult(fallbackName, res.nameEn(), res.phone(), res.workType(), res.desiredRate(),
                     res.category(), res.field(), res.skills(), res.birthDate(), res.email(),
@@ -329,6 +334,8 @@ public class ResumeAnalysisService {
             return extractPdf(fileBytes);
         } else if (name.endsWith(".docx")) {
             return extractDocx(file);
+        } else if (name.endsWith(".doc")) {
+            return extractDoc(fileBytes);
         } else {
             return new String(fileBytes, StandardCharsets.UTF_8);
         }
@@ -404,6 +411,21 @@ public class ResumeAnalysisService {
             return sb.toString();
         } catch (Exception e) {
             log.warn("[AI_RESUME] DOCX 텍스트 추출 실패: {}", e.getMessage());
+            return "";
+        }
+    }
+
+    // §1.3 DOC(구형 Word 바이너리) 텍스트 추출 — HWPFDocument 사용
+    private String extractDoc(byte[] fileBytes) {
+        try (org.apache.poi.hwpf.HWPFDocument doc =
+                     new org.apache.poi.hwpf.HWPFDocument(new java.io.ByteArrayInputStream(fileBytes))) {
+            org.apache.poi.hwpf.extractor.WordExtractor extractor =
+                    new org.apache.poi.hwpf.extractor.WordExtractor(doc);
+            String text = extractor.getText();
+            extractor.close();
+            return text == null ? "" : text;
+        } catch (Exception e) {
+            log.warn("[AI_RESUME] DOC 텍스트 추출 실패: {}", e.getMessage());
             return "";
         }
     }
@@ -592,11 +614,53 @@ public class ResumeAnalysisService {
         return date;
     }
 
+    private static final java.util.Set<String> RESUME_SECTION_HEADERS = java.util.Set.of(
+        "경력기술", "경력사항", "경력소개", "기술스택", "기술역량", "기술요약",
+        "기본정보", "인적사항", "학력사항", "학력",
+        "자격증", "자격사항", "수상내역", "교육사항",
+        "프로젝트", "수행이력", "업무경험", "주요경력",
+        "이력서", "소개", "요약", "자기소개",
+        "프로필", "씽클레어", "기술경력", "기술경력서", "경력소개서",
+        "신상기록", "연락처", "생년월일", "주소", "이메일",
+        "희망단가", "희망연봉", "기술등급", "직위", "직급"
+    );
+
     private String findNameInText(String text) {
         if (text == null || text.isBlank()) return null;
-        String top = text.substring(0, Math.min(text.length(), 100));
-        java.util.regex.Matcher m = java.util.regex.Pattern.compile("([가-힣]{2,4})").matcher(top);
-        return m.find() ? m.group(1) : null;
+        String top = text.substring(0, Math.min(text.length(), 800));
+
+        // Priority 1: "성명"/"성 명"/"이름" 레이블 뒤 값 추출
+        java.util.regex.Matcher labelMatcher = java.util.regex.Pattern.compile(
+            "(?:성\\s*명|이\\s*름)[^가-힣]*([가-힣][가-힣 ]{0,9}[가-힣])"
+        ).matcher(top);
+        if (labelMatcher.find()) {
+            String compact = labelMatcher.group(1).trim().replaceAll("\\s+", "");
+            if (compact.length() >= 2 && compact.length() <= 5 && !RESUME_SECTION_HEADERS.contains(compact)) {
+                return compact;
+            }
+        }
+
+        // Priority 2: 공백으로 분리된 낱자 한글 이름 ("박 창 훈" → "박창훈")
+        java.util.regex.Matcher spacedMatcher = java.util.regex.Pattern.compile(
+            "([가-힣]) ([가-힣]) ([가-힣])"
+        ).matcher(top);
+        while (spacedMatcher.find()) {
+            String candidate = spacedMatcher.group(1) + spacedMatcher.group(2) + spacedMatcher.group(3);
+            if (!RESUME_SECTION_HEADERS.contains(candidate)) {
+                return candidate;
+            }
+        }
+
+        // Priority 3: 상단 200자 내 연속 한글 2~4자
+        String header = top.substring(0, Math.min(top.length(), 200));
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("([가-힣]{2,4})").matcher(header);
+        while (m.find()) {
+            String candidate = m.group(1);
+            if (!RESUME_SECTION_HEADERS.contains(candidate)) {
+                return candidate;
+            }
+        }
+        return null;
     }
 
     // §5.1 파일 SHA-256 해시 계산
