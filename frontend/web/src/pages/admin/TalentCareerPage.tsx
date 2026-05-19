@@ -705,7 +705,7 @@ function savePdf(){
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 2, useCORS: true, allowTaint: true, logging: false },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-      pagebreak: { mode: ['css', 'legacy'], avoid: ['section'] }
+      pagebreak: { mode: ['css', 'legacy'] }
     }).from(el).toPdf().get('pdf').then(function(pdf){
       var totalPages = pdf.internal.getNumberOfPages();
       var pw = pdf.internal.pageSize.getWidth();
