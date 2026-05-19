@@ -497,10 +497,10 @@ async function printCareerCard(
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Pretendard',sans-serif;color:#451a03;background:#f3f4f6;}
-.page{width:210mm;min-height:297mm;padding:11mm 20mm 22mm;margin:20px auto;background:#fff;box-shadow:0 10px 30px rgba(0,0,0,.1);}
-.sec-title{font-size:9px;font-weight:900;color:rgba(69,26,3,.3);letter-spacing:.2em;text-transform:uppercase;padding-bottom:6px;border-bottom:2px solid rgba(69,26,3,.05);margin-bottom:16px;page-break-after:avoid;break-after:avoid;}
+.page{width:210mm;min-height:297mm;padding:4mm 20mm 22mm;margin:20px auto;background:#fff;box-shadow:0 10px 30px rgba(0,0,0,.1);}
+.sec-title{font-size:9px;font-weight:900;color:rgba(69,26,3,.3);letter-spacing:.2em;text-transform:uppercase;padding-bottom:6px;border-bottom:2px solid rgba(69,26,3,.05);margin-bottom:16px;page-break-after:avoid !important;break-after:avoid !important;}
 section{page-break-inside:auto;}
-section>.sec-title+*{page-break-before:avoid;break-before:avoid;}
+section>.sec-title+*{page-break-before:avoid !important;break-before:avoid !important;}
 table{border-collapse:collapse;}
 th{font-size:9px;font-weight:900;color:rgba(69,26,3,.3);text-transform:uppercase;letter-spacing:.05em;padding:8px 6px;border-bottom:1px solid rgba(69,26,3,.05);}
 .no-print{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.9);backdrop-filter:blur(8px);border-bottom:1px solid #e5e7eb;padding:12px 24px;display:flex;justify-content:space-between;align-items:center;}
@@ -698,23 +698,25 @@ function savePdf(){
   logoImg.onload = function() {
     var logoW = 30;
     var logoH = logoW * (logoImg.naturalHeight / logoImg.naturalWidth);
+    var bottomMargin = 15;
     html2pdf().set({
-      margin: [15, 0, 15, 0],
+      margin: [22, 0, bottomMargin, 0],
       filename: '${fileName}.pdf',
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 2, useCORS: true, allowTaint: true, logging: false },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-      pagebreak: { mode: ['css', 'legacy'] }
+      pagebreak: { mode: ['css', 'legacy'], avoid: ['section'] }
     }).from(el).toPdf().get('pdf').then(function(pdf){
       var totalPages = pdf.internal.getNumberOfPages();
       var pw = pdf.internal.pageSize.getWidth();
       var ph = pdf.internal.pageSize.getHeight();
+      var footerY = ph - bottomMargin - 2;
       for (var i = 1; i <= totalPages; i++) {
         pdf.setPage(i);
         pdf.setFontSize(8);
         pdf.setTextColor(180, 180, 180);
-        pdf.text(i + ' / ' + totalPages, pw / 2, ph - 4, { align: 'center' });
-        try { pdf.addImage(logoSrc, 'PNG', pw - logoW - 4, ph - logoH - 3, logoW, logoH); } catch(e){}
+        pdf.text(i + ' / ' + totalPages, pw / 2, footerY, { align: 'center' });
+        try { pdf.addImage(logoSrc, 'PNG', pw - logoW - 4, footerY - logoH, logoW, logoH); } catch(e){}
       }
     }).save().then(function(){
       btn.disabled = false;
