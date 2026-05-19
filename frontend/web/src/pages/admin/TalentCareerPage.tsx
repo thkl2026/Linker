@@ -2732,6 +2732,13 @@ export function TalentCareerPage() {
   const [inlineRateId, setInlineRateId] = useState<string | null>(null)
   const [inlineRateVal, setInlineRateVal] = useState('')
 
+  const { data: settings } = useQuery({
+    queryKey: ['settings'],
+    queryFn: () => settingsApi.getAllSettings().then(r => r.data),
+    staleTime: 60_000,
+  })
+  const referralSources = settings?.masterData?.referralSources ?? []
+
   // 이름 드롭다운
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null)
   const [dropdownPos, setDropdownPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 })
@@ -2838,6 +2845,33 @@ export function TalentCareerPage() {
     if (rate === (t.desiredRate ?? undefined)) { setInlineRateId(null); return }
     inlineRateMutation.mutate({ talent: t, rate })
   }
+
+  const inlineProfileMutation = useMutation({
+    mutationFn: ({ talent, patch }: { talent: TalentAdmin; patch: Partial<{ referralSource: string | undefined; category: TalentCategory | undefined; field: TalentField | undefined }> }) =>
+      serviceAdminApi.updateTalent(talent.id, {
+        name: talent.name,
+        phone: talent.phone ?? undefined,
+        category: patch.category !== undefined ? patch.category : talent.category ?? undefined,
+        field: patch.field !== undefined ? patch.field : (patch.category !== undefined ? undefined : talent.field ?? undefined),
+        workType: talent.workType,
+        desiredRate: talent.desiredRate ?? undefined,
+        skills: talent.skills,
+        birthDate: talent.birthDate,
+        email: talent.email,
+        address: talent.address,
+        skillGrade: talent.skillGrade,
+        title: talent.title,
+        notes: talent.notes,
+        industryExperience: talent.industryExperience,
+        referralSource: patch.referralSource !== undefined ? patch.referralSource : talent.referralSource,
+        itCareerMonths: talent.itCareerMonths ?? null,
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin', 'talents'] })
+      showToast('변경되었습니다.', 'success')
+    },
+    onError: () => showToast('변경에 실패했습니다.', 'error'),
+  })
 
   const createMutation = useMutation({
     mutationFn: (req: CreateTalentRequest) => serviceAdminApi.createTalent(req),
@@ -3009,14 +3043,37 @@ export function TalentCareerPage() {
                       </button>
                     </td>
                     <td className="px-4 py-4 text-primary/60">{t.phone ? formatPhone(t.phone) : '—'}</td>
-                    <td className="px-4 py-4 text-xs text-primary/60">{t.referralSource || '—'}</td>
-                    <td className="px-4 py-4">
-                      {t.category ? (
-                        <div className="flex flex-col gap-0.5">
-                          <span className="text-xs font-semibold text-primary/70">{TALENT_CATEGORY_LABELS[t.category]}</span>
-                          {t.field && <span className="text-xs text-primary/40">{TALENT_FIELD_LABELS[t.field]}</span>}
-                        </div>
-                      ) : <span className="text-primary/30">—</span>}
+                    <td className="px-2 py-3" onClick={e => e.stopPropagation()}>
+                      <select
+                        value={t.referralSource || ''}
+                        onChange={e => inlineProfileMutation.mutate({ talent: t, patch: { referralSource: e.target.value || undefined } })}
+                        className="text-xs text-primary/60 bg-transparent hover:bg-surface/50 focus:bg-blue-50 focus:ring-1 focus:ring-blue-300 outline-none rounded px-1 py-0.5 cursor-pointer max-w-[120px] transition-all">
+                        <option value="">—</option>
+                        {referralSources.map(s => <option key={s.name} value={s.name}>{s.name}</option>)}
+                      </select>
+                    </td>
+                    <td className="px-2 py-3" onClick={e => e.stopPropagation()}>
+                      <div className="flex flex-col gap-0.5">
+                        <select
+                          value={t.category || ''}
+                          onChange={e => inlineProfileMutation.mutate({ talent: t, patch: { category: (e.target.value as TalentCategory) || undefined } })}
+                          className="text-xs font-semibold text-primary/70 bg-transparent hover:bg-surface/50 focus:bg-blue-50 focus:ring-1 focus:ring-blue-300 outline-none rounded px-1 py-0.5 cursor-pointer transition-all">
+                          <option value="">분류 선택</option>
+                          {(Object.keys(TALENT_CATEGORY_LABELS) as TalentCategory[]).map(c => (
+                            <option key={c} value={c}>{TALENT_CATEGORY_LABELS[c]}</option>
+                          ))}
+                        </select>
+                        <select
+                          value={t.field || ''}
+                          onChange={e => inlineProfileMutation.mutate({ talent: t, patch: { field: (e.target.value as TalentField) || undefined } })}
+                          disabled={!t.category}
+                          className="text-xs text-primary/40 bg-transparent hover:bg-surface/50 focus:bg-blue-50 focus:ring-1 focus:ring-blue-300 outline-none rounded px-1 py-0.5 cursor-pointer disabled:cursor-default transition-all">
+                          <option value="">분야 선택</option>
+                          {(t.category ? TALENT_FIELDS_BY_CATEGORY[t.category] : []).map(f => (
+                            <option key={f} value={f}>{TALENT_FIELD_LABELS[f]}</option>
+                          ))}
+                        </select>
+                      </div>
                     </td>
                     <td className="px-4 py-4" onClick={e => e.stopPropagation()}>
                       <div className="relative inline-block" ref={inlineAvailId === t.id ? availDropdownRef : undefined}>
