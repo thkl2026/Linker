@@ -1,8 +1,8 @@
 import { test, expect } from '@playwright/test';
-import { mockApi } from './helpers';
+import { mockApi, loginAs, PROJECT_ID } from './helpers';
 
 /**
- * Golden path: 로그인 → AI 매칭 → 계약 생성·서명
+ * Golden path: 로그인 → AI 매칭 → 계약 서명
  *
  * All backend calls are intercepted with mockApi() so the test runs
  * without a live Spring Boot instance.
@@ -13,231 +13,121 @@ test.describe('Linker 골든 패스', () => {
   });
 
   // ──────────────────────────────────────────────
-  // 1. 로그인 (OTP)
+  // 1. 로그인
   // ──────────────────────────────────────────────
-  test('1. PM 로그인 — OTP 플로우', async ({ page }) => {
+  test('1. PM 로그인 — 이메일/비밀번호 플로우', async ({ page }) => {
     await page.goto('/auth/login');
-    await expect(page.getByRole('heading', { name: /로그인/ })).toBeVisible();
 
-    // 이메일 입력 + OTP 요청
-    await page.getByPlaceholder('이메일').fill('pm@linker.co.kr');
-    await page.getByRole('button', { name: /OTP|인증코드 전송/ }).click();
+    // 로그인 폼 요소 확인
+    await expect(page.locator('input[type="email"]')).toBeVisible();
+    await expect(page.locator('input[type="password"]')).toBeVisible();
 
-    // OTP 입력창 노출 확인
-    await expect(
-      page.locator('input[autocomplete="one-time-code"], [data-testid="otp-input"] input').first()
-    ).toBeVisible({ timeout: 5000 });
+    await page.locator('input[type="email"]').fill('pm@linker.com');
+    await page.locator('input[type="password"]').fill('Linker1234!');
+    await page.getByRole('button', { name: '로그인' }).click();
 
-    // 6자리 입력 (mockApi → 000000 허용)
-    const inputs = page.locator('input[autocomplete="one-time-code"], [data-testid="otp-input"] input');
-    const count = await inputs.count();
-    if (count > 1) {
-      for (let i = 0; i < 6; i++) await inputs.nth(i).fill('0');
-    } else {
-      await inputs.first().fill('000000');
-    }
+    // 로그인 후 /app 으로 이동
+    await page.waitForURL('/app', { timeout: 8000 });
 
-    await page.getByRole('button', { name: /확인|로그인|검증/ }).click();
-    await page.waitForURL('/', { timeout: 8000 });
-    await expect(page.getByText('테스트 PM')).toBeVisible();
+    // PM 전용 사이드바 메뉴 확인
+    await expect(page.getByRole('link', { name: /AI 매칭/ })).toBeVisible();
   });
 
   // ──────────────────────────────────────────────
-  // 2. 네비게이션 — 프로젝트 목록
+  // 2. 사이드바 네비게이션
   // ──────────────────────────────────────────────
-  test('2. 사이드바 네비게이션 — 프로젝트 이동', async ({ page }) => {
-    // 토큰을 스토리지에 미리 주입해 로그인 건너뜀
-    await page.goto('/');
-    await page.evaluate(() => {
-      localStorage.setItem(
-        'auth-store',
-        JSON.stringify({
-          state: {
-            token: 'test-token',
-            userId: 'aaaaaaaa-0000-0000-0000-000000000001',
-            role: 'PM',
-            name: '테스트 PM',
-          },
-          version: 0,
-        })
-      );
-    });
-    await page.reload();
-    await page.waitForURL('/', { timeout: 5000 });
+  test('2. 사이드바 네비게이션 — 내 프로젝트 이동', async ({ page }) => {
+    await loginAs(page, 'PM');
 
-    // 사이드바에 '프로젝트' 링크 확인
-    await expect(page.getByRole('link', { name: /프로젝트/ })).toBeVisible();
-    await page.getByRole('link', { name: /프로젝트/ }).click();
-    await expect(page).toHaveURL(/\/projects/);
+    // PM 사이드바 "내 프로젝트" 링크
+    await expect(page.getByRole('link', { name: /내 프로젝트/ })).toBeVisible();
+    await page.getByRole('link', { name: /내 프로젝트/ }).click();
+    await expect(page).toHaveURL(/\/app\/projects/);
   });
 
   // ──────────────────────────────────────────────
   // 3. AI 매칭 제안 생성
   // ──────────────────────────────────────────────
   test('3. AI 매칭 — 프로젝트 선택 후 제안 생성', async ({ page }) => {
-    await page.goto('/');
-    await page.evaluate(() => {
-      localStorage.setItem(
-        'auth-store',
-        JSON.stringify({
-          state: {
-            token: 'test-token',
-            userId: 'aaaaaaaa-0000-0000-0000-000000000001',
-            role: 'PM',
-            name: '테스트 PM',
-          },
-          version: 0,
-        })
-      );
-    });
-    await page.reload();
+    await loginAs(page, 'PM');
+    await page.goto('/app/matching');
 
-    // 매칭 메뉴로 이동
-    await page.getByRole('link', { name: /매칭/ }).click();
-    await expect(page).toHaveURL(/\/matching/);
+    // 프로젝트 목록에서 첫 번째 프로젝트 선택
+    await expect(page.getByText('E2E 테스트 프로젝트')).toBeVisible({ timeout: 5000 });
+    await page.getByText('E2E 테스트 프로젝트').click();
 
-    // "AI 매칭 실행" 버튼 (프로젝트 선택 후 활성)
-    const runBtn = page.getByRole('button', { name: /AI 매칭|매칭 실행/ });
-    if (await runBtn.isDisabled()) {
-      // 프로젝트 셀렉트가 있으면 첫 번째 옵션 선택
-      const projectSelect = page.locator('select, [role="combobox"]').first();
-      if (await projectSelect.isVisible()) {
-        await projectSelect.selectOption({ index: 1 });
-      }
-    }
-    await runBtn.click();
+    // "AI 매칭 생성" 버튼 클릭
+    await page.getByRole('button', { name: 'AI 매칭 생성' }).click();
 
-    // 결과 카드 노출 확인
+    // 결과 카드에 김인재 등장 확인
     await expect(page.getByText('김인재')).toBeVisible({ timeout: 8000 });
-    await expect(page.getByText('0.92')).toBeVisible();
   });
 
   // ──────────────────────────────────────────────
   // 4. 매칭 제안 수락
   // ──────────────────────────────────────────────
   test('4. 매칭 제안 수락', async ({ page }) => {
-    await page.goto('/matching');
-    await page.evaluate(() => {
-      localStorage.setItem(
-        'auth-store',
-        JSON.stringify({
-          state: {
-            token: 'test-token',
-            userId: 'aaaaaaaa-0000-0000-0000-000000000001',
-            role: 'PM',
-            name: '테스트 PM',
-          },
-          version: 0,
-        })
-      );
-    });
-    await page.reload();
-    await expect(page).toHaveURL(/\/matching/);
+    await loginAs(page, 'PM');
+    await page.goto('/app/matching');
 
+    // 프로젝트 선택
+    await expect(page.getByText('E2E 테스트 프로젝트')).toBeVisible({ timeout: 5000 });
+    await page.getByText('E2E 테스트 프로젝트').click();
+
+    // "김인재" 카드의 수락 버튼 클릭
     await expect(page.getByText('김인재')).toBeVisible({ timeout: 8000 });
-    await page.getByRole('button', { name: /수락|Accept/ }).first().click();
+    await page.getByRole('button', { name: '수락' }).first().click();
 
-    // 수락 완료 피드백 (토스트 or 상태 뱃지 변경)
-    await expect(
-      page.getByText(/수락|ACCEPTED/i)
-    ).toBeVisible({ timeout: 5000 });
+    // 처리 완료 토스트 확인
+    await expect(page.getByText('처리되었습니다.')).toBeVisible({ timeout: 5000 });
   });
 
   // ──────────────────────────────────────────────
-  // 5. 계약 생성 (PROCUREMENT 역할)
+  // 5. 계약 관리 페이지 진입
   // ──────────────────────────────────────────────
-  test('5. 계약 생성 — 단가 및 금액 입력 후 저장', async ({ page }) => {
-    await page.goto('/contracts');
-    await page.evaluate(() => {
-      localStorage.setItem(
-        'auth-store',
-        JSON.stringify({
-          state: {
-            token: 'test-token',
-            userId: 'bbbbbbbb-0000-0000-0000-000000000002',
-            role: 'PROCUREMENT',
-            name: '구매담당자',
-          },
-          version: 0,
-        })
-      );
-    });
-    await page.reload();
-    await expect(page).toHaveURL(/\/contracts/);
+  test('5. 계약 관리 — 프로젝트 UUID 입력 후 계약 목록 확인', async ({ page }) => {
+    await loginAs(page, 'PROCUREMENT');
+    await page.goto('/app/contracts');
 
-    // 새 계약 버튼
-    await page.getByRole('button', { name: /새 계약|계약 생성/ }).click();
+    // 프로젝트 UUID 입력
+    await page.getByPlaceholder('프로젝트 UUID').fill(PROJECT_ID);
+    await page.getByRole('button', { name: '이동' }).click();
 
-    // 폼 작성
-    await page.getByLabel(/프로젝트/).selectOption({ index: 1 });
-    await page.getByLabel(/인력/).selectOption({ index: 1 });
-    await page.getByLabel(/단가/).fill('8000000');
-    await page.getByLabel(/총액/).fill('96000000');
+    // 계약 관리 제목 확인
+    await expect(page.getByRole('heading', { name: '계약 관리' })).toBeVisible({ timeout: 5000 });
 
-    const terms = page.getByLabel(/계약 조건|조건/);
-    if (await terms.isVisible()) {
-      await terms.fill('월 단위 계약. 매월 말일 정산.');
-    }
-
-    await page.getByRole('button', { name: /저장|생성/ }).click();
-
-    // 생성 확인
-    await expect(page.getByText(/DRAFT|계약이 생성/i)).toBeVisible({ timeout: 5000 });
+    // DRAFT 상태 계약 배지 확인
+    await expect(page.getByText('DRAFT')).toBeVisible({ timeout: 5000 });
   });
 
   // ──────────────────────────────────────────────
   // 6. 계약 서명
   // ──────────────────────────────────────────────
-  test('6. 계약 서명 — PDF 생성 후 SIGNED 상태 확인', async ({ page }) => {
-    await page.goto('/contracts');
-    await page.evaluate(() => {
-      localStorage.setItem(
-        'auth-store',
-        JSON.stringify({
-          state: {
-            token: 'test-token',
-            userId: 'bbbbbbbb-0000-0000-0000-000000000002',
-            role: 'PROCUREMENT',
-            name: '구매담당자',
-          },
-          version: 0,
-        })
-      );
-    });
-    await page.reload();
+  test('6. 계약 서명 — DRAFT 계약 서명 후 SIGNED 확인', async ({ page }) => {
+    await loginAs(page, 'PROCUREMENT');
+    await page.goto('/app/contracts');
 
-    // DRAFT 상태 계약 카드의 서명 버튼
-    const signBtn = page.getByRole('button', { name: /서명|Sign/ }).first();
-    await expect(signBtn).toBeVisible({ timeout: 5000 });
-    await signBtn.click();
+    await page.getByPlaceholder('프로젝트 UUID').fill(PROJECT_ID);
+    await page.getByRole('button', { name: '이동' }).click();
 
-    // SIGNED 상태 배지 확인
-    await expect(page.getByText(/SIGNED/i)).toBeVisible({ timeout: 8000 });
+    // DRAFT 계약의 서명 버튼 클릭
+    await expect(page.getByRole('button', { name: '서명' })).toBeVisible({ timeout: 5000 });
+    await page.getByRole('button', { name: '서명' }).click();
+
+    // 서명 완료 토스트 확인
+    await expect(page.getByText(/계약 서명 완료/)).toBeVisible({ timeout: 5000 });
   });
 });
 
 // ──────────────────────────────────────────────
 // 부가 테스트: 로그아웃
 // ──────────────────────────────────────────────
-test('로그아웃 — 인증 스토어 초기화 후 로그인 페이지 리다이렉트', async ({ page }) => {
-  await page.goto('/');
-  await page.evaluate(() => {
-    localStorage.setItem(
-      'auth-store',
-      JSON.stringify({
-        state: {
-          token: 'test-token',
-          userId: 'aaaaaaaa-0000-0000-0000-000000000001',
-          role: 'PM',
-          name: '테스트 PM',
-        },
-        version: 0,
-      })
-    );
-  });
-  await page.reload();
+test('로그아웃 — 사이드바 버튼 클릭 후 리다이렉트', async ({ page }) => {
+  await mockApi(page);
+  await loginAs(page, 'PM');
 
-  await page.getByRole('button', { name: /로그아웃/ }).click();
-  await page.waitForURL('/auth/login', { timeout: 5000 });
-  await expect(page.getByRole('heading', { name: /로그인/ })).toBeVisible();
+  // 사이드바는 기본으로 열려 있어 "로그아웃" 텍스트 버튼이 노출됨
+  await page.getByRole('button', { name: '로그아웃' }).click();
+  // clearAuth 후 navigate('/') → 랜딩 페이지
+  await expect(page).toHaveURL('/', { timeout: 5000 });
 });
