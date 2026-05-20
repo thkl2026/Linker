@@ -14,7 +14,7 @@ backend/out/
 *.jar
 *.war
 *.nar
-!gradle/wrapper/gradle-wrapper.jar
+!backend/gradle/wrapper/gradle-wrapper.jar
 .gradle/
 backend/.idea/
 backend/*.iml
