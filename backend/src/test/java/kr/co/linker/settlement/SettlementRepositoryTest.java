@@ -60,7 +60,7 @@ class SettlementRepositoryTest extends AbstractIntegrationTest {
     void approve_changesStatusToApproved() {
         UUID contractId = UUID.fromString("aaaaaaaa-0000-0000-0000-000000000001");
         LocalDate month = LocalDate.of(2026, 3, 1);
-        UUID approverId = UUID.randomUUID();
+        UUID approverId = UUID.fromString("cccccccc-0000-0000-0000-000000000001");
 
         Settlement settlement =
                 settlementRepository.findByContractIdAndSettlementMonth(contractId, month).orElseThrow();

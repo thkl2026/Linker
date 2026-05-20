@@ -50,7 +50,7 @@ class TimesheetRepositoryTest extends AbstractIntegrationTest {
     @DisplayName("approve() 후 flush하면 DB에 APPROVED 상태로 반영된다")
     void approve_persistsApprovedStatus() {
         UUID contractId = UUID.fromString("aaaaaaaa-0000-0000-0000-000000000002");
-        UUID approverId = UUID.randomUUID();
+        UUID approverId = UUID.fromString("cccccccc-0000-0000-0000-000000000003");
 
         Timesheet ts = timesheetRepository
                 .findByContractIdAndStatusOrderByWorkDateDesc(contractId, TimesheetStatus.SUBMITTED)
