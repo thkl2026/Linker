@@ -6,28 +6,29 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 /**
  * Testcontainers 기반 JPA 통합 테스트 베이스 클래스.
  *
- * <p>PostgreSQL 16 + pgvector 컨테이너를 공유(@Container static)하여
- * 테스트 클래스 간 재시작 없이 빠르게 실행된다.
+ * <p>PostgreSQL 16 + pgvector 컨테이너를 JVM 전체에서 공유하여
+ * 테스트 클래스 간 재시작 없이 실행된다.
  */
 @DataJpaTest
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Testcontainers
 public abstract class AbstractIntegrationTest {
 
-    @Container
-    static final PostgreSQLContainer<?> POSTGRES =
-            new PostgreSQLContainer<>("pgvector/pgvector:pg16")
-                    .withDatabaseName("linker_test")
-                    .withUsername("linker")
-                    .withPassword("test_password")
-                    .withInitScript("db/test-init.sql");
+    @SuppressWarnings("resource")
+    static final PostgreSQLContainer<?> POSTGRES;
+
+    static {
+        POSTGRES = new PostgreSQLContainer<>("pgvector/pgvector:pg16")
+                .withDatabaseName("linker_test")
+                .withUsername("linker")
+                .withPassword("test_password")
+                .withInitScript("db/test-init.sql");
+        POSTGRES.start();
+    }
 
     @DynamicPropertySource
     static void overrideDataSource(DynamicPropertyRegistry registry) {
