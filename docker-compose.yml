@@ -1,25 +1,5 @@
 services:
 
-  # ── PostgreSQL 16 + pgvector ──────────────────────────────────────────────
-  postgres:
-    image: pgvector/pgvector:pg16
-    container_name: linker-postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: linker
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d linker"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   # ── Redis ─────────────────────────────────────────────────────────────────
   redis:
     image: redis:7-alpine
@@ -82,7 +62,7 @@ services:
     restart: unless-stopped
     environment:
       SPRING_PROFILE: onprem
-      DB_HOST: postgres
+      DB_HOST: ${DB_HOST}
       DB_PORT: 5432
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -99,8 +79,6 @@ services:
       GEMINI_API_KEY: ${GEMINI_API_KEY}
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
     depends_on:
-      postgres:
-        condition: service_healthy
       redis:
         condition: service_healthy
       minio:
@@ -183,7 +161,6 @@ services:
       - loki_data:/loki
 
 volumes:
-  postgres_data:
   redis_data:
   minio_data:
   es_data:
