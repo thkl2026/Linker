@@ -54,7 +54,7 @@ public class SseEmitterRegistry {
      */
     public void send(UUID userId, String eventName, Object data) {
         SseEmitter emitter = emitters.get(userId);
-        if (emitter == null) return;
+        if (emitter == null) { return; }
         try {
             emitter.send(SseEmitter.event().name(eventName).data(data));
             log.debug("[SSE_SENT] userId={} event={}", userId, eventName);

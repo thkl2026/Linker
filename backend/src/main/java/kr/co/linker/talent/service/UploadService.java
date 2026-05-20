@@ -5,7 +5,6 @@ import kr.co.linker.common.queue.AiJob;
 import kr.co.linker.common.queue.AsyncJobQueue;
 import kr.co.linker.common.storage.FileStorageService;
 import kr.co.linker.talent.domain.AiJobRecord;
-import kr.co.linker.talent.domain.AiJobStatus;
 import kr.co.linker.talent.dto.JobStatusResponse;
 import kr.co.linker.talent.dto.PresignedUrlResponse;
 import kr.co.linker.talent.repository.AiJobRepository;

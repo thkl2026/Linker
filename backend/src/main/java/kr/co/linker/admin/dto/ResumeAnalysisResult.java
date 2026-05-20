@@ -41,17 +41,17 @@ public record ResumeAnalysisResult(
         List<String> techStack
     ) {
         public Exp {
-            if (techStack == null) techStack = List.of();
+            if (techStack == null) { techStack = List.of(); }
         }
     }
 
     public ResumeAnalysisResult {
-        if (skills == null) skills = List.of();
-        if (educations == null) educations = List.of();
-        if (companyExps == null) companyExps = List.of();
-        if (projectExps == null) projectExps = List.of();
-        if (certifications == null) certifications = List.of();
-        if (needsManualReview == null) needsManualReview = false;
+        if (skills == null) { skills = List.of(); }
+        if (educations == null) { educations = List.of(); }
+        if (companyExps == null) { companyExps = List.of(); }
+        if (projectExps == null) { projectExps = List.of(); }
+        if (certifications == null) { certifications = List.of(); }
+        if (needsManualReview == null) { needsManualReview = false; }
     }
 
     public TalentCategory parsedCategory() {

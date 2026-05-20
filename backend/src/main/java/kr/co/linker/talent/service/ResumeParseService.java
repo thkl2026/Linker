@@ -71,7 +71,7 @@ public class ResumeParseService {
             PDFTextStripper stripper = new PDFTextStripper();
             stripper.setSortByPosition(true);
             String text = stripper.getText(doc);
-            if (text != null && !text.isBlank()) return text;
+            if (text != null && !text.isBlank()) { return text; }
         } catch (Exception e) {
             log.warn("[RESUME_PDF_EXTRACT_FAILED] PDFBox 실패: {}", e.getMessage());
         }

@@ -1,8 +1,6 @@
 package kr.co.linker.auth.service;
 
-import kr.co.linker.auth.domain.MfaType;
 import kr.co.linker.auth.domain.User;
-import kr.co.linker.auth.domain.UserRole;
 import kr.co.linker.auth.dto.LoginRequest;
 import kr.co.linker.auth.dto.MfaSetupRequest;
 import kr.co.linker.auth.dto.RegisterInitiateRequest;

@@ -129,7 +129,7 @@ public class WorkReportService {
             String json = raw.trim();
             int s = json.indexOf('{');
             int e = json.lastIndexOf('}');
-            if (s >= 0 && e > s) json = json.substring(s, e + 1);
+            if (s >= 0 && e > s) { json = json.substring(s, e + 1); }
             return objectMapper.readValue(json, new TypeReference<>() {});
         } catch (Exception ex) {
             return Map.of("riskLevel", "LOW", "sentimentScore", 0.0, "riskSummary", "분석 실패");

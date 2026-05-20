@@ -104,7 +104,7 @@ public class TalentScoringService {
     }
 
     private BigDecimal toBigDecimal(Object value) {
-        if (value instanceof Number n) return BigDecimal.valueOf(n.doubleValue());
+        if (value instanceof Number n) { return BigDecimal.valueOf(n.doubleValue()); }
         return BigDecimal.ZERO;
     }
 
