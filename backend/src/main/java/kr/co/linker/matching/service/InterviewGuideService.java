@@ -6,7 +6,6 @@ import kr.co.linker.common.ai.PromptLoader;
 import kr.co.linker.common.exception.LinkerException;
 import kr.co.linker.matching.domain.MatchProposal;
 import kr.co.linker.matching.repository.MatchProposalRepository;
-import kr.co.linker.verification.domain.VerificationLog;
 import kr.co.linker.verification.repository.VerificationLogRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
