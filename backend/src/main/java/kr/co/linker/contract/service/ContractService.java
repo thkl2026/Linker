@@ -86,7 +86,8 @@ public class ContractService {
         contract.sign();
 
         // PDF 생성 후 MinIO 업로드
-        byte[] pdf = contractPdfService.generate(contract);
+        var talent = talentProfileRepository.findById(contract.getTalentId()).orElse(null);
+        byte[] pdf = contractPdfService.generate(contract, talent);
         String fileKey = "contracts/" + contractId + "/contract.pdf";
         try {
             String url = fileStorageService.uploadBytes(fileKey, pdf, "application/pdf");
@@ -145,7 +146,8 @@ public class ContractService {
     @Transactional(readOnly = true)
     public byte[] generatePdf(UUID contractId) {
         Contract contract = findOrThrow(contractId);
-        return contractPdfService.generate(contract);
+        var talent = talentProfileRepository.findById(contract.getTalentId()).orElse(null);
+        return contractPdfService.generate(contract, talent);
     }
 
     private Contract findOrThrow(UUID contractId) {
