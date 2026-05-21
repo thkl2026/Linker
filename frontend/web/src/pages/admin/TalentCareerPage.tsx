@@ -536,6 +536,7 @@ th{font-size:9px;font-weight:900;color:rgba(69,26,3,.3);text-transform:uppercase
       </p>
       <div style="display:flex;flex-direction:column;gap:5px;font-size:12px;color:#64748b;font-weight:500;">
         ${talent.address ? `<span>📍 ${shortAddress(talent.address)}</span>` : ''}
+        ${talent.birthDate ? `<span>🎂 ${new Date(talent.birthDate).getFullYear()}년생</span>` : ''}
         <span>🏅 IT 경력 ${totalText}</span>
       </div>
     </div>
