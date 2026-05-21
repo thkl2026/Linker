@@ -13,7 +13,8 @@ FROM eclipse-temurin:21-jre-alpine AS runtime
 WORKDIR /app
 RUN apk add --no-cache fontconfig font-noto && \
     fc-cache -f && \
-    addgroup -S linker && adduser -S linker -G linker
+    addgroup -S linker && adduser -S linker -G linker && \
+    mkdir -p /app/logs && chown linker:linker /app/logs
 COPY --from=builder /app/build/libs/*.jar app.jar
 USER linker
 EXPOSE 8080
