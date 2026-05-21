@@ -144,6 +144,13 @@ public class ContractPdfService {
     }
 
     private Font buildFont(int size, int style) {
+        // Try Korean-capable fonts in order: Windows → Ubuntu/Debian → Alpine/Noto → fallback
+        for (String path : KOREAN_FONT_PATHS) {
+            try {
+                BaseFont base = BaseFont.createFont(path, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+                return new Font(base, size, style);
+            } catch (Exception ignored) {}
+        }
         try {
             BaseFont base = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
             return new Font(base, size, style);
@@ -151,4 +158,12 @@ public class ContractPdfService {
             return new Font(Font.HELVETICA, size, style);
         }
     }
+
+    private static final String[] KOREAN_FONT_PATHS = {
+        "C:\\Windows\\Fonts\\malgun.ttf",                                     // Windows (맑은 고딕)
+        "/usr/share/fonts/truetype/nanum/NanumGothic.ttf",                    // Ubuntu fonts-nanum
+        "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc,0",           // Ubuntu fonts-noto-cjk
+        "/usr/share/fonts/noto/NotoSansCJK-Regular.ttc,0",                    // Alpine font-noto
+        "/usr/share/fonts/truetype/noto/NotoSansCJKkr-Regular.ttf",           // Alpine alternate
+    };
 }

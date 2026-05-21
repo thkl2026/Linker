@@ -11,7 +11,9 @@ RUN ./gradlew bootJar --no-daemon -x test
 # ── Stage 2: Runtime ──────────────────────────────────────────────────────
 FROM eclipse-temurin:21-jre-alpine AS runtime
 WORKDIR /app
-RUN addgroup -S linker && adduser -S linker -G linker
+RUN apk add --no-cache fontconfig font-noto && \
+    fc-cache -f && \
+    addgroup -S linker && adduser -S linker -G linker
 COPY --from=builder /app/build/libs/*.jar app.jar
 USER linker
 EXPOSE 8080
