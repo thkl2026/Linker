@@ -9,8 +9,8 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  BACKEND_IMAGE: ${{ github.repository }}/linker-backend
-  FRONTEND_IMAGE: ${{ github.repository }}/linker-frontend
+  BACKEND_IMAGE: thkl2026/linker/linker-backend
+  FRONTEND_IMAGE: thkl2026/linker/linker-frontend
 
 jobs:
   # ── 시크릿 스캔 (Rule 4: GitLeaks) ────────────────────────────────────────
