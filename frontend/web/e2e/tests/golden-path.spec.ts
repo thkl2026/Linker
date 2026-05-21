@@ -88,8 +88,8 @@ test.describe('Linker 골든 패스', () => {
     await page.getByPlaceholder('프로젝트 UUID').fill(PROJECT_ID);
     await page.getByRole('button', { name: '이동' }).click();
 
-    await expect(page.getByRole('button', { name: '서명' })).toBeVisible({ timeout: 5000 });
-    await page.getByRole('button', { name: '서명' }).click();
+    await expect(page.getByRole('button', { name: '서명', exact: true })).toBeVisible({ timeout: 5000 });
+    await page.getByRole('button', { name: '서명', exact: true }).click();
     await expect(page.getByText(/계약 서명 완료/)).toBeVisible({ timeout: 5000 });
   });
 });
