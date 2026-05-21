@@ -34,4 +34,12 @@ export const authApi = {
   /** 로그아웃 */
   logout: () =>
     axiosInstance.post<void>('/api/v1/auth/logout'),
+
+  /** 초대 토큰 검증: 이메일·역할 조회 */
+  getInviteInfo: (token: string) =>
+    axiosInstance.get<{ email: string; role: string }>(`/api/v1/auth/invite/${token}`),
+
+  /** 초대 수락: 비밀번호 설정 후 계정 생성 */
+  acceptInvite: (token: string, password: string) =>
+    axiosInstance.post<void>(`/api/v1/auth/invite/${token}/accept`, { password }),
 }

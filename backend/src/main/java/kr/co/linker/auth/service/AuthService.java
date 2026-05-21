@@ -1,6 +1,11 @@
 package kr.co.linker.auth.service;
 
+import kr.co.linker.admin.domain.UserInvitation;
+import kr.co.linker.admin.repository.UserInvitationRepository;
 import kr.co.linker.auth.domain.User;
+import kr.co.linker.auth.domain.UserRole;
+import kr.co.linker.auth.dto.AcceptInviteRequest;
+import kr.co.linker.auth.dto.InviteInfoResponse;
 import kr.co.linker.auth.dto.LoginRequest;
 import kr.co.linker.auth.dto.MfaSetupRequest;
 import kr.co.linker.auth.dto.RegisterInitiateRequest;
@@ -8,6 +13,7 @@ import kr.co.linker.auth.dto.TokenResponse;
 import kr.co.linker.auth.dto.TotpSetupResponse;
 import kr.co.linker.auth.exception.AuthException;
 import kr.co.linker.auth.repository.UserRepository;
+import kr.co.linker.common.exception.LinkerException;
 import kr.co.linker.common.config.JwtProperties;
 import kr.co.linker.common.encryption.EncryptionService;
 import kr.co.linker.common.security.JwtTokenProvider;
@@ -40,6 +46,7 @@ public class AuthService {
     private static final Duration MFA_CHALLENGE_TTL = Duration.ofMinutes(5);
 
     private final UserRepository userRepository;
+    private final UserInvitationRepository invitationRepo;
     private final PasswordEncoder passwordEncoder;
     private final EncryptionService encryptionService;
     private final JwtTokenProvider jwtTokenProvider;
@@ -174,6 +181,45 @@ public class AuthService {
             log.warn("[LOGOUT] Redis unavailable — token not invalidated. userId={}", userId);
         }
         log.info("[LOGOUT] userId={}", userId);
+    }
+
+    @Transactional(readOnly = true)
+    public InviteInfoResponse validateInvite(String token) {
+        UserInvitation inv = invitationRepo.findByToken(token)
+                .orElseThrow(() -> new LinkerException(
+                        org.springframework.http.HttpStatus.NOT_FOUND, "INVITE_NOT_FOUND", "초대를 찾을 수 없습니다."));
+        if (!"PENDING".equals(inv.getStatus()) || inv.isExpired()) {
+            throw new LinkerException(
+                    org.springframework.http.HttpStatus.GONE, "INVITE_EXPIRED", "만료되었거나 이미 사용된 초대입니다.");
+        }
+        return new InviteInfoResponse(inv.getEmail(), inv.getRole());
+    }
+
+    @Transactional
+    public void acceptInvite(String token, AcceptInviteRequest req) {
+        UserInvitation inv = invitationRepo.findByToken(token)
+                .orElseThrow(() -> new LinkerException(
+                        org.springframework.http.HttpStatus.NOT_FOUND, "INVITE_NOT_FOUND", "초대를 찾을 수 없습니다."));
+        if (!"PENDING".equals(inv.getStatus()) || inv.isExpired()) {
+            throw new LinkerException(
+                    org.springframework.http.HttpStatus.GONE, "INVITE_EXPIRED", "만료되었거나 이미 사용된 초대입니다.");
+        }
+
+        String emailHash = encryptionService.hash(inv.getEmail());
+        if (userRepository.existsByEmailHash(emailHash)) {
+            throw new LinkerException(
+                    org.springframework.http.HttpStatus.CONFLICT, "EMAIL_ALREADY_EXISTS", "이미 가입된 이메일입니다.");
+        }
+
+        String encryptedEmail = encryptionService.encrypt(inv.getEmail());
+        String hashedPassword  = passwordEncoder.encode(req.password());
+        UserRole role = UserRole.valueOf(inv.getRole());
+
+        User user = User.create(encryptedEmail, emailHash, hashedPassword, role);
+        userRepository.save(user);
+
+        inv.accept();
+        log.info("[INVITE_ACCEPTED] userId={} role={}", user.getId(), role);
     }
 
     private User findUser(UUID userId) {

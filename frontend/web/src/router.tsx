@@ -100,6 +100,10 @@ export const router = createBrowserRouter([
     ],
   },
   {
+    path: '/invite/:token',
+    lazy: () => import('./pages/InviteAcceptPage').then(m => ({ Component: m.InviteAcceptPage })),
+  },
+  {
     path: '/auth',
     lazy: () => import('./pages/AuthLayout').then(m => ({ Component: m.AuthLayout })),
     children: [

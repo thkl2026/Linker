@@ -98,4 +98,20 @@ public class AuthController {
         authService.logout(userId);
         return ResponseEntity.noContent().build();
     }
+
+    @Operation(summary = "초대 토큰 검증: 이메일·역할 조회")
+    @GetMapping("/invite/{token}")
+    public ResponseEntity<kr.co.linker.auth.dto.InviteInfoResponse> getInviteInfo(
+            @PathVariable String token) {
+        return ResponseEntity.ok(authService.validateInvite(token));
+    }
+
+    @Operation(summary = "초대 수락: 비밀번호 설정 후 계정 생성")
+    @PostMapping("/invite/{token}/accept")
+    public ResponseEntity<Void> acceptInvite(
+            @PathVariable String token,
+            @Valid @RequestBody kr.co.linker.auth.dto.AcceptInviteRequest req) {
+        authService.acceptInvite(token, req);
+        return ResponseEntity.noContent().build();
+    }
 }

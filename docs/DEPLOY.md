@@ -233,6 +233,15 @@ LLM_MODEL_NAME=gemini-2.5-flash
 # ── CORS ──────────────────────────────────────
 CORS_ALLOWED_ORIGINS=http://서버IP,http://서버IP:5173
 
+# ── 메일 (초대 이메일 발송) ───────────────────
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=발송용_이메일@gmail.com
+MAIL_PASSWORD=Gmail_앱_비밀번호_16자리
+
+# ── 앱 기본 URL (초대 링크 생성용) ──────────
+APP_BASE_URL=http://서버IP
+
 # ── 모니터링 ──────────────────────────────────
 GRAFANA_USER=admin
 GRAFANA_PASSWORD=여기에_강력한_비밀번호

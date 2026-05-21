@@ -2,7 +2,7 @@ export type AvailabilityStatus = 'AVAILABLE' | 'BUSY' | 'REST'
 export type WorkType = 'REMOTE' | 'ONSITE' | 'HYBRID'
 export type SkillLevel = 'JUNIOR' | 'MID' | 'SENIOR' | 'EXPERT'
 
-export type TalentCategory = 'DEVELOPER' | 'ARCHITECT' | 'DBA' | 'PM' | 'ANALYST' | 'DESIGNER'
+export type TalentCategory = 'DEVELOPER' | 'ARCHITECT' | 'DBA' | 'PM' | 'ANALYST' | 'DESIGNER' | 'PLANNER'
 
 export type TalentField =
   // DEVELOPER
@@ -17,6 +17,8 @@ export type TalentField =
   | 'BUSINESS_ANALYST' | 'DATA_ANALYST' | 'QA'
   // DESIGNER
   | 'UI_UX' | 'GRAPHIC'
+  // PLANNER
+  | 'SERVICE_PLANNER' | 'PRODUCT_PLANNER' | 'UX_PLANNER'
 
 /** category → 선택 가능한 field 목록 */
 export const TALENT_FIELDS_BY_CATEGORY: Record<TalentCategory, TalentField[]> = {
@@ -26,6 +28,7 @@ export const TALENT_FIELDS_BY_CATEGORY: Record<TalentCategory, TalentField[]> = 
   PM:        ['PROJECT_MANAGER', 'PRODUCT_OWNER'],
   ANALYST:   ['BUSINESS_ANALYST', 'DATA_ANALYST', 'QA'],
   DESIGNER:  ['UI_UX', 'GRAPHIC'],
+  PLANNER:   ['SERVICE_PLANNER', 'PRODUCT_PLANNER', 'UX_PLANNER'],
 }
 
 export const TALENT_CATEGORY_LABELS: Record<TalentCategory, string> = {
@@ -35,6 +38,7 @@ export const TALENT_CATEGORY_LABELS: Record<TalentCategory, string> = {
   PM:        'PM',
   ANALYST:   '분석/품질',
   DESIGNER:  '디자이너',
+  PLANNER:   'IT 기획자',
 }
 
 export const TALENT_FIELD_LABELS: Record<TalentField, string> = {
@@ -57,7 +61,13 @@ export const TALENT_FIELD_LABELS: Record<TalentField, string> = {
   QA:                 'QA 엔지니어',
   UI_UX:              'UI/UX 디자이너',
   GRAPHIC:            '그래픽 디자이너',
+  SERVICE_PLANNER:    '서비스 기획자',
+  PRODUCT_PLANNER:    '프로덕트 기획자',
+  UX_PLANNER:         'UX 기획자',
 }
+
+/** Tech stack 입력이 필요한 직군 */
+export const TECH_STACK_CATEGORIES: TalentCategory[] = ['DEVELOPER', 'ARCHITECT', 'DBA']
 
 export interface TalentSummary {
   id: string

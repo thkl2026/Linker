@@ -622,6 +622,8 @@ public class ServiceAdminService {
             case PM        -> "PM";
             case ANALYST   -> "DA";
             case DESIGNER  -> "디자이너";
+            case PLANNER   -> "기획자";
+            default        -> "기타";
         };
     }
 

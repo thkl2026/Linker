@@ -19,6 +19,7 @@ import {
   TALENT_CATEGORY_LABELS,
   TALENT_FIELD_LABELS,
   TALENT_FIELDS_BY_CATEGORY,
+  TECH_STACK_CATEGORIES,
 } from '@/shared/types/talent'
 import { useUiStore } from '@/store/uiStore'
 import { settingsApi } from '@/shared/api/settingsApi'
@@ -976,6 +977,7 @@ function TalentDetailModal({
     ? Math.round(projectDurations.reduce((a, b) => a + b, 0) / projectExps.length)
     : 0
   const allTechStacks      = [...new Set(sortedExps.flatMap(e => e.techStack ?? []))]
+  const hasTechStack       = !form.category || TECH_STACK_CATEGORIES.includes(form.category)
 
   const handleExpUpdate = (expId: string, currentExp: ExperienceResponse, updates: Partial<ExperienceRequest>) => {
     const req: ExperienceRequest = {
@@ -1158,10 +1160,12 @@ function TalentDetailModal({
                       <span className="text-[11px] font-semibold text-primary/40 uppercase tracking-wide">평균 프로젝트 기간</span>
                       <span className="text-2xl font-bold text-primary">{projectExps.length > 0 ? fmtDuration(avgProjectMonths) : '—'}</span>
                     </div>
+                    {hasTechStack && (
                     <div className="bg-white border border-border/50 rounded-xl px-4 py-3 flex flex-col gap-1 shadow-sm">
                       <span className="text-[11px] font-semibold text-primary/40 uppercase tracking-wide">기술스택 수</span>
                       <span className="text-2xl font-bold text-primary">{allTechStacks.length}<span className="text-sm font-normal text-primary/50 ml-1">개</span></span>
                     </div>
+                    )}
                   </div>
 
                 </div>
@@ -1581,7 +1585,8 @@ function TalentDetailModal({
                   </div>
                 </div>
 
-                {/* 5. 보유 기술 */}
+                {/* 5. 보유 기술 — tech stack 카테고리(DEVELOPER·ARCHITECT·DBA)만 표시 */}
+                {hasTechStack && (
                 <div className="mb-10">
                   <h3 className="text-lg font-bold mb-4 flex items-center gap-2 border-l-4 border-secondary pl-3 text-primary">
                     보유 기술
@@ -1613,6 +1618,7 @@ function TalentDetailModal({
                     </table>
                   </div>
                 </div>
+                )}
 
                 {/* 6. 프로젝트 수행 이력 */}
                 <div className="mb-10">

@@ -13,10 +13,12 @@ import kr.co.linker.admin.dto.SaveMasterDataRequest;
 import kr.co.linker.admin.dto.SaveNotificationSettingsRequest;
 import kr.co.linker.admin.repository.PlatformSettingRepository;
 import kr.co.linker.admin.repository.UserInvitationRepository;
+import kr.co.linker.common.email.EmailService;
 import kr.co.linker.common.exception.LinkerException;
 import kr.co.linker.common.storage.FileStorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,6 +43,10 @@ public class SettingsService {
     private final UserInvitationRepository invitationRepo;
     private final ObjectMapper objectMapper;
     private final FileStorageService fileStorageService;
+    private final EmailService emailService;
+
+    @Value("${linker.app.base-url}")
+    private String baseUrl;
 
     // ── 전체 설정 조회 ────────────────────────────────────────────────────────
 
@@ -161,6 +167,7 @@ public class SettingsService {
                 .map(existing -> { existing.resend(); return existing; })
                 .orElseGet(() -> UserInvitation.create(req.email(), req.role()));
         invitationRepo.save(inv);
+        emailService.sendInvitation(inv.getEmail(), inv.getRole(), baseUrl + "/invite/" + inv.getToken());
         log.info("[SETTINGS] 사용자 초대 email={} role={}", req.email(), req.role());
         return inv.getId();
     }
@@ -169,6 +176,7 @@ public class SettingsService {
     public void resendInvitation(UUID id) {
         UserInvitation inv = requireInvitation(id);
         inv.resend();
+        emailService.sendInvitation(inv.getEmail(), inv.getRole(), baseUrl + "/invite/" + inv.getToken());
         log.info("[SETTINGS] 초대 재발송 id={}", id);
     }
 

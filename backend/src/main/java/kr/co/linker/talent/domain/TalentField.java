@@ -31,5 +31,10 @@ public enum TalentField {
 
     // DESIGNER
     UI_UX,              // UI/UX 디자이너
-    GRAPHIC             // 그래픽 디자이너
+    GRAPHIC,            // 그래픽 디자이너
+
+    // PLANNER
+    SERVICE_PLANNER,    // 서비스 기획자
+    PRODUCT_PLANNER,    // 프로덕트 기획자
+    UX_PLANNER          // UX 기획자
 }

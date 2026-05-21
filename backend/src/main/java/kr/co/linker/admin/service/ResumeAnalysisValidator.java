@@ -12,7 +12,7 @@ import java.util.stream.Stream;
 public class ResumeAnalysisValidator {
 
     private static final Set<String> VALID_CATEGORIES = Set.of(
-            "DEVELOPER", "ARCHITECT", "DBA", "PM", "ANALYST", "DESIGNER"
+            "DEVELOPER", "ARCHITECT", "DBA", "PM", "ANALYST", "DESIGNER", "PLANNER"
     );
     private static final Set<String> VALID_WORK_TYPES = Set.of(
             "REMOTE", "ONSITE", "HYBRID"

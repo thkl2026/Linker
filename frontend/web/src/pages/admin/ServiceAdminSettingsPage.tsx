@@ -282,6 +282,7 @@ function UsersTab() {
             <option value="TALENT">전문가 (Expert)</option>
             <option value="PM">PM (Project Manager)</option>
             <option value="PROCUREMENT">기업 담당자 (Client)</option>
+            <option value="SERVICE_ADMIN">서비스 관리자 (Admin)</option>
           </select>
         </div>
         <div className="col-span-3">
@@ -330,7 +331,7 @@ function UsersTab() {
                 <td className="py-5 px-2">
                   <span className={`px-2 py-1 text-[10px] font-black rounded-md border uppercase
                     ${inv.role === 'TALENT' ? 'bg-secondary/5 text-secondary border-secondary/10' : 'bg-primary/5 text-primary border-primary/10'}`}>
-                    {inv.role === 'TALENT' ? 'Expert' : inv.role === 'PM' ? 'PM' : 'Client'}
+                    {inv.role === 'TALENT' ? 'Expert' : inv.role === 'PM' ? 'PM' : inv.role === 'SERVICE_ADMIN' ? 'Admin' : 'Client'}
                   </span>
                 </td>
                 <td className="py-5 px-2">
