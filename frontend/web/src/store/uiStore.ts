@@ -25,7 +25,9 @@ export const useUiStore = create<UiState>((set) => ({
   isSidebarOpen: true,
 
   addToast: (message, type) => {
-    const id = crypto.randomUUID()
+    const id = typeof crypto.randomUUID === 'function'
+      ? crypto.randomUUID()
+      : Math.random().toString(36).slice(2) + Date.now().toString(36)
     set((state) => ({ toasts: [...state.toasts, { id, message, type }] }))
     setTimeout(() => {
       set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) }))

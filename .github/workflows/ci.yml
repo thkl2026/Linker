@@ -238,7 +238,6 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE }}:sha-${{ github.sha }}
             ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE }}:latest
           build-args: |
-            VITE_API_BASE_URL=/api/v1
             VITE_WS_URL=ws://${{ secrets.SERVER_IP }}/ws
           cache-from: type=gha
           cache-to: type=gha,mode=max
