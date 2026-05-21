@@ -1,11 +1,14 @@
 import { Page } from '@playwright/test';
 
-const PROJECT_ID = 'proj-0001-0000-0000-000000000001';
+export const PROJECT_ID = 'proj-0001-0000-0000-000000000001';
 const CONTRACT_ID = 'cont-0001-0000-0000-000000000001';
 const PROPOSAL_ID = 'prop-0001-0000-0000-000000000001';
 
+// RegExp 패턴 — glob '**/api/v1/**' 은 쿼리스트링 '?' 를 wildcard로 오해석하므로 regex 사용
+const API_RE = /\/api\/v1\//;
+
 export async function mockApi(page: Page) {
-  await page.route('**/api/v1/**', async (route) => {
+  await page.route(API_RE, async (route) => {
     const url = route.request().url();
     const method = route.request().method();
 
@@ -54,7 +57,8 @@ export async function mockApi(page: Page) {
         body: JSON.stringify({ created: 1 }),
       });
     }
-    if (url.includes('/proposals') && method === 'GET') {
+    // /proposals GET — 반드시 /respond 체크보다 먼저
+    if (url.includes('/proposals') && !url.includes('/respond') && method === 'GET') {
       return route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -132,8 +136,8 @@ export async function mockApi(page: Page) {
 }
 
 export async function loginAs(page: Page, role: 'PM' | 'PROCUREMENT' = 'PM') {
-  // Override role in the login mock response
-  await page.route('**/api/v1/auth/login', async (route) => {
+  // 역할별 응답 오버라이드 (mockApi 보다 나중에 등록 → LIFO 우선)
+  await page.route(/\/api\/v1\/auth\/login/, async (route) => {
     return route.fulfill({
       status: 200,
       contentType: 'application/json',
@@ -153,5 +157,3 @@ export async function loginAs(page: Page, role: 'PM' | 'PROCUREMENT' = 'PM') {
   await page.getByRole('button', { name: '로그인' }).click();
   await page.waitForURL('/app', { timeout: 8000 });
 }
-
-export { PROJECT_ID, CONTRACT_ID };
