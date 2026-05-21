@@ -44,3 +44,6 @@ logs/
 # ── 테스트 커버리지 ───────────────────────────────────────────────────────
 backend/build/reports/
 coverage/
+frontend/web/e2e/playwright-report/
+frontend/web/test-results/
+frontend/web/tsconfig.tsbuildinfo
