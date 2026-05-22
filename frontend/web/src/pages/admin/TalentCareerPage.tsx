@@ -816,6 +816,10 @@ function TalentDetailModal({
       qc.invalidateQueries({ queryKey: ['talent-eval-stats'] })
       addToast('평가가 등록되었습니다.', 'success')
     },
+    onError: (err: unknown) => {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
+      addToast(msg ?? '평가 등록에 실패했습니다.', 'error')
+    },
   })
 
   const { data: savedInsightData } = useQuery({
