@@ -6,8 +6,7 @@ scrape_configs:
   - job_name: 'linker-backend'
     metrics_path: '/actuator/prometheus'
     static_configs:
-      - targets: ['host.docker.internal:8080']
-    # 개발 환경에서는 인증 없음; 운영은 Bearer 토큰 추가
+      - targets: ['backend:8080']
 
   - job_name: 'prometheus'
     static_configs:
