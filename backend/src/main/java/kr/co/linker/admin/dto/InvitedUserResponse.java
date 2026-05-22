@@ -7,6 +7,7 @@ import java.util.UUID;
 public record InvitedUserResponse(
         UUID id,
         String email,
+        String company,
         String role,
         String status,
         String invitedAt,
@@ -16,6 +17,7 @@ public record InvitedUserResponse(
         return new InvitedUserResponse(
                 inv.getId(),
                 inv.getEmail(),
+                inv.getCompany(),
                 inv.getRole(),
                 inv.getStatus(),
                 inv.getInvitedAt() != null ? inv.getInvitedAt().toString() : null,

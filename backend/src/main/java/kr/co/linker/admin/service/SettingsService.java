@@ -165,7 +165,7 @@ public class SettingsService {
     public UUID inviteUser(InviteUserRequest req) {
         UserInvitation inv = invitationRepo.findByEmail(req.email())
                 .map(existing -> { existing.resend(); return existing; })
-                .orElseGet(() -> UserInvitation.create(req.email(), req.role()));
+                .orElseGet(() -> UserInvitation.create(req.email(), req.company(), req.role()));
         invitationRepo.save(inv);
         emailService.sendInvitation(inv.getEmail(), inv.getRole(), baseUrl + "/invite/" + inv.getToken());
         log.info("[SETTINGS] 사용자 초대 email={} role={}", req.email(), req.role());

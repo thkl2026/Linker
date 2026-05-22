@@ -61,6 +61,7 @@ export type InvitationStatus = 'PENDING' | 'ACCEPTED' | 'EXPIRED'
 export interface InvitedUser {
   id: string
   email: string
+  company: string | null
   role: string
   status: InvitationStatus
   invitedAt: string
@@ -86,8 +87,8 @@ export const settingsApi = {
   listInvitations: () =>
     axiosInstance.get<InvitedUser[]>('/api/v1/service-admin/settings/invitations'),
 
-  inviteUser: (email: string, role: string) =>
-    axiosInstance.post<string>('/api/v1/service-admin/settings/invitations', { email, role }),
+  inviteUser: (email: string, company: string, role: string) =>
+    axiosInstance.post<string>('/api/v1/service-admin/settings/invitations', { email, company: company || null, role }),
 
   resendInvitation: (id: string) =>
     axiosInstance.post(`/api/v1/service-admin/settings/invitations/${id}/resend`),

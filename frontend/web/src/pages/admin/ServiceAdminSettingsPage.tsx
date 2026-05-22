@@ -211,8 +211,9 @@ const STATUS_DOT: Record<string, string>   = { PENDING: 'bg-warning animate-puls
 const STATUS_TEXT: Record<string, string>  = { PENDING: 'text-warning', ACCEPTED: 'text-success', EXPIRED: 'text-primary/30' }
 
 function UsersTab() {
-  const [email, setEmail] = useState('')
-  const [role,  setRole]  = useState('TALENT')
+  const [email,   setEmail]   = useState('')
+  const [company, setCompany] = useState('')
+  const [role,    setRole]    = useState('TALENT')
   const { addToast } = useUiStore()
   const qc = useQueryClient()
 
@@ -222,10 +223,11 @@ function UsersTab() {
   })
 
   const { mutate: invite, isPending: inviting } = useMutation({
-    mutationFn: () => settingsApi.inviteUser(email, role),
+    mutationFn: () => settingsApi.inviteUser(email, company, role),
     onSuccess: () => {
       addToast(`${email} 으로 초대 링크를 발송했습니다.`, 'success')
       setEmail('')
+      setCompany('')
       qc.invalidateQueries({ queryKey: ['settings', 'invitations'] })
     },
     onError: () => addToast('초대 발송에 실패했습니다.', 'error'),
@@ -262,27 +264,35 @@ function UsersTab() {
     >
       {/* Invite form */}
       <div className="p-6 bg-surface rounded-3xl border border-border/30 grid grid-cols-12 gap-4 items-end mb-8">
-        <div className="col-span-5">
+        <div className="col-span-4">
           <Label>초대 이메일 주소</Label>
           <input
             type="email" value={email}
             onChange={e => setEmail(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && email && invite()}
             placeholder="user@company.com"
             className="w-full bg-white border border-border/50 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-secondary transition-all"
           />
         </div>
-        <div className="col-span-4">
+        <div className="col-span-3">
+          <Label>소속 회사</Label>
+          <input
+            type="text" value={company}
+            onChange={e => setCompany(e.target.value)}
+            placeholder="(주)회사명"
+            className="w-full bg-white border border-border/50 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-secondary transition-all"
+          />
+        </div>
+        <div className="col-span-2">
           <Label>사용자 유형</Label>
           <select
             value={role}
             onChange={e => setRole(e.target.value)}
             className="w-full bg-white border border-border/50 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-secondary transition-all appearance-none font-bold text-secondary"
           >
-            <option value="TALENT">전문가 (Expert)</option>
-            <option value="PM">PM (Project Manager)</option>
-            <option value="PROCUREMENT">기업 담당자 (Client)</option>
-            <option value="SERVICE_ADMIN">서비스 관리자 (Admin)</option>
+            <option value="TALENT">전문가</option>
+            <option value="PM">PM</option>
+            <option value="PROCUREMENT">기업 담당자</option>
+            <option value="SERVICE_ADMIN">서비스 관리자</option>
           </select>
         </div>
         <div className="col-span-3">
@@ -301,6 +311,7 @@ function UsersTab() {
           <thead>
             <tr className="text-[10px] font-black text-primary/30 uppercase tracking-widest border-b border-border/10">
               <th className="pb-4 px-2">이메일 (계정 정보)</th>
+              <th className="pb-4 px-2">소속</th>
               <th className="pb-4 px-2">유형</th>
               <th className="pb-4 px-2">가입 상태</th>
               <th className="pb-4 px-2">초대일</th>
@@ -310,7 +321,7 @@ function UsersTab() {
           <tbody className="divide-y divide-border/5">
             {invitations.length === 0 ? (
               <tr>
-                <td colSpan={5} className="py-12 text-center text-xs text-primary/30">초대 내역이 없습니다.</td>
+                <td colSpan={6} className="py-12 text-center text-xs text-primary/30">초대 내역이 없습니다.</td>
               </tr>
             ) : invitations.map(inv => (
               <tr key={inv.id} className="group">
@@ -327,6 +338,9 @@ function UsersTab() {
                       </p>
                     </div>
                   </div>
+                </td>
+                <td className="py-5 px-2">
+                  <p className="text-xs font-medium text-primary/60">{inv.company || <span className="text-primary/20">—</span>}</p>
                 </td>
                 <td className="py-5 px-2">
                   <span className={`px-2 py-1 text-[10px] font-black rounded-md border uppercase

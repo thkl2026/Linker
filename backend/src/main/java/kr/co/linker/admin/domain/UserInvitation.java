@@ -28,6 +28,9 @@ public class UserInvitation {
     @Column(nullable = false, length = 255)
     private String email;
 
+    @Column(length = 200)
+    private String company;
+
     @Column(nullable = false, length = 50)
     private String role;
 
@@ -44,9 +47,10 @@ public class UserInvitation {
 
     private OffsetDateTime acceptedAt;
 
-    public static UserInvitation create(String email, String role) {
+    public static UserInvitation create(String email, String company, String role) {
         UserInvitation inv = new UserInvitation();
         inv.email = email;
+        inv.company = company;
         inv.role = role;
         inv.refreshToken();
         return inv;

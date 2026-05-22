@@ -5,5 +5,6 @@ import jakarta.validation.constraints.NotBlank;
 
 public record InviteUserRequest(
         @NotBlank @Email String email,
+        String company,
         @NotBlank String role
 ) {}
