@@ -31,7 +31,7 @@ export function LoginPage() {
       navigate(from)
     } catch (err: any) {
       console.error('[LOGIN_FAIL]', err?.response?.status, err?.response?.data, err?.message, err)
-      addToast(getApiErrorDetail(err, '이메일 또는 비밀번호가 올바르지 않습니다.'), 'error')
+      addToast(getApiErrorDetail(err, '아이디 및 비밀번호가 일치하지 않습니다.'), 'error')
     } finally {
       setLoading(false)
     }
