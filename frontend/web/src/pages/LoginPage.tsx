@@ -1,10 +1,12 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import linkerLogo from '@/statics/linker_bi_logo.png'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { authApi } from '@/shared/api/authApi'
 import { useAuthStore } from '@/store/authStore'
 import { useUiStore } from '@/store/uiStore'
 import { getApiErrorDetail } from '@/shared/utils/apiError'
+
+const STORAGE_KEY = 'linker_saved_credentials'
 
 export function LoginPage() {
   const navigate = useNavigate()
@@ -16,13 +18,33 @@ export function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [rememberMe, setRememberMe] = useState(false)
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY)
+      if (saved) {
+        const { email: e, password: p } = JSON.parse(saved)
+        setEmail(e ?? '')
+        setPassword(p ?? '')
+        setRememberMe(true)
+      }
+    } catch {
+      // 저장된 값이 없거나 파싱 오류 시 무시
+    }
+  }, [])
 
   async function handleCredentials(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
     try {
       const res = await authApi.login({ email, password })
+      if (rememberMe) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ email, password }))
+      } else {
+        localStorage.removeItem(STORAGE_KEY)
+      }
       setAuth(
         { id: '', email, role: res.data.role, mfaEnabled: false, identityVerified: false },
         res.data.accessToken,
@@ -82,68 +104,84 @@ export function LoginPage() {
         </div>
 
         <div className="max-w-md w-full mx-auto">
-          <>
-            <div className="mb-10 text-center md:text-left">
-              <h2 className="text-3xl font-bold text-primary mb-2 tracking-tight">환영합니다! 👋</h2>
-              <p className="text-primary/60">이메일과 비밀번호로 로그인하세요.</p>
+          <div className="mb-10 text-center md:text-left">
+            <h2 className="text-3xl font-bold text-primary mb-2 tracking-tight">환영합니다! 👋</h2>
+            <p className="text-primary/60">이메일과 비밀번호로 로그인하세요.</p>
+          </div>
+
+          <form onSubmit={handleCredentials} className="space-y-6">
+            <div>
+              <label className="block text-sm font-bold text-primary mb-2">이메일 주소</label>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-primary/40 text-base">✉️</span>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="example@linker.com"
+                  className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-border bg-white focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none transition-all placeholder:text-primary/30 font-medium shadow-sm"
+                  required
+                  autoFocus
+                  tabIndex={1}
+                />
+              </div>
             </div>
 
-            <form onSubmit={handleCredentials} className="space-y-6">
-                <div>
-                  <label className="block text-sm font-bold text-primary mb-2">이메일 주소</label>
-                  <div className="relative">
-                    <span className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-primary/40 text-base">✉️</span>
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="example@linker.com"
-                      className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-border bg-white focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none transition-all placeholder:text-primary/30 font-medium shadow-sm"
-                      required
-                      autoFocus
-                    />
-                  </div>
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <label className="block text-sm font-bold text-primary">비밀번호</label>
+                <div className="flex items-center gap-2">
+                  <a href="#" tabIndex={-1} className="text-sm font-bold text-secondary hover:text-primary transition-colors">ID 찾기</a>
+                  <span className="text-border/70 text-xs">|</span>
+                  <a href="#" tabIndex={-1} className="text-sm font-bold text-secondary hover:text-primary transition-colors">비밀번호 찾기</a>
                 </div>
-
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <label className="block text-sm font-bold text-primary">비밀번호</label>
-                    <div className="flex items-center gap-2">
-                      <a href="#" className="text-sm font-bold text-secondary hover:text-primary transition-colors">이메일 찾기</a>
-                      <span className="text-border/70 text-xs">|</span>
-                      <a href="#" className="text-sm font-bold text-secondary hover:text-primary transition-colors">비밀번호 찾기</a>
-                    </div>
-                  </div>
-                  <div className="relative">
-                    <span className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-primary/40 text-base">🔒</span>
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="w-full pl-11 pr-12 py-3.5 rounded-2xl border border-border bg-white focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none transition-all placeholder:text-primary/30 font-medium shadow-sm"
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute inset-y-0 right-0 pr-4 flex items-center text-primary/40 hover:text-primary transition-colors"
-                    >
-                      {showPassword ? '🙈' : '👁️'}
-                    </button>
-                  </div>
-                </div>
-
+              </div>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-primary/40 text-base">🔒</span>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full pl-11 pr-12 py-3.5 rounded-2xl border border-border bg-white focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none transition-all placeholder:text-primary/30 font-medium shadow-sm"
+                  required
+                  tabIndex={2}
+                />
                 <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full py-4 rounded-2xl bg-primary text-white font-bold text-lg hover:bg-amber-900 shadow-md hover:shadow-lg transition-all active:scale-[0.98] disabled:opacity-50"
+                  type="button"
+                  tabIndex={-1}
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-primary/40 hover:text-primary transition-colors"
                 >
-                  {loading ? '로그인 중...' : '로그인'}
+                  {showPassword ? '🙈' : '👁️'}
                 </button>
+              </div>
+            </div>
 
-            </form>
-          </>
+            {/* 아이디/비밀번호 저장 */}
+            <div className="flex items-center gap-2">
+              <input
+                id="remember-me"
+                type="checkbox"
+                checked={rememberMe}
+                onChange={e => setRememberMe(e.target.checked)}
+                tabIndex={-1}
+                className="w-4 h-4 rounded accent-secondary cursor-pointer"
+              />
+              <label htmlFor="remember-me" className="text-sm text-primary/60 font-medium cursor-pointer select-none">
+                아이디/비밀번호 저장
+              </label>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              tabIndex={3}
+              className="w-full py-4 rounded-2xl bg-primary text-white font-bold text-lg hover:bg-amber-900 shadow-md hover:shadow-lg transition-all active:scale-[0.98] disabled:opacity-50"
+            >
+              {loading ? '로그인 중...' : '로그인'}
+            </button>
+          </form>
         </div>
       </div>
     </main>
