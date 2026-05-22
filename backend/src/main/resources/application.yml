@@ -81,3 +81,5 @@ linker:
     service-account-key: ${FCM_SERVICE_ACCOUNT_KEY:classpath:firebase-service-account.json}
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+  app:
+    base-url: ${APP_BASE_URL:http://localhost:5173}
