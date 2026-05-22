@@ -364,6 +364,15 @@ function UsersTab() {
                 <td className="py-5 px-2 text-right">
                   {inv.status === 'PENDING' ? (
                     <div className="flex items-center justify-end gap-3">
+                      {inv.inviteUrl && (
+                        <button onClick={() => {
+                          navigator.clipboard.writeText(inv.inviteUrl!)
+                          addToast('초대 링크가 복사되었습니다.', 'success')
+                        }}
+                          className="text-xs font-bold text-primary/60 hover:text-primary transition-colors">
+                          링크 복사
+                        </button>
+                      )}
                       <button onClick={() => resend(inv.id)}
                         className="text-xs font-bold text-secondary hover:underline">
                         초대 재발송

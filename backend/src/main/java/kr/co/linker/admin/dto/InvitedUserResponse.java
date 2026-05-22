@@ -11,9 +11,10 @@ public record InvitedUserResponse(
         String role,
         String status,
         String invitedAt,
-        String acceptedAt
+        String acceptedAt,
+        String inviteUrl
 ) {
-    public static InvitedUserResponse from(UserInvitation inv) {
+    public static InvitedUserResponse from(UserInvitation inv, String baseUrl) {
         return new InvitedUserResponse(
                 inv.getId(),
                 inv.getEmail(),
@@ -21,7 +22,8 @@ public record InvitedUserResponse(
                 inv.getRole(),
                 inv.getStatus(),
                 inv.getInvitedAt() != null ? inv.getInvitedAt().toString() : null,
-                inv.getAcceptedAt() != null ? inv.getAcceptedAt().toString() : null
+                inv.getAcceptedAt() != null ? inv.getAcceptedAt().toString() : null,
+                inv.getToken() != null ? baseUrl + "/invite/" + inv.getToken() : null
         );
     }
 }

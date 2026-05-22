@@ -158,7 +158,7 @@ public class SettingsService {
     @Transactional(readOnly = true)
     public List<InvitedUserResponse> listInvitations() {
         return invitationRepo.findAllByOrderByInvitedAtDesc()
-                .stream().map(InvitedUserResponse::from).toList();
+                .stream().map(inv -> InvitedUserResponse.from(inv, baseUrl)).toList();
     }
 
     @Transactional
@@ -167,7 +167,11 @@ public class SettingsService {
                 .map(existing -> { existing.resend(); return existing; })
                 .orElseGet(() -> UserInvitation.create(req.email(), req.company(), req.role()));
         invitationRepo.save(inv);
-        emailService.sendInvitation(inv.getEmail(), inv.getRole(), baseUrl + "/invite/" + inv.getToken());
+        try {
+            emailService.sendInvitation(inv.getEmail(), inv.getRole(), baseUrl + "/invite/" + inv.getToken());
+        } catch (Exception e) {
+            log.error("[SETTINGS] 초대 메일 발송 실패 email={} token={}", req.email(), inv.getToken(), e);
+        }
         log.info("[SETTINGS] 사용자 초대 email={} role={}", req.email(), req.role());
         return inv.getId();
     }
@@ -176,7 +180,11 @@ public class SettingsService {
     public void resendInvitation(UUID id) {
         UserInvitation inv = requireInvitation(id);
         inv.resend();
-        emailService.sendInvitation(inv.getEmail(), inv.getRole(), baseUrl + "/invite/" + inv.getToken());
+        try {
+            emailService.sendInvitation(inv.getEmail(), inv.getRole(), baseUrl + "/invite/" + inv.getToken());
+        } catch (Exception e) {
+            log.error("[SETTINGS] 초대 메일 재발송 실패 id={} email={} token={}", id, inv.getEmail(), inv.getToken(), e);
+        }
         log.info("[SETTINGS] 초대 재발송 id={}", id);
     }
 

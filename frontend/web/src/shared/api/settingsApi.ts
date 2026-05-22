@@ -66,6 +66,7 @@ export interface InvitedUser {
   status: InvitationStatus
   invitedAt: string
   acceptedAt: string | null
+  inviteUrl?: string | null
 }
 
 export const settingsApi = {
