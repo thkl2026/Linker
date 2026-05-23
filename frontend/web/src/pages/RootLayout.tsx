@@ -42,12 +42,6 @@ const NAV_ITEMS: Record<string, NavItem[]> = {
   ],
 }
 
-const ROLE_LABEL: Record<string, string> = {
-  SYSTEM_ADMIN: 'System Admin',
-  SERVICE_ADMIN: 'Service Admin',
-  PM:           'Project Manager',
-  PROCUREMENT:  'Procurement',
-}
 
 export function RootLayout() {
   const accessToken = useAuthStore(s => s.accessToken)
@@ -146,13 +140,6 @@ export function RootLayout() {
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="sticky top-0 z-10 bg-white border-b border-border/20 px-6 py-3 flex items-center justify-end h-12">
-          {user && (
-            <span className="text-xs text-primary/40 font-medium">
-              {ROLE_LABEL[role] ?? role} · {user.email}
-            </span>
-          )}
-        </header>
         <main className="flex-1 overflow-auto bg-background">
           <Outlet />
         </main>
