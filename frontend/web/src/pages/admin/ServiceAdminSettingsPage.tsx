@@ -760,7 +760,7 @@ function ContractorsTab({ initial }: { initial: MasterData }) {
                 {editingIdx === idx ? (
                   <>
                     <td className="px-2 py-1.5"><input className={inputCls} value={r.name} onChange={e => update(idx, { name: e.target.value })} /></td>
-                    <td className="px-2 py-1.5"><input className={inputCls} value={r.registrationNo} onChange={e => update(idx, { registrationNo: formatBizNo(e.target.value) })} placeholder="000-00-00000" /></td>
+                    <td className="px-2 py-1.5"><input className={inputCls} value={formatBizNo(r.registrationNo)} onChange={e => update(idx, { registrationNo: formatBizNo(e.target.value) })} placeholder="000-00-00000" /></td>
                     <td className="px-2 py-1.5"><input className={inputCls} value={r.phone} onChange={e => update(idx, { phone: e.target.value })} placeholder="02-1234-5678" /></td>
                     <td className="px-2 py-1.5">
                       <div className="flex flex-row gap-1">
@@ -803,7 +803,7 @@ function ContractorsTab({ initial }: { initial: MasterData }) {
                 ) : (
                   <>
                     <td className={`${cellCls} font-bold text-primary`}>{r.name}</td>
-                    <td className={cellCls}>{r.registrationNo || <span className="text-primary/20">—</span>}</td>
+                    <td className={cellCls}>{r.registrationNo ? formatBizNo(r.registrationNo) : <span className="text-primary/20">—</span>}</td>
                     <td className={cellCls}>{r.phone || <span className="text-primary/20">—</span>}</td>
                     <td className={cellCls}>{r.bankAccount ? (
                       <div className="flex flex-col leading-tight">
@@ -1019,7 +1019,7 @@ function ReferralTab({ initial }: { initial: MasterData }) {
                 {editingIdx === idx ? (
                   <>
                     <td className="px-2 py-1.5"><input className={refInputCls} value={r.name} onChange={e => update(idx, { name: e.target.value })} /></td>
-                    <td className="px-2 py-1.5"><input className={refInputCls} value={r.registrationNo} onChange={e => update(idx, { registrationNo: formatBizNo(e.target.value) })} placeholder="000-00-00000" /></td>
+                    <td className="px-2 py-1.5"><input className={refInputCls} value={formatBizNo(r.registrationNo)} onChange={e => update(idx, { registrationNo: formatBizNo(e.target.value) })} placeholder="000-00-00000" /></td>
                     <td className="px-2 py-1.5"><input className={refInputCls} value={r.phone} onChange={e => update(idx, { phone: e.target.value })} placeholder="021-555-1234" /></td>
                     <td className="px-2 py-1.5">
                       <div className="flex flex-row gap-1">
@@ -1062,7 +1062,7 @@ function ReferralTab({ initial }: { initial: MasterData }) {
                 ) : (
                   <>
                     <td className={`${refCellCls} font-bold text-primary`}>{r.name}</td>
-                    <td className={refCellCls}>{r.registrationNo || <span className="text-primary/20">—</span>}</td>
+                    <td className={refCellCls}>{r.registrationNo ? formatBizNo(r.registrationNo) : <span className="text-primary/20">—</span>}</td>
                     <td className={refCellCls}>{r.phone || <span className="text-primary/20">—</span>}</td>
                     <td className={refCellCls}>{r.bankAccount || <span className="text-primary/20">—</span>}</td>
                     <td className={refCellCls}>
