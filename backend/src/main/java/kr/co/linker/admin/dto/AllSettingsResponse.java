@@ -23,7 +23,17 @@ public record AllSettingsResponse(
     public record Attachment(String name, String key) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record ReferralContact(String name, String position, String email, String phone) {}
+    public record Contact(String name, String position, String email, String phone) {}
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record Contractor(
+            String name,
+            String registrationNo,
+            String phone,
+            String bankAccount,
+            List<Attachment> attachments,
+            List<Contact> contacts
+    ) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record ReferralSource(
@@ -33,10 +43,10 @@ public record AllSettingsResponse(
             String phone,
             String bankAccount,
             List<Attachment> attachments,
-            List<ReferralContact> contacts
+            List<Contact> contacts
     ) {}
 
-    public record MasterData(List<String> contractors, List<String> techStacks, List<ReferralSource> referralSources, List<String> projectRoles) {}
+    public record MasterData(List<Contractor> contractors, List<String> techStacks, List<ReferralSource> referralSources, List<String> projectRoles) {}
 
     public record SmtpSettings(String host, Integer port, String username, boolean hasPassword) {}
 }

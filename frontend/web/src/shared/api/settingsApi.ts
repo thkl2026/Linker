@@ -33,11 +33,22 @@ export interface ReferralAttachment {
   key: string
 }
 
-export interface ReferralContact {
+export interface Contact {
   name: string
   position: string
   email: string
   phone: string
+}
+
+export type ReferralContact = Contact
+
+export interface Contractor {
+  name: string
+  registrationNo: string
+  phone: string
+  bankAccount: string
+  attachments?: ReferralAttachment[]
+  contacts?: Contact[]
 }
 
 export interface ReferralSource {
@@ -47,11 +58,11 @@ export interface ReferralSource {
   phone: string
   bankAccount: string
   attachments?: ReferralAttachment[]
-  contacts?: ReferralContact[]
+  contacts?: Contact[]
 }
 
 export interface MasterData {
-  contractors: string[]
+  contractors: Contractor[]
   techStacks: string[]
   referralSources: ReferralSource[]
   projectRoles: string[]

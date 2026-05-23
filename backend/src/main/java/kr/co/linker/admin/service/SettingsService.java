@@ -82,8 +82,8 @@ public class SettingsService {
                 Boolean.parseBoolean(map.getOrDefault("notification.urgentEnabled", "true"))
         );
 
-        List<String> contractors = parseJson(map.getOrDefault("master.contractors", "[]"), new TypeReference<>() {});
-        List<String> techStacks  = parseJson(map.getOrDefault("master.techStacks",  "[]"), new TypeReference<>() {});
+        List<AllSettingsResponse.Contractor> contractors = parseContractors(map.getOrDefault("master.contractors", "[]"));
+        List<String> techStacks = parseJson(map.getOrDefault("master.techStacks", "[]"), new TypeReference<>() {});
 
         // 추천소스: 신규 키 우선, 없으면 구 문자열 배열에서 마이그레이션
         List<AllSettingsResponse.ReferralSource> referralSources;
@@ -232,6 +232,22 @@ public class SettingsService {
         try { return objectMapper.readValue(json, type); }
         catch (Exception e) {
             throw new LinkerException(HttpStatus.INTERNAL_SERVER_ERROR, "SETTINGS_PARSE_ERROR", "설정 파싱 오류");
+        }
+    }
+
+    // 구(문자열 배열) 포맷에서 신(객체 배열) 포맷으로 마이그레이션
+    private List<AllSettingsResponse.Contractor> parseContractors(String json) {
+        try {
+            return objectMapper.readValue(json, new TypeReference<List<AllSettingsResponse.Contractor>>() {});
+        } catch (Exception e) {
+            try {
+                List<String> oldNames = objectMapper.readValue(json, new TypeReference<List<String>>() {});
+                return oldNames.stream()
+                        .map(name -> new AllSettingsResponse.Contractor(name, "", "", "", List.of(), List.of()))
+                        .toList();
+            } catch (Exception e2) {
+                return List.of();
+            }
         }
     }
 

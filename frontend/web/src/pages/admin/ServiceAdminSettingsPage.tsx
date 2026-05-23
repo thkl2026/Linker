@@ -8,9 +8,10 @@ import {
   type NotificationSettings,
   type MasterData,
   type SmtpSettings,
+  type Contractor,
   type ReferralSource,
   type ReferralAttachment,
-  type ReferralContact,
+  type Contact,
   type InvitedUser,
 } from '@/shared/api/settingsApi'
 
@@ -658,52 +659,223 @@ function MasterDataTab({ initial }: { initial: MasterData }) {
 }
 
 // ─── Contractors tab ──────────────────────────────────────────────────────────
+const EMPTY_CONTRACTOR: Contractor = { name: '', registrationNo: '', phone: '', bankAccount: '', attachments: [] }
+const EMPTY_CONTACT: Contact = { name: '', position: '', email: '', phone: '' }
+
 function ContractorsTab({ initial }: { initial: MasterData }) {
-  const [contractors, setContractors] = useState(initial.contractors)
-  const [newContractor, setNewContractor] = useState('')
+  const [items, setItems]             = useState<Contractor[]>(initial.contractors)
+  const [newItem, setNewItem]         = useState<Contractor>(EMPTY_CONTRACTOR)
+  const [editingIdx, setEditingIdx]   = useState<number | null>(null)
+  const [expandedIdx, setExpandedIdx] = useState<number | null>(null)
+  const [newContact, setNewContact]   = useState<Contact>(EMPTY_CONTACT)
+  const [uploadingIdx, setUploadingIdx] = useState<number | null>(null)
   const { addToast } = useUiStore()
   const qc = useQueryClient()
 
-  useEffect(() => { setContractors(initial.contractors) }, [initial.contractors.length])
+  useEffect(() => { setItems(initial.contractors) }, [initial.contractors.length])
 
   const { mutate, isPending } = useMutation({
-    mutationFn: () => settingsApi.saveMasterData({ ...initial, contractors }),
+    mutationFn: () => settingsApi.saveMasterData({ ...initial, contractors: items }),
     onSuccess: () => {
-      addToast('주사업자 목록이 저장되었습니다.', 'success')
+      addToast('주사업자 정보가 저장되었습니다.', 'success')
       qc.invalidateQueries({ queryKey: ['settings'] })
     },
     onError: () => addToast('저장에 실패했습니다.', 'error'),
   })
 
-  function add() {
-    const v = newContractor.trim()
-    if (!v || contractors.includes(v)) return
-    setContractors(c => [...c, v])
-    setNewContractor('')
+  function update(idx: number, patch: Partial<Contractor>) {
+    setItems(s => s.map((r, i) => i === idx ? { ...r, ...patch } : r))
   }
 
+  function remove(idx: number) {
+    setItems(s => s.filter((_, i) => i !== idx))
+    if (expandedIdx === idx) setExpandedIdx(null)
+    else if (expandedIdx !== null && expandedIdx > idx) setExpandedIdx(expandedIdx - 1)
+  }
+
+  function addItem() {
+    if (!newItem.name.trim()) return
+    setItems(s => [...s, { ...newItem, name: newItem.name.trim(), contacts: [] }])
+    setNewItem(EMPTY_CONTRACTOR)
+  }
+
+  function addContact(idx: number) {
+    if (!newContact.name.trim()) return
+    update(idx, { contacts: [...(items[idx].contacts ?? []), { ...newContact }] })
+    setNewContact(EMPTY_CONTACT)
+  }
+
+  function removeContact(agencyIdx: number, contactIdx: number) {
+    update(agencyIdx, { contacts: (items[agencyIdx].contacts ?? []).filter((_, i) => i !== contactIdx) })
+  }
+
+  const cellCls  = 'px-3 py-2.5 text-sm text-primary/70'
+  const inputCls = 'bg-background border border-dashed border-border/50 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-secondary transition-all w-full'
+
   return (
-    <Section title="주사업자 관리" sub="프로젝트에 참여하는 주사업자(원도급) 회사 목록을 관리합니다.">
-      <div className="flex flex-wrap gap-2 min-h-[80px] mb-6">
-        {contractors.map(c => (
-          <span key={c} className="px-4 py-2 bg-surface border border-border/50 rounded-xl text-sm font-bold flex items-center gap-2">
-            {c}
-            <button onClick={() => setContractors(cs => cs.filter(x => x !== c))}
-              className="opacity-30 hover:opacity-100 hover:text-danger transition-all">✕</button>
-          </span>
-        ))}
-        {contractors.length === 0 && <p className="text-sm text-primary/30">등록된 주사업자가 없습니다.</p>}
+    <Section title="주사업자 관리" sub="프로젝트에 참여하는 주사업자(원도급) 회사 정보 및 담당자를 관리합니다.">
+      <div className="border border-border/30 rounded-2xl overflow-hidden mb-6">
+        <table className="w-full text-sm">
+          <thead className="bg-surface text-[11px] font-black text-primary/40 uppercase tracking-wider">
+            <tr>
+              <th className="px-4 py-3 text-left border-b border-border/20 w-[20%]">회사명</th>
+              <th className="px-4 py-3 text-left border-b border-border/20 w-[15%]">사업자등록번호</th>
+              <th className="px-4 py-3 text-left border-b border-border/20 w-[13%]">전화번호</th>
+              <th className="px-4 py-3 text-left border-b border-border/20 w-[15%]">통장번호</th>
+              <th className="px-4 py-3 text-left border-b border-border/20 w-[14%]">첨부파일</th>
+              <th className="px-4 py-3 text-center border-b border-border/20 w-[11%]">담당자</th>
+              <th className="px-4 py-3 text-center border-b border-border/20 w-[12%]">액션</th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((r, idx) => (
+              <tr key={idx} className={`border-b border-border/10 transition-colors ${expandedIdx === idx ? 'bg-primary/5' : 'hover:bg-surface/50'}`}>
+                {editingIdx === idx ? (
+                  <>
+                    <td className="px-2 py-1.5"><input className={inputCls} value={r.name} onChange={e => update(idx, { name: e.target.value })} /></td>
+                    <td className="px-2 py-1.5"><input className={inputCls} value={r.registrationNo} onChange={e => update(idx, { registrationNo: e.target.value })} placeholder="000-00-00000" /></td>
+                    <td className="px-2 py-1.5"><input className={inputCls} value={r.phone} onChange={e => update(idx, { phone: e.target.value })} placeholder="02-1234-5678" /></td>
+                    <td className="px-2 py-1.5"><input className={inputCls} value={r.bankAccount} onChange={e => update(idx, { bankAccount: e.target.value })} placeholder="은행 계좌번호" /></td>
+                    <td className="px-2 py-1.5">
+                      <AttachmentCell
+                        attachments={r.attachments ?? []}
+                        uploading={uploadingIdx === idx}
+                        onUpload={async (file, name) => {
+                          setUploadingIdx(idx)
+                          try {
+                            const res = await settingsApi.uploadReferralAttachment(file, name)
+                            update(idx, { attachments: [...(r.attachments ?? []), res.data] })
+                          } finally { setUploadingIdx(null) }
+                        }}
+                        onDelete={att => update(idx, { attachments: (r.attachments ?? []).filter(a => a.key !== att.key) })}
+                        onDownload={async att => { const res = await settingsApi.getAttachmentDownloadUrl(att.key); window.open(res.data.url, '_blank') }}
+                      />
+                    </td>
+                    <td className="px-2 py-1.5 text-center">
+                      <span className="text-xs text-primary/40">{(r.contacts ?? []).length}명</span>
+                    </td>
+                    <td className="px-2 py-1.5 text-center">
+                      <button onClick={() => setEditingIdx(null)} className="text-[11px] font-black text-secondary hover:underline">완료</button>
+                    </td>
+                  </>
+                ) : (
+                  <>
+                    <td className={`${cellCls} font-bold text-primary`}>{r.name}</td>
+                    <td className={cellCls}>{r.registrationNo || <span className="text-primary/20">—</span>}</td>
+                    <td className={cellCls}>{r.phone || <span className="text-primary/20">—</span>}</td>
+                    <td className={cellCls}>{r.bankAccount || <span className="text-primary/20">—</span>}</td>
+                    <td className={cellCls}>
+                      {(r.attachments ?? []).length > 0 ? (
+                        <div className="flex flex-wrap gap-1">
+                          {(r.attachments ?? []).map(att => (
+                            <button key={att.key}
+                              onClick={async () => { const res = await settingsApi.getAttachmentDownloadUrl(att.key); window.open(res.data.url, '_blank') }}
+                              className="flex items-center gap-1 px-2 py-0.5 bg-amber-50 border border-amber-200 rounded-lg text-[11px] font-bold text-amber-700 hover:bg-amber-100 transition-colors">
+                              📎 {att.name}
+                            </button>
+                          ))}
+                        </div>
+                      ) : <span className="text-primary/20">—</span>}
+                    </td>
+                    <td className="px-2 py-2.5 text-center">
+                      <button
+                        onClick={() => { setExpandedIdx(expandedIdx === idx ? null : idx); setNewContact(EMPTY_CONTACT) }}
+                        className={`px-3 py-1 rounded-xl text-[11px] font-black transition-all ${
+                          expandedIdx === idx
+                            ? 'bg-primary text-white'
+                            : 'bg-secondary/5 border border-secondary/20 text-secondary hover:bg-secondary hover:text-white'
+                        }`}
+                      >
+                        담당자 {(r.contacts ?? []).length}명
+                      </button>
+                    </td>
+                    <td className="px-2 py-2.5 text-center">
+                      <div className="flex items-center justify-center gap-2">
+                        <button onClick={() => setEditingIdx(idx)} className="text-[11px] font-black text-primary/40 hover:text-secondary transition-colors">수정</button>
+                        <button onClick={() => remove(idx)} className="text-[11px] font-black text-primary/40 hover:text-danger transition-colors">삭제</button>
+                      </div>
+                    </td>
+                  </>
+                )}
+              </tr>
+            ))}
+            {/* 신규 입력 행 */}
+            <tr className="bg-surface/30">
+              <td className="px-2 py-2"><input className={inputCls} value={newItem.name} onChange={e => setNewItem(r => ({ ...r, name: e.target.value }))} onKeyDown={e => e.key === 'Enter' && addItem()} placeholder="회사명 *" /></td>
+              <td className="px-2 py-2"><input className={inputCls} value={newItem.registrationNo} onChange={e => setNewItem(r => ({ ...r, registrationNo: e.target.value }))} placeholder="000-00-00000" /></td>
+              <td className="px-2 py-2"><input className={inputCls} value={newItem.phone} onChange={e => setNewItem(r => ({ ...r, phone: e.target.value }))} placeholder="02-1234-5678" /></td>
+              <td className="px-2 py-2"><input className={inputCls} value={newItem.bankAccount} onChange={e => setNewItem(r => ({ ...r, bankAccount: e.target.value }))} placeholder="은행 계좌번호" /></td>
+              <td className="px-2 py-2"><span className="text-xs text-primary/30">추가 후 수정에서 첨부</span></td>
+              <td className="px-2 py-2"></td>
+              <td className="px-2 py-2 text-center">
+                <button onClick={addItem} disabled={!newItem.name.trim()}
+                  className="px-3 py-1.5 bg-secondary/5 border border-secondary/20 text-secondary text-xs font-black rounded-xl hover:bg-secondary hover:text-white transition-all disabled:opacity-30">
+                  + 추가
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <div className="flex gap-2">
-        <input value={newContractor} onChange={e => setNewContractor(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && add()} placeholder="(주)회사명..."
-          className="flex-1 bg-background border border-dashed border-border/50 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-secondary transition-all" />
-        <button onClick={add}
-          className="px-5 py-3 bg-secondary/5 border border-secondary/20 text-secondary text-sm font-black rounded-2xl hover:bg-secondary hover:text-white transition-all">
-          + 추가
-        </button>
-      </div>
-      <div className="pt-8 border-t border-border/10 flex justify-end mt-8">
+
+      {/* 담당자 패널 */}
+      {expandedIdx !== null && items[expandedIdx] && (
+        <div className="bg-surface/50 border border-border/30 rounded-2xl p-6 mb-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <h4 className="text-sm font-black text-primary">
+              {items[expandedIdx].name}
+              <span className="text-primary/40 font-bold ml-2">담당자 목록</span>
+            </h4>
+            <span className="text-xs text-primary/30">{(items[expandedIdx].contacts ?? []).length}명</span>
+          </div>
+
+          {(items[expandedIdx].contacts ?? []).length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {(items[expandedIdx].contacts ?? []).map((contact, cIdx) => (
+                <div key={cIdx} className="flex items-start justify-between bg-white rounded-2xl p-4 border border-border/30 shadow-sm">
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="text-sm font-black text-primary">{contact.name}</p>
+                      {contact.position && (
+                        <span className="text-[10px] font-bold text-primary/50 bg-surface px-2 py-0.5 rounded-lg border border-border/30">
+                          {contact.position}
+                        </span>
+                      )}
+                    </div>
+                    {contact.email && <p className="text-xs text-primary/60">✉️ {contact.email}</p>}
+                    {contact.phone && <p className="text-xs text-primary/60">📞 {contact.phone}</p>}
+                  </div>
+                  <button onClick={() => removeContact(expandedIdx, cIdx)}
+                    className="text-primary/20 hover:text-danger transition-colors text-xs shrink-0 mt-0.5">✕</button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-xs text-primary/30 py-2">등록된 담당자가 없습니다. 아래에서 추가하세요.</p>
+          )}
+
+          <div className="grid grid-cols-5 gap-2 pt-4 border-t border-border/10">
+            <input value={newContact.name} onChange={e => setNewContact(c => ({ ...c, name: e.target.value }))}
+              placeholder="이름 *"
+              className="bg-white border border-dashed border-border/50 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-secondary transition-all" />
+            <input value={newContact.position} onChange={e => setNewContact(c => ({ ...c, position: e.target.value }))}
+              placeholder="직책"
+              className="bg-white border border-dashed border-border/50 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-secondary transition-all" />
+            <input value={newContact.email} onChange={e => setNewContact(c => ({ ...c, email: e.target.value }))}
+              placeholder="이메일"
+              className="bg-white border border-dashed border-border/50 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-secondary transition-all" />
+            <input value={newContact.phone} onChange={e => setNewContact(c => ({ ...c, phone: e.target.value }))}
+              placeholder="전화번호"
+              className="bg-white border border-dashed border-border/50 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-secondary transition-all" />
+            <button onClick={() => addContact(expandedIdx)} disabled={!newContact.name.trim()}
+              className="px-3 py-2.5 bg-secondary/5 border border-secondary/20 text-secondary text-xs font-black rounded-xl hover:bg-secondary hover:text-white transition-all disabled:opacity-30">
+              + 담당자 추가
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="pt-6 border-t border-border/10 flex justify-end">
         <button onClick={() => mutate()} disabled={isPending}
           className="px-10 py-4 bg-primary text-white rounded-2xl text-sm font-black shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50">
           {isPending ? '저장 중...' : '변경 사항 저장'}
@@ -714,14 +886,12 @@ function ContractorsTab({ initial }: { initial: MasterData }) {
 }
 
 // ─── Referral tab ─────────────────────────────────────────────────────────────
-const EMPTY_CONTACT: ReferralContact = { name: '', position: '', email: '', phone: '' }
-
 function ReferralTab({ initial }: { initial: MasterData }) {
   const [sources, setSources]           = useState<ReferralSource[]>(initial.referralSources ?? [])
   const [newRef, setNewRef]             = useState<ReferralSource>(EMPTY_REFERRAL)
   const [editingIdx, setEditingIdx]     = useState<number | null>(null)
   const [expandedIdx, setExpandedIdx]   = useState<number | null>(null)
-  const [newContact, setNewContact]     = useState<ReferralContact>(EMPTY_CONTACT)
+  const [newContact, setNewContact]     = useState<Contact>(EMPTY_CONTACT)
   const [uploadingIdx, setUploadingIdx] = useState<number | null>(null)
   const { addToast } = useUiStore()
   const qc = useQueryClient()
