@@ -1,8 +1,11 @@
+import { useState, useEffect } from 'react'
 import { Outlet, NavLink, useNavigate, Navigate } from 'react-router-dom'
 import linkerLogo from '@/statics/linker_bi_logo.png'
 import { ToastContainer } from '@/shared/components/ToastContainer'
 import { useAuthStore } from '@/store/authStore'
 import { useUiStore } from '@/store/uiStore'
+import { authApi } from '@/shared/api/authApi'
+import { APP_CONSTANTS } from '@/shared/constants/appConstants'
 
 interface NavItem {
   to: string
@@ -44,13 +47,41 @@ const NAV_ITEMS: Record<string, NavItem[]> = {
 
 
 export function RootLayout() {
+  const isAuthenticated = useAuthStore(s => s.isAuthenticated)
   const accessToken = useAuthStore(s => s.accessToken)
+  const setAccessToken = useAuthStore(s => s.setAccessToken)
   const user = useAuthStore(s => s.user)
   const clearAuth = useAuthStore(s => s.clearAuth)
   const { isSidebarOpen, toggleSidebar } = useUiStore()
   const navigate = useNavigate()
 
-  if (!accessToken) return <Navigate to="/auth/login" replace />
+  // reload 시 accessToken은 사라지지만 isAuthenticated는 localStorage에 남아 있음
+  // refresh token으로 조용히 새 access token을 발급받는다
+  const [booting, setBooting] = useState(() => isAuthenticated && !accessToken)
+
+  useEffect(() => {
+    if (!isAuthenticated || accessToken) { setBooting(false); return }
+    const refreshToken = localStorage.getItem(APP_CONSTANTS.REFRESH_TOKEN_KEY)
+    if (!refreshToken) { clearAuth(); setBooting(false); return }
+    authApi.refresh(refreshToken)
+      .then(res => {
+        setAccessToken(res.data.accessToken)
+        localStorage.setItem(APP_CONSTANTS.REFRESH_TOKEN_KEY, res.data.refreshToken)
+      })
+      .catch(() => clearAuth())
+      .finally(() => setBooting(false))
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  if (!isAuthenticated) return <Navigate to="/auth/login" replace />
+  if (booting) return (
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-8 h-8 border-2 border-secondary border-t-transparent rounded-full animate-spin" />
+        <p className="text-xs text-primary/40 font-bold">세션 복원 중...</p>
+      </div>
+    </div>
+  )
 
   const role = user?.role ?? ''
   const navItems = NAV_ITEMS[role] ?? []

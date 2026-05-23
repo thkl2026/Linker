@@ -2798,7 +2798,7 @@ function TalentCreateModal({ onClose, onSave, isPending }: {
   )
 }
 
-// ── 프로젝트 할당 모달 ────────────────────────────────────────────────────────
+// ── 프로젝트 배정 모달 ──────────────────────────────────────────────────────
 
 function ProjectAssignModal({ talent, onClose }: { talent: TalentAdmin; onClose: () => void }) {
   const qc = useQueryClient()
@@ -2822,7 +2822,7 @@ function ProjectAssignModal({ talent, onClose }: { talent: TalentAdmin; onClose:
   const { mutate, isPending } = useMutation({
     mutationFn: () => serviceAdminApi.assignMember(selectedProjectId, talent.id, role || undefined),
     onSuccess: () => {
-      addToast(`${displayName(talent.name)}을(를) 프로젝트에 할당했습니다.`, 'success')
+      addToast(`${displayName(talent.name)}을(를) 프로젝트에 배정했습니다.`, 'success')
       qc.invalidateQueries({ queryKey: ['service-admin', 'projects'] })
       onClose()
     },
@@ -2833,7 +2833,7 @@ function ProjectAssignModal({ talent, onClose }: { talent: TalentAdmin; onClose:
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8">
-        <h3 className="text-lg font-black mb-1">프로젝트 할당</h3>
+        <h3 className="text-lg font-black mb-1">프로젝트 배정</h3>
         <p className="text-xs text-primary/40 mb-6">{talent.name} · {talent.category ?? '-'}</p>
 
         <div className="space-y-4">
@@ -3597,7 +3597,7 @@ export function TalentCareerPage() {
             <button
               onClick={() => { setAssignTarget(t); setOpenDropdownId(null) }}
               className="w-full text-left px-4 py-2.5 text-sm text-primary hover:bg-surface transition-colors flex items-center gap-2">
-              <span className="text-base">📋</span> 프로젝트 할당
+              <span className="text-base">📋</span> 프로젝트 배정
             </button>
           </div>
         )
