@@ -62,6 +62,10 @@ export const router = createBrowserRouter([
         lazy: () => import('./pages/admin/ServiceAdminSettingsPage').then(m => ({ Component: m.ServiceAdminSettingsPage })),
       },
       {
+        path: 'service-admin/reports',
+        lazy: () => import('./pages/admin/ReportsPage').then(m => ({ Component: m.ReportsPage })),
+      },
+      {
         path: 'service-admin/notices',
         lazy: () => import('./pages/admin/NoticeManagementPage').then(m => ({ Component: m.NoticeManagementPage })),
       },

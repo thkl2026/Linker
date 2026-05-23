@@ -23,6 +23,7 @@ const NAV_ITEMS: Record<string, NavItem[]> = {
     { to: '/app/service-admin/talents',      label: '전문가 관리',    icon: '👥' },
     { to: '/app/service-admin/projects',     label: '프로젝트 관리',  icon: '📁' },
     { to: '/app/service-admin/evaluations',  label: '평가/리뷰 관리', icon: '⭐' },
+    { to: '/app/service-admin/reports',      label: '통계 및 보고서', icon: '📈' },
     { to: '/app/service-admin/notices',      label: '공지사항',       icon: '📢' },
     { to: '/app/service-admin/settings',     label: '설정',           icon: '⚙️', isSystem: true },
   ],
