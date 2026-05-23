@@ -111,7 +111,7 @@ public interface TalentProfileRepository extends JpaRepository<TalentProfile, UU
     @Query("SELECT t.category, COUNT(t) FROM TalentProfile t WHERE t.deletedAt IS NULL GROUP BY t.category ORDER BY COUNT(t) DESC")
     List<Object[]> countByCategory();
 
-    @Query("SELECT t.skillGrade, COUNT(t) FROM TalentProfile t WHERE t.deletedAt IS NULL AND t.skillGrade IS NOT NULL GROUP BY t.skillGrade ORDER BY COUNT(t) DESC")
+    @Query("SELECT t.skillGrade, COUNT(t) FROM TalentProfile t WHERE t.deletedAt IS NULL GROUP BY t.skillGrade ORDER BY COUNT(t) DESC")
     List<Object[]> countBySkillGrade();
 
     @Query("SELECT COUNT(t) FROM TalentProfile t WHERE t.deletedAt IS NULL AND t.bonusScore >= :min")
