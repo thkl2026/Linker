@@ -436,6 +436,14 @@ public class ServiceAdminService {
     }
 
     @Transactional
+    public void updateProjectSkills(UUID projectId, String requiredSkills) {
+        ProjectOpportunity project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new LinkerException(HttpStatus.NOT_FOUND, "PROJECT_NOT_FOUND", "프로젝트를 찾을 수 없습니다."));
+        project.updateRequiredSkills(requiredSkills);
+        log.info("[SERVICE_ADMIN] 필요 역할 수정 projectId={}", projectId);
+    }
+
+    @Transactional
     public void changeProjectStatus(UUID projectId, ProjectStatus newStatus) {
         ProjectOpportunity project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new LinkerException(HttpStatus.NOT_FOUND, "PROJECT_NOT_FOUND", "프로젝트를 찾을 수 없습니다."));

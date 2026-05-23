@@ -226,16 +226,91 @@ function MemberRow({ member, projectId }: { member: ProjectMember; projectId: st
   )
 }
 
-// ── Skill Row with Assign Button ──────────────────────────────────────────────
+// ── Skill Edit Modal ─────────────────────────────────────────────────────────
 
-function SkillRowItem({ skill, onAssign }: { skill: SkillRow; onAssign: (role: string) => void }) {
+const EMPTY_SKILL: SkillRow = { role: '', headcount: 1 }
+
+function SkillEditModal({ initial, onSave, onClose }: {
+  initial: SkillRow
+  onSave: (row: SkillRow) => void
+  onClose: () => void
+}) {
+  const [form, setForm] = useState<SkillRow>({ ...initial })
+  const set = (k: keyof SkillRow, v: string | number) => setForm(f => ({ ...f, [k]: v }))
+
   return (
-    <div className="flex items-start gap-4 p-4 rounded-2xl bg-surface/50 border border-border/20 hover:border-border/40 transition-all">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md mx-4 p-8 space-y-5">
+        <h3 className="text-base font-black text-primary">
+          {initial.role ? '역할 수정' : '역할 추가'}
+        </h3>
+        <div className="space-y-3">
+          <div>
+            <label className="block text-[11px] font-black text-primary/40 uppercase mb-1">역할명 *</label>
+            <input value={form.role} onChange={e => set('role', e.target.value)}
+              className="w-full border border-border/50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary" placeholder="예: 보안 엔지니어" />
+          </div>
+          <div className="flex gap-3">
+            <div className="flex-1">
+              <label className="block text-[11px] font-black text-primary/40 uppercase mb-1">인원</label>
+              <input type="number" min={1} value={form.headcount} onChange={e => set('headcount', Number(e.target.value))}
+                className="w-full border border-border/50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary" />
+            </div>
+            <div className="flex-1">
+              <label className="block text-[11px] font-black text-primary/40 uppercase mb-1">MM</label>
+              <input type="number" min={0} step={0.5} value={form.mm ?? ''} onChange={e => set('mm', e.target.value === '' ? 0 : Number(e.target.value))}
+                className="w-full border border-border/50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary" placeholder="0" />
+            </div>
+          </div>
+          <div>
+            <label className="block text-[11px] font-black text-primary/40 uppercase mb-1">기술스택</label>
+            <input value={form.techStack ?? ''} onChange={e => set('techStack', e.target.value)}
+              className="w-full border border-border/50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary" placeholder="예: Fortinet, Juniper" />
+          </div>
+          <div className="flex gap-3">
+            <div className="flex-1">
+              <label className="block text-[11px] font-black text-primary/40 uppercase mb-1">시작일</label>
+              <input type="date" value={form.roleStart ?? ''} onChange={e => set('roleStart', e.target.value)}
+                className="w-full border border-border/50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary" />
+            </div>
+            <div className="flex-1">
+              <label className="block text-[11px] font-black text-primary/40 uppercase mb-1">종료일</label>
+              <input type="date" value={form.roleEnd ?? ''} onChange={e => set('roleEnd', e.target.value)}
+                className="w-full border border-border/50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary" />
+            </div>
+          </div>
+        </div>
+        <div className="flex gap-3 pt-2">
+          <button onClick={onClose}
+            className="flex-1 py-2.5 border border-border/50 rounded-2xl text-sm font-bold text-primary/50 hover:bg-surface transition-all">
+            취소
+          </button>
+          <button onClick={() => { if (form.role.trim()) onSave(form) }}
+            disabled={!form.role.trim()}
+            className="flex-1 py-2.5 bg-secondary text-white rounded-2xl text-sm font-black shadow-lg shadow-secondary/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-40">
+            저장
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── Skill Row with Assign/Edit/Delete ─────────────────────────────────────────
+
+function SkillRowItem({ skill, onAssign, onEdit, onDelete }: {
+  skill: SkillRow
+  onAssign: (role: string) => void
+  onEdit: () => void
+  onDelete: () => void
+}) {
+  return (
+    <div className="flex items-start gap-4 p-4 rounded-2xl bg-surface/50 border border-border/20 hover:border-border/40 transition-all group">
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-3 flex-wrap">
           <span className="text-sm font-bold text-primary">{skill.role}</span>
           <span className="text-xs text-primary/50">{skill.headcount}명</span>
-          {skill.mm != null && <span className="text-xs text-primary/40">{skill.mm} MM</span>}
+          {skill.mm != null && skill.mm > 0 && <span className="text-xs text-primary/40">{skill.mm} MM</span>}
           {skill.roleStart && (
             <span className="text-xs text-primary/30">{fmt(skill.roleStart)} ~ {fmt(skill.roleEnd ?? null)}</span>
           )}
@@ -244,12 +319,24 @@ function SkillRowItem({ skill, onAssign }: { skill: SkillRow; onAssign: (role: s
           <p className="text-xs text-primary/40 mt-1">{skill.techStack}</p>
         )}
       </div>
-      <button
-        onClick={() => onAssign(skill.role)}
-        className="px-3 py-1.5 bg-primary/5 hover:bg-secondary hover:text-white text-primary text-xs font-black rounded-xl border border-border/30 hover:border-secondary transition-all shrink-0"
-      >
-        배정
-      </button>
+      <div className="flex items-center gap-1.5 shrink-0">
+        <button onClick={onEdit}
+          className="p-1.5 text-primary/20 hover:text-secondary transition-colors opacity-0 group-hover:opacity-100"
+          title="수정">
+          ✎
+        </button>
+        <button onClick={onDelete}
+          className="p-1.5 text-primary/20 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+          title="삭제">
+          ✕
+        </button>
+        <button
+          onClick={() => onAssign(skill.role)}
+          className="px-3 py-1.5 bg-primary/5 hover:bg-secondary hover:text-white text-primary text-xs font-black rounded-xl border border-border/30 hover:border-secondary transition-all"
+        >
+          배정
+        </button>
+      </div>
     </div>
   )
 }
@@ -267,9 +354,12 @@ export function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const qc = useQueryClient()
+  const { addToast } = useUiStore()
   const [modalRole, setModalRole] = useState<string | null>(null)
   const [statusMenuOpen, setStatusMenuOpen] = useState(false)
   const statusMenuRef = useRef<HTMLDivElement>(null)
+  // null = 닫힘, -1 = 신규 추가, 0+ = 편집 대상 인덱스
+  const [skillEditIndex, setSkillEditIndex] = useState<number | null>(null)
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -287,6 +377,17 @@ export function ProjectDetailPage() {
       qc.invalidateQueries({ queryKey: ['admin-projects'] })
       setStatusMenuOpen(false)
     },
+  })
+
+  const saveSkills = useMutation({
+    mutationFn: (skills: SkillRow[]) =>
+      serviceAdminApi.updateProjectSkills(id!, JSON.stringify(skills)),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['project-detail', id] })
+      addToast('필요 역할이 저장되었습니다.', 'success')
+      setSkillEditIndex(null)
+    },
+    onError: () => addToast('저장에 실패했습니다.', 'error'),
   })
 
   const { data: project, isLoading } = useQuery({
@@ -391,20 +492,36 @@ export function ProjectDetailPage() {
             )}
           </div>
 
-          {/* Required roles with assign buttons */}
-          {skills.length > 0 && (
-            <div className="bg-white rounded-3xl border border-border/30 shadow-sm p-7 space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-xs font-black text-primary/40 uppercase tracking-wider">필요 역할</h3>
-                <p className="text-xs text-primary/30">역할 행의 배정 버튼으로 전문가를 직접 배정할 수 있습니다.</p>
-              </div>
+          {/* Required roles */}
+          <div className="bg-white rounded-3xl border border-border/30 shadow-sm p-7 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-black text-primary/40 uppercase tracking-wider">필요 역할</h3>
+              <button
+                onClick={() => setSkillEditIndex(-1)}
+                className="px-3 py-1.5 bg-secondary text-white text-xs font-black rounded-xl shadow-md shadow-secondary/20 hover:scale-105 active:scale-95 transition-all"
+              >
+                + 역할 추가
+              </button>
+            </div>
+            {skills.length === 0 ? (
+              <p className="text-xs text-primary/30 text-center py-4">등록된 역할이 없습니다.</p>
+            ) : (
               <div className="space-y-3">
                 {skills.map((s, i) => (
-                  <SkillRowItem key={i} skill={s} onAssign={setModalRole} />
+                  <SkillRowItem
+                    key={i}
+                    skill={s}
+                    onAssign={setModalRole}
+                    onEdit={() => setSkillEditIndex(i)}
+                    onDelete={() => {
+                      const next = skills.filter((_, idx) => idx !== i)
+                      saveSkills.mutate(next)
+                    }}
+                  />
                 ))}
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* Right: members (1/3) */}
@@ -461,6 +578,19 @@ export function ProjectDetailPage() {
           initialRole={modalRole}
           assignedIds={assignedIds}
           onClose={() => setModalRole(null)}
+        />
+      )}
+
+      {skillEditIndex !== null && (
+        <SkillEditModal
+          initial={skillEditIndex === -1 ? EMPTY_SKILL : skills[skillEditIndex]}
+          onSave={row => {
+            const next = skillEditIndex === -1
+              ? [...skills, row]
+              : skills.map((s, i) => i === skillEditIndex ? row : s)
+            saveSkills.mutate(next)
+          }}
+          onClose={() => setSkillEditIndex(null)}
         />
       )}
     </div>

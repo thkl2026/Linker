@@ -432,6 +432,9 @@ export const serviceAdminApi = {
   removeMember: (projectId: string, memberId: string) =>
     axiosInstance.delete(`/api/v1/service-admin/projects/${projectId}/members/${memberId}`),
 
+  updateProjectSkills: (projectId: string, requiredSkills: string) =>
+    axiosInstance.patch(`/api/v1/service-admin/projects/${projectId}/skills`, { requiredSkills }),
+
   changeProjectStatus: (projectId: string, status: ProjectStatus) =>
     axiosInstance.patch(`/api/v1/service-admin/projects/${projectId}/status`, { status }),
 

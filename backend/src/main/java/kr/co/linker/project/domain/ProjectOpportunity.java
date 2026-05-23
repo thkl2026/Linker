@@ -135,6 +135,10 @@ public class ProjectOpportunity {
         this.status = newStatus;
     }
 
+    public void updateRequiredSkills(String requiredSkills) {
+        this.requiredSkills = requiredSkills;
+    }
+
     /** 관리자 메타 정보 수정 */
     public void updateAdminInfo(String clientCompany, String mainContractor, int requiredHeadcount,
                                 LocalDate startDate, LocalDate endDate) {

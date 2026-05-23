@@ -167,6 +167,14 @@ public class ServiceAdminController {
         return ResponseEntity.status(HttpStatus.CREATED).body(serviceAdminService.assignMember(id, req));
     }
 
+    @Operation(summary = "필요 역할 수정")
+    @PatchMapping("/projects/{id}/skills")
+    public ResponseEntity<Void> updateProjectSkills(@PathVariable UUID id,
+                                                     @RequestBody java.util.Map<String, String> body) {
+        serviceAdminService.updateProjectSkills(id, body.get("requiredSkills"));
+        return ResponseEntity.noContent().build();
+    }
+
     @Operation(summary = "프로젝트 상태 변경")
     @PatchMapping("/projects/{id}/status")
     public ResponseEntity<Void> changeProjectStatus(@PathVariable UUID id,
