@@ -80,12 +80,15 @@ export function CreateProjectPage() {
     queryFn: () => serviceAdminApi.listPmUsers().then(r => r.data),
   })
 
-  const { data: roleOptions = FALLBACK_ROLE_OPTIONS } = useQuery({
+  const { data: settingsData } = useQuery({
     queryKey: ['settings'],
     queryFn: () => settingsApi.getAllSettings().then(r => r.data),
-    select: data => data.masterData.projectRoles?.length ? data.masterData.projectRoles : FALLBACK_ROLE_OPTIONS,
     staleTime: 5 * 60 * 1000,
   })
+  const roleOptions = settingsData?.masterData.projectRoles?.length
+    ? settingsData.masterData.projectRoles
+    : FALLBACK_ROLE_OPTIONS
+  const contractorOptions = settingsData?.masterData.contractors ?? []
 
   const createMutation = useMutation({
     mutationFn: (req: AdminCreateProjectRequest) => serviceAdminApi.adminCreateProject(req),
@@ -220,13 +223,16 @@ export function CreateProjectPage() {
               </div>
               <div>
                 <label className="block text-[11px] font-black text-primary/40 uppercase mb-2 ml-1">주사업자</label>
-                <input
-                  type="text"
+                <select
                   value={mainContractor}
                   onChange={e => setMainContractor(e.target.value)}
-                  placeholder="예: (주)링크소프트"
                   className="w-full bg-background border border-border/50 rounded-2xl px-5 py-4 text-sm font-bold focus:outline-none focus:border-secondary transition-all"
-                />
+                >
+                  <option value="">선택 안 함</option>
+                  {contractorOptions.map(c => (
+                    <option key={c.name} value={c.name}>{c.name}</option>
+                  ))}
+                </select>
               </div>
             </div>
           </div>
