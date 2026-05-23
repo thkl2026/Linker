@@ -517,8 +517,39 @@ public class ServiceAdminService {
     public List<TalentReviewHistoryItem> getTalentReviewHistory(UUID talentId) {
         return peerReviewRepository.findByTalentIdOrderByCreatedAtDesc(talentId)
                 .stream()
-                .map(TalentReviewHistoryItem::from)
+                .map(pr -> TalentReviewHistoryItem.from(pr, resolveReviewerName(pr.getReviewerId())))
                 .toList();
+    }
+
+    @Transactional
+    public void deleteTalentReview(UUID reviewId, UUID requesterId) {
+        PeerReview review = peerReviewRepository.findById(reviewId)
+                .orElseThrow(() -> new LinkerException(HttpStatus.NOT_FOUND, "REVIEW_NOT_FOUND", "평가를 찾을 수 없습니다."));
+        boolean isReviewer = review.getReviewerId().equals(requesterId);
+        boolean isSystemAdmin = userRepository.findById(requesterId)
+                .map(u -> u.getRole() == UserRole.SYSTEM_ADMIN)
+                .orElse(false);
+        if (!isReviewer && !isSystemAdmin) {
+            throw new LinkerException(HttpStatus.FORBIDDEN, "FORBIDDEN", "삭제 권한이 없습니다.");
+        }
+        peerReviewRepository.delete(review);
+        log.info("[SERVICE_ADMIN] 평가 삭제 reviewId={} by={}", reviewId, requesterId);
+    }
+
+    private String resolveReviewerName(UUID reviewerId) {
+        return userRepository.findById(reviewerId)
+                .map(u -> {
+                    if (u.getRealName() == null) return "관리자";
+                    try { return maskName(encryptionService.decrypt(u.getRealName())); }
+                    catch (Exception e) { return "관리자"; }
+                })
+                .orElse("관리자");
+    }
+
+    private String maskName(String name) {
+        if (name == null || name.isBlank()) return "관리자";
+        String t = name.strip();
+        return t.length() <= 1 ? t : t.charAt(0) + "**";
     }
 
     @Transactional(readOnly = true)

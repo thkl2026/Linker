@@ -115,6 +115,16 @@ public class ServiceAdminController {
         return ResponseEntity.ok(serviceAdminService.getTalentReviewHistory(talentId));
     }
 
+    @Operation(summary = "평가 삭제 (작성자 본인 또는 시스템 관리자)")
+    @DeleteMapping("/evaluations/talents/{talentId}/history/{reviewId}")
+    public ResponseEntity<Void> deleteTalentReview(
+            @PathVariable UUID talentId,
+            @PathVariable UUID reviewId,
+            @AuthenticationPrincipal UUID requesterId) {
+        serviceAdminService.deleteTalentReview(reviewId, requesterId);
+        return ResponseEntity.noContent().build();
+    }
+
     @Operation(summary = "평가 목록 조회 (MATCHED·CLOSED 프로젝트, 키워드·완료여부 필터)")
     @GetMapping("/evaluations")
     public ResponseEntity<Page<EvaluationListResponse>> listEvaluations(

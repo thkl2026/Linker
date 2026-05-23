@@ -167,6 +167,7 @@ export interface TalentReviewHistoryItem {
   avgScore: number
   comment: string | null
   createdAt: string | null
+  reviewerName: string | null
 }
 
 export interface AdminReviewRequest {
@@ -423,4 +424,7 @@ export const serviceAdminApi = {
 
   getTalentReviewHistory: (talentId: string) =>
     axiosInstance.get<TalentReviewHistoryItem[]>(`/api/v1/service-admin/evaluations/talents/${talentId}/history`),
+
+  deleteReview: (talentId: string, reviewId: string) =>
+    axiosInstance.delete(`/api/v1/service-admin/evaluations/talents/${talentId}/history/${reviewId}`),
 }

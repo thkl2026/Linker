@@ -824,6 +824,17 @@ function TalentDetailModal({
     },
   })
 
+  const deleteReviewMutation = useMutation({
+    mutationFn: (reviewId: string) => serviceAdminApi.deleteReview(talent.id, reviewId),
+    onSuccess: () => {
+      refetchHistory()
+      qc.invalidateQueries({ queryKey: ['talent-eval-list'] })
+      qc.invalidateQueries({ queryKey: ['talent-eval-stats'] })
+      addToast('평가가 삭제되었습니다.', 'success')
+    },
+    onError: () => addToast('삭제에 실패했습니다.', 'error'),
+  })
+
   const { data: savedInsightData } = useQuery({
     queryKey: ['talent-insight', talent.id],
     queryFn: () => serviceAdminApi.getInsight(talent.id).then(r => r.data),
@@ -1797,9 +1808,18 @@ function TalentDetailModal({
                                 </div>
                               ))}
                             </div>
-                            <div className="text-right">
-                              <p className="text-lg font-black text-amber-600">{h.avgScore.toFixed(1)}</p>
-                              <p className="text-[10px] text-primary/30">{h.createdAt}</p>
+                            <div className="flex items-start gap-2">
+                              <div className="text-right">
+                                <p className="text-lg font-black text-amber-600">{h.avgScore.toFixed(1)}</p>
+                                <p className="text-[10px] text-primary/30">{h.createdAt}</p>
+                                {h.reviewerName && <p className="text-[10px] text-primary/40 mt-0.5">{h.reviewerName}</p>}
+                              </div>
+                              <button
+                                onClick={() => { if (window.confirm('이 평가를 삭제하시겠습니까?')) deleteReviewMutation.mutate(h.id) }}
+                                disabled={deleteReviewMutation.isPending}
+                                className="text-primary/20 hover:text-red-400 transition-colors text-base leading-none mt-1" title="삭제">
+                                ✕
+                              </button>
                             </div>
                           </div>
                           {h.comment && <p className="text-xs text-primary/60 border-t border-border/20 pt-2 mt-1 leading-relaxed">{h.comment}</p>}
@@ -2754,23 +2774,37 @@ function AvailabilityModal({
   )
 }
 
-// ── 평가등록 모달 ─────────────────────────────────────────────────────────────
+// ── 평가/리뷰 모달 ────────────────────────────────────────────────────────────
 
 function EvaluationModal({
-  talent, onClose, onSaved,
-}: { talent: TalentAdmin; onClose: () => void; onSaved: () => void }) {
+  talent, onClose,
+}: { talent: TalentAdmin; onClose: () => void }) {
   const addToast = useUiStore(s => s.addToast)
   const qc = useQueryClient()
-  const [score, setScore] = useState<number>(5)
-  const [comment, setComment] = useState('')
+  const [tab, setTab] = useState<'write' | 'history'>('write')
+  const [rCollab,   setRCollab]   = useState(0)
+  const [rTech,     setRTech]     = useState(0)
+  const [rReliable, setRReliable] = useState(0)
+  const [rComment,  setRComment]  = useState('')
 
-  const mutation = useMutation({
-    mutationFn: () => serviceAdminApi.updateBonusScore(talent.id, score, comment || undefined),
+  const { data: history, refetch: refetchHistory } = useQuery({
+    queryKey: ['eval-modal-history', talent.id],
+    queryFn: () => serviceAdminApi.getTalentReviewHistory(talent.id).then(r => r.data),
+  })
+
+  const submitMutation = useMutation({
+    mutationFn: () => serviceAdminApi.submitTalentReview(talent.id, {
+      collaborationScore: rCollab, technicalScore: rTech, reliabilityScore: rReliable,
+      comment: rComment || undefined,
+    }),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['admin', 'talents'] })
+      setRCollab(0); setRTech(0); setRReliable(0); setRComment('')
+      refetchHistory()
+      qc.invalidateQueries({ queryKey: ['talent-review-history', talent.id] })
+      qc.invalidateQueries({ queryKey: ['talent-eval-list'] })
+      qc.invalidateQueries({ queryKey: ['talent-eval-stats'] })
       addToast('평가가 등록되었습니다.', 'success')
-      onSaved()
-      onClose()
+      setTab('history')
     },
     onError: (err: unknown) => {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
@@ -2778,36 +2812,126 @@ function EvaluationModal({
     },
   })
 
+  const deleteMutation = useMutation({
+    mutationFn: (reviewId: string) => serviceAdminApi.deleteReview(talent.id, reviewId),
+    onSuccess: () => {
+      refetchHistory()
+      qc.invalidateQueries({ queryKey: ['talent-review-history', talent.id] })
+      qc.invalidateQueries({ queryKey: ['talent-eval-list'] })
+      qc.invalidateQueries({ queryKey: ['talent-eval-stats'] })
+      addToast('평가가 삭제되었습니다.', 'success')
+    },
+    onError: () => addToast('삭제에 실패했습니다.', 'error'),
+  })
+
+  const categoryLabel = talent.category ? TALENT_CATEGORY_LABELS[talent.category] : null
+  const fieldLabel    = talent.field    ? TALENT_FIELD_LABELS[talent.field]        : null
+  const subLabel      = [categoryLabel, fieldLabel].filter(Boolean).join(' · ')
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-xl w-96 p-6">
-        <h3 className="font-bold text-primary text-base mb-1">평가 등록</h3>
-        <p className="text-sm text-primary/50 mb-5">{displayName(talent.name, talent.nameEn)}</p>
-        <div className="mb-5">
-          <label className="text-xs font-semibold text-primary/60 block mb-2">보너스 점수 (0 ~ 10점)</label>
-          <div className="flex items-center gap-3">
-            <input type="range" min={0} max={10} step={0.5} value={score}
-              onChange={e => setScore(Number(e.target.value))}
-              className="flex-1 accent-secondary" />
-            <span className="w-10 text-center font-bold text-secondary text-lg">{score}</span>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-2xl w-[540px] max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
+        {/* 헤더 */}
+        <div className="px-6 pt-5 pb-4 border-b border-border/30">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-[10px] font-semibold text-primary/30 uppercase tracking-widest mb-0.5">평가 / 리뷰</p>
+              <h3 className="text-xl font-black text-primary">{displayName(talent.name, talent.nameEn)}</h3>
+              {subLabel && <p className="text-xs text-primary/50 mt-0.5">{subLabel}</p>}
+            </div>
+            <button onClick={onClose} className="text-primary/30 hover:text-primary text-2xl leading-none mt-0.5">×</button>
           </div>
-          <div className="flex justify-between text-xs text-primary/30 mt-1">
-            <span>0</span><span>5</span><span>10</span>
+          <div className="flex gap-1 bg-surface rounded-xl p-1 mt-4">
+            {(['write', 'history'] as const).map(t => (
+              <button key={t} onClick={() => setTab(t)}
+                className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${tab === t ? 'bg-white shadow text-primary' : 'text-primary/40 hover:text-primary'}`}>
+                {t === 'write' ? '✍️ 평가 작성' : `📋 평가 이력${history?.length ? ` (${history.length})` : ''}`}
+              </button>
+            ))}
           </div>
         </div>
-        <div className="mb-5">
-          <label className="text-xs font-semibold text-primary/60 block mb-1">평가 의견 (선택)</label>
-          <textarea value={comment} onChange={e => setComment(e.target.value)} rows={3}
-            className="w-full border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50 resize-none"
-            placeholder="전문가에 대한 평가 의견을 입력하세요" />
+
+        {/* 본문 */}
+        <div className="flex-1 overflow-y-auto px-6 py-5">
+          {tab === 'history' ? (
+            <div className="space-y-3">
+              {!history?.length
+                ? <p className="text-sm text-primary/30 text-center py-10">평가 이력이 없습니다.</p>
+                : history.map(h => (
+                  <div key={h.id} className="bg-surface/60 rounded-2xl p-4 border border-border/20">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex gap-4">
+                        {[{ label: '협업', val: h.collaborationScore }, { label: '기술', val: h.technicalScore }, { label: '신뢰', val: h.reliabilityScore }].map(({ label, val }) => (
+                          <div key={label} className="text-center">
+                            <p className="text-[9px] font-bold text-primary/30 uppercase mb-0.5">{label}</p>
+                            <p className="text-sm font-black text-primary">{val}</p>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="text-right">
+                          <p className="text-lg font-black text-amber-600">{h.avgScore.toFixed(1)}</p>
+                          <p className="text-[10px] text-primary/30">{h.createdAt}</p>
+                          {h.reviewerName && (
+                            <p className="text-[10px] text-primary/40 mt-0.5">{h.reviewerName}</p>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => { if (window.confirm('이 평가를 삭제하시겠습니까?')) deleteMutation.mutate(h.id) }}
+                          disabled={deleteMutation.isPending}
+                          className="text-primary/20 hover:text-red-400 transition-colors text-lg leading-none mt-0.5" title="삭제">
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                    {h.comment && <p className="text-xs text-primary/60 border-t border-border/20 pt-2 mt-1 leading-relaxed">{h.comment}</p>}
+                  </div>
+                ))
+              }
+            </div>
+          ) : (
+            <div className="space-y-5">
+              {[
+                { label: '협업 능력', sub: '소통·팀워크·협조 자세',   val: rCollab,   set: setRCollab   },
+                { label: '기술 역량', sub: '전문 지식·문제 해결력',   val: rTech,     set: setRTech     },
+                { label: '신뢰도',   sub: '일정 준수·책임감',        val: rReliable, set: setRReliable },
+              ].map(({ label, sub, val, set }) => (
+                <div key={label} className="flex items-center justify-between">
+                  <div>
+                    <span className="text-sm font-bold text-primary">{label}</span>
+                    <span className="text-xs text-primary/40 ml-2">{sub}</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <StarInput value={val} onChange={set} />
+                    <span className="text-xs font-black text-primary/30 w-5 text-right">{val > 0 ? `${val}점` : '—'}</span>
+                  </div>
+                </div>
+              ))}
+              <div>
+                <label className="text-xs font-semibold text-primary/50 block mb-1.5">평가 코멘트 (선택)</label>
+                <textarea value={rComment} onChange={e => setRComment(e.target.value)} rows={3}
+                  className="w-full bg-surface/60 border border-border/50 rounded-xl px-4 py-3 text-sm resize-none focus:outline-none focus:border-secondary transition-all"
+                  placeholder="해당 전문가에 대한 종합 의견을 자유롭게 작성하세요..." />
+              </div>
+            </div>
+          )}
         </div>
-        <div className="flex gap-2">
-          <button onClick={onClose} className="flex-1 py-2 rounded-xl border border-border text-sm font-semibold text-primary/70 hover:bg-surface">취소</button>
-          <button onClick={() => mutation.mutate()} disabled={mutation.isPending}
-            className="flex-1 py-2 rounded-xl bg-secondary text-white text-sm font-semibold hover:bg-secondary/90 disabled:opacity-50">
-            {mutation.isPending ? '저장 중...' : '등록'}
-          </button>
-        </div>
+
+        {/* 푸터 */}
+        {tab === 'write' && (
+          <div className="px-6 py-4 border-t border-border/20 flex gap-3">
+            <button onClick={onClose}
+              className="flex-1 py-2.5 rounded-xl border border-border text-sm font-semibold text-primary/70 hover:bg-surface transition-colors">
+              취소
+            </button>
+            <button
+              onClick={() => submitMutation.mutate()}
+              disabled={rCollab === 0 || rTech === 0 || rReliable === 0 || submitMutation.isPending}
+              className="flex-1 py-2.5 rounded-xl bg-secondary text-white text-sm font-bold hover:bg-secondary/90 disabled:opacity-40 transition-all">
+              {submitMutation.isPending ? '등록 중...' : '평가 등록'}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -3133,7 +3257,6 @@ export function TalentCareerPage() {
                   희망 단가(월)<SortIcon col="desiredRate" />
                 </th>
                 <th className="text-left px-4 py-3 font-semibold text-primary/60">기술 스택</th>
-                <th className="text-center px-4 py-3 font-semibold text-primary/60">평가</th>
               </tr>
             </thead>
             <tbody>
@@ -3234,13 +3357,6 @@ export function TalentCareerPage() {
                         )}
                       </div>
                     </td>
-                    <td className="px-4 py-4 text-center" onClick={e => e.stopPropagation()}>
-                      <button
-                        onClick={() => setDetailTarget(t)}
-                        className="px-3 py-1.5 bg-amber-500 text-white text-xs font-bold rounded-lg shadow-sm shadow-amber-500/20 hover:scale-105 active:scale-95 transition-all whitespace-nowrap">
-                        ★ 평가하기
-                      </button>
-                    </td>
                   </tr>
                 )
               })}
@@ -3292,7 +3408,6 @@ export function TalentCareerPage() {
         <EvaluationModal
           talent={evaluationTarget}
           onClose={() => setEvaluationTarget(null)}
-          onSaved={() => setEvaluationTarget(null)}
         />
       )}
 

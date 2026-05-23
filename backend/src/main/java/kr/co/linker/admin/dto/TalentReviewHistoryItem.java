@@ -11,9 +11,10 @@ public record TalentReviewHistoryItem(
         int    reliabilityScore,
         double avgScore,
         String comment,
-        String createdAt
+        String createdAt,
+        String reviewerName
 ) {
-    public static TalentReviewHistoryItem from(PeerReview pr) {
+    public static TalentReviewHistoryItem from(PeerReview pr, String reviewerName) {
         return new TalentReviewHistoryItem(
                 pr.getId(),
                 pr.getCollaborationScore(),
@@ -21,7 +22,8 @@ public record TalentReviewHistoryItem(
                 pr.getReliabilityScore(),
                 Math.round(pr.averageScore() * 10) / 10.0,
                 pr.getComment(),
-                pr.getCreatedAt() != null ? pr.getCreatedAt().toLocalDate().toString() : null
+                pr.getCreatedAt() != null ? pr.getCreatedAt().toLocalDate().toString() : null,
+                reviewerName
         );
     }
 }
