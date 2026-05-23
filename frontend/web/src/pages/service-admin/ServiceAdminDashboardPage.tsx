@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { serviceAdminApi, type TalentAdmin, type AvailabilityStatus, type LabelCount, type MonthlyCount } from '@/shared/api/serviceAdminApi'
+import { serviceAdminApi, type TalentAdmin, type AvailabilityStatus, type LabelCount } from '@/shared/api/serviceAdminApi'
 import { notificationApi } from '@/shared/api/notificationApi'
 import { displayName } from '@/shared/utils/nameUtils'
 
@@ -23,21 +23,6 @@ const AVAILABILITY_COLOR: Record<AvailabilityStatus, string> = {
   AVAILABLE: 'text-success',
   BUSY:      'text-warning',
   REST:      'text-primary/40',
-}
-
-function last6Months(): string[] {
-  const result: string[] = []
-  const now = new Date()
-  for (let i = 5; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
-    result.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`)
-  }
-  return result
-}
-
-function monthLabel(yyyymm: string): string {
-  const [, m] = yyyymm.split('-')
-  return `${parseInt(m, 10)}월`
 }
 
 // ─── StatCard ────────────────────────────────────────────────────────────────
@@ -123,51 +108,6 @@ function Doughnut({ segs, centerValue, centerLabel }: {
   )
 }
 
-// ─── SVG Line Chart ──────────────────────────────────────────────────────────
-function TrendChart({ labels, data }: { labels: string[]; data: number[] }) {
-  const W = 500, H = 220, pL = 38, pR = 16, pT = 16, pB = 48
-  const cW = W - pL - pR
-  const cH = H - pT - pB
-  const maxV = Math.max(...data, 10)
-  const gridMax = Math.ceil(maxV / 50) * 50
-
-  const xp = (i: number) => pL + (i / Math.max(labels.length - 1, 1)) * cW
-  const yp = (v: number) => pT + cH - (v / gridMax) * cH
-
-  const linePath = (vals: number[]) =>
-    vals.map((v, i) => `${i === 0 ? 'M' : 'L'}${xp(i).toFixed(1)},${yp(v).toFixed(1)}`).join(' ')
-
-  const areaPath = (vals: number[]) =>
-    `${linePath(vals)} L${xp(vals.length - 1).toFixed(1)},${(pT + cH).toFixed(1)} L${pL},${(pT + cH).toFixed(1)} Z`
-
-  const gridVals = [Math.round(gridMax * 0.33), Math.round(gridMax * 0.66), gridMax]
-
-  return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-full">
-      {gridVals.map(v => (
-        <line key={v} x1={pL} x2={W - pR} y1={yp(v)} y2={yp(v)} stroke="#f0ebe3" strokeWidth="1" />
-      ))}
-      {gridVals.map(v => (
-        <text key={v} x={pL - 4} y={yp(v) + 3} textAnchor="end" fontSize="9" fill="#c0a880">{v}</text>
-      ))}
-      <path d={areaPath(data)} fill="rgba(180,83,9,0.05)" />
-      <path d={linePath(data)} fill="none" stroke="#B45309" strokeWidth="2.5"
-        strokeLinecap="round" strokeLinejoin="round" />
-      {data.map((v, i) => (
-        <circle key={i} cx={xp(i)} cy={yp(v)} r="4" fill="#B45309" stroke="white" strokeWidth="1.5" />
-      ))}
-      {labels.map((m, i) => (
-        <text key={m} x={xp(i)} y={pT + cH + 18} textAnchor="middle" fontSize="10" fill="#a0855a" fontWeight="600">{m}</text>
-      ))}
-      <g transform={`translate(${pL + 10},${H - 8})`}>
-        <line x1="0" y1="-2" x2="16" y2="-2" stroke="#B45309" strokeWidth="2.5" />
-        <circle cx="8" cy="-2" r="3" fill="#B45309" />
-        <text x="20" y="1" fontSize="10" fill="#6b5035" fontWeight="600">신규 등록</text>
-      </g>
-    </svg>
-  )
-}
-
 // ─── Recent talent row ───────────────────────────────────────────────────────
 function RecentTalentRow({ talent }: { talent: TalentAdmin }) {
   return (
@@ -203,15 +143,6 @@ function toSegs(dist: LabelCount[], colorMap?: Record<string, string>, fallbackC
     color: colorMap?.[d.label] ?? fallbackColors?.[i % (fallbackColors?.length ?? 1)] ?? '#B45309',
     value: d.count,
   }))
-}
-
-function buildMonthlyTrend(trend: MonthlyCount[]): { labels: string[]; data: number[] } {
-  const months = last6Months()
-  const countMap = Object.fromEntries(trend.map(t => [t.month, t.count]))
-  return {
-    labels: months.map(monthLabel),
-    data: months.map(m => countMap[m] ?? 0),
-  }
 }
 
 const NOTIFICATION_ICON: Record<string, string> = {
@@ -270,11 +201,6 @@ export function ServiceAdminDashboardPage() {
   const gradeTotal    = gradeDist.reduce((s, d) => s + d.count, 0)
   const evalTotal     = evalDist.reduce((s, d) => s + d.count, 0)
 
-  const { labels: trendLabels, data: trendData } = buildMonthlyTrend(stats?.monthlyTrend ?? [])
-  const thisMonthNew  = trendData[trendData.length - 1] ?? 0
-  const lastMonthNew  = trendData[trendData.length - 2] ?? 0
-  const monthDiff     = thisMonthNew - lastMonthNew
-
   const today = new Date().toLocaleDateString('ko-KR', {
     year: 'numeric', month: 'long', day: 'numeric', weekday: 'long',
   })
@@ -302,16 +228,12 @@ export function ServiceAdminDashboardPage() {
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <StatCard icon="💼" label="총 전문가 수" value={totalTalents} unit="명"
           badge="전체" badgeColor="text-success bg-success/10" />
         <StatCard icon="🚀" label="활성 프로젝트" value={activeProjects} unit="건"
           badge="모집중" badgeColor="text-primary/40 border border-border/30 bg-white"
           iconBg="bg-blue-50" />
-        <StatCard icon="📈" label="이번달 신규 등록" value={thisMonthNew} unit="명"
-          badge={monthDiff === 0 ? '전월 동일' : monthDiff > 0 ? `+${monthDiff}명 전월比` : `${monthDiff}명 전월比`}
-          badgeColor={monthDiff > 0 ? 'text-success bg-success/10' : monthDiff < 0 ? 'text-danger bg-danger/10' : 'text-primary/40 border border-border/30 bg-white'}
-          iconBg="bg-amber-50" />
       </div>
 
       {/* Charts row: 3 doughnuts */}
@@ -368,19 +290,6 @@ export function ServiceAdminDashboardPage() {
           </div>
         </div>
 
-      </div>
-
-      {/* Trend chart */}
-      <div className="bg-white p-8 rounded-3xl border border-border/30 shadow-sm">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h3 className="text-lg font-black tracking-tight">전문가 월별 신규 등록 추이</h3>
-            <p className="text-xs text-primary/40 mt-1">최근 6개월 신규 등록 현황</p>
-          </div>
-        </div>
-        <div className="h-52">
-          <TrendChart labels={trendLabels} data={trendData} />
-        </div>
       </div>
 
       {/* Bottom row: recent talents + urgent projects */}
