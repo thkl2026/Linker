@@ -62,7 +62,7 @@ export function RootLayout() {
 
   return (
     <div className="flex min-h-screen bg-background font-sans text-primary">
-      <aside className={`bg-white border-r border-border/30 flex flex-col shrink-0 transition-all duration-300 ${isSidebarOpen ? 'w-52' : 'w-14'}`}>
+      <aside className={`bg-white border-r border-border/30 flex flex-col shrink-0 transition-all duration-300 h-screen sticky top-0 ${isSidebarOpen ? 'w-52' : 'w-14'}`}>
         <div className="px-3 py-5 flex items-center justify-center relative">
           <div className={`overflow-hidden transition-all duration-300 ${isSidebarOpen ? 'w-auto opacity-100' : 'w-0 opacity-0'}`}>
             <img src={linkerLogo} alt="Linker" className="h-[26px] object-contain mx-auto" />
