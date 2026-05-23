@@ -615,9 +615,13 @@ public class ServiceAdminService {
         talent.updateAvailability(AvailabilityStatus.BUSY, project.getEndDate());
         log.info("[SERVICE_ADMIN] 멤버 배정 projectId={} talentId={} → BUSY until {}",
                 projectId, req.talentId(), project.getEndDate());
-        String talentDisplayName = decryptSafe(talent.getName());
-        notificationService.create("MEMBER_ASSIGNED", "프로젝트 투입",
-                talentDisplayName + " 전문가가 「" + project.getTitle() + "」에 배정되었습니다.");
+        try {
+            String talentDisplayName = decryptSafe(talent.getName());
+            notificationService.create("MEMBER_ASSIGNED", "프로젝트 투입",
+                    talentDisplayName + " 전문가가 「" + project.getTitle() + "」에 배정되었습니다.");
+        } catch (Exception e) {
+            log.warn("[SERVICE_ADMIN] 배정 알림 생성 실패 projectId={} talentId={}: {}", projectId, req.talentId(), e.getMessage());
+        }
         return member.getId();
     }
 

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { displayName } from '@/shared/utils/nameUtils'
+import { useUiStore } from '@/store/uiStore'
 import {
   serviceAdminApi,
   type ProjectStatus,
@@ -56,6 +57,7 @@ function AddMemberModal({ projectId, initialRole, assignedIds, onClose }: AddMem
   const [role, setRole] = useState(initialRole)
   const [confirming, setConfirming] = useState<TalentAdmin | null>(null)
   const qc = useQueryClient()
+  const { addToast } = useUiStore()
 
   const { data: talentPage } = useQuery({
     queryKey: ['talent-picker', search],
@@ -69,8 +71,15 @@ function AddMemberModal({ projectId, initialRole, assignedIds, onClose }: AddMem
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['project-detail', projectId] })
       qc.invalidateQueries({ queryKey: ['admin-talents'] })
+      addToast('전문가가 배정되었습니다.', 'success')
       setConfirming(null)
       onClose()
+    },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onError: (err: any) => {
+      const msg = err?.response?.data?.message ?? '배정에 실패했습니다.'
+      addToast(msg, 'error')
+      setConfirming(null)
     },
   })
 

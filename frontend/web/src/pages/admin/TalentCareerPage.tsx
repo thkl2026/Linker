@@ -2822,11 +2822,12 @@ function ProjectAssignModal({ talent, onClose }: { talent: TalentAdmin; onClose:
   const { mutate, isPending } = useMutation({
     mutationFn: () => serviceAdminApi.assignMember(selectedProjectId, talent.id, role || undefined),
     onSuccess: () => {
-      addToast(`${talent.name}을(를) 프로젝트에 할당했습니다.`, 'success')
+      addToast(`${displayName(talent.name)}을(를) 프로젝트에 할당했습니다.`, 'success')
       qc.invalidateQueries({ queryKey: ['service-admin', 'projects'] })
       onClose()
     },
-    onError: () => addToast('할당에 실패했습니다.', 'error'),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onError: (err: any) => addToast(err?.response?.data?.message ?? '할당에 실패했습니다.', 'error'),
   })
 
   return (
