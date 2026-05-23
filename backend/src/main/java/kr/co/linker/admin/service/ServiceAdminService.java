@@ -129,7 +129,7 @@ public class ServiceAdminService {
         }
         
         profile.updateProfile(req.name(), req.nameEn(), req.desiredRate(), req.category(), req.field(), workType,
-                              birth, req.email(), req.address(), req.skillGrade(), req.title());
+                              birth, req.email(), req.address(), req.skillGrade(), req.title(), req.projectRole());
 
         if (req.skills() != null) {
             req.skills().forEach(skill ->
@@ -214,7 +214,8 @@ public class ServiceAdminService {
                               birth, req.email() != null ? req.email() : profile.getEmail(),
                               req.address() != null ? req.address() : profile.getAddress(),
                               req.skillGrade() != null ? req.skillGrade() : profile.getSkillGrade(),
-                              req.title() != null ? req.title() : profile.getTitle());
+                              req.title() != null ? req.title() : profile.getTitle(),
+                              req.projectRole() != null ? req.projectRole() : profile.getProjectRole());
 
         if (req.phone() != null && !req.phone().isBlank()) {
             profile.updatePhone(encryptionService.encrypt(req.phone()));

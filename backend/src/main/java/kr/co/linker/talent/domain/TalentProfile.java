@@ -95,6 +95,9 @@ public class TalentProfile {
     @Column(length = 50)
     private String title;
 
+    @Column(length = 100)
+    private String projectRole;
+
     @Column(columnDefinition = "TEXT")
     private String notes;
 
@@ -196,7 +199,8 @@ public class TalentProfile {
     public void updateProfile(String name, String nameEn, BigDecimal desiredRate,
                               TalentCategory category, TalentField field,
                               WorkType workType,
-                              LocalDate birthDate, String email, String address, String skillGrade, String title) {
+                              LocalDate birthDate, String email, String address,
+                              String skillGrade, String title, String projectRole) {
         this.name = name;
         this.nameEn = nameEn;
         this.desiredRate = desiredRate;
@@ -208,6 +212,7 @@ public class TalentProfile {
         this.address = address;
         this.skillGrade = skillGrade;
         this.title = title;
+        this.projectRole = projectRole;
     }
 
     /**

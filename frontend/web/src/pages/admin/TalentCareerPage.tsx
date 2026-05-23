@@ -43,7 +43,7 @@ const AVAILABILITY_COLORS: Record<AvailabilityStatus, string> = {
 const EMPTY_FORM: CreateTalentRequest = {
   name: '', nameEn: '', phone: '', category: undefined, field: undefined,
   workType: 'ONSITE', desiredRate: undefined, skills: [],
-  birthDate: '', email: '', address: '', skillGrade: '',
+  birthDate: '', email: '', address: '', skillGrade: '', projectRole: '',
 }
 
 // 주소를 로/길 단위까지만 표시 ("인천 서구 청마로 170, 307동" → "인천 서구 청마로")
@@ -756,6 +756,7 @@ function TalentDetailModal({
     staleTime: 60_000,
   })
   const referralSources = settings?.masterData?.referralSources ?? []
+  const projectRoles = settings?.masterData?.projectRoles ?? []
   const [mode, setMode] = useState<'view' | 'edit'>('view')
   const [form, setForm] = useState<CreateTalentRequest>({
     name: talent.name,
@@ -770,6 +771,7 @@ function TalentDetailModal({
     email: talent.email ?? '',
     address: talent.address ?? '',
     skillGrade: talent.skillGrade ?? '',
+    projectRole: talent.projectRole ?? '',
     title: talent.title ?? '',
     notes: talent.notes ?? '',
     industryExperience: talent.industryExperience ?? '',
@@ -1346,6 +1348,29 @@ function TalentDetailModal({
                           <div onDoubleClick={() => setEditingField('skillGrade')}
                             className="px-3 py-2 cursor-default group flex items-center gap-1 min-h-[38px] select-none">
                             <span className="text-primary/80">{form.skillGrade || '—'}</span>
+                            <span className="text-[10px] text-primary/20 opacity-0 group-hover:opacity-100 transition-opacity">✎</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="bg-surface px-3 py-2 text-center text-[13px] font-bold text-primary border-r border-b border-border/50 flex items-center justify-center">역할</div>
+                      <div className="border-b border-border/50 bg-white text-[13px]">
+                        {editingField === 'projectRole' ? (
+                          <div className="p-0.5">
+                            <select autoFocus
+                              className="w-full bg-blue-50 px-2.5 py-1.5 outline-none ring-1 ring-blue-400 rounded-sm text-primary/80"
+                              value={form.projectRole ?? ''}
+                              onChange={e => { setForm(f => ({ ...f, projectRole: e.target.value })); setHasChanges(true) }}
+                              onBlur={() => { setHasChanges(true); setEditingField(null) }}
+                            >
+                              <option value="">—</option>
+                              {projectRoles.map(r => <option key={r} value={r}>{r}</option>)}
+                            </select>
+                          </div>
+                        ) : (
+                          <div onDoubleClick={() => setEditingField('projectRole')}
+                            className="px-3 py-2 cursor-default group flex items-center gap-1 min-h-[38px] select-none">
+                            <span className="text-primary/80">{form.projectRole || '—'}</span>
                             <span className="text-[10px] text-primary/20 opacity-0 group-hover:opacity-100 transition-opacity">✎</span>
                           </div>
                         )}
@@ -1946,6 +1971,14 @@ function TalentDetailModal({
                 </div>
               </div>
               <div>
+                <label className="text-sm font-medium text-primary/70 block mb-1">역할</label>
+                <select value={form.projectRole ?? ''} onChange={e => { setForm(f => ({ ...f, projectRole: e.target.value })); setHasChanges(true) }}
+                  className="w-full border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50">
+                  <option value="">선택 안 함</option>
+                  {projectRoles.map(r => <option key={r} value={r}>{r}</option>)}
+                </select>
+              </div>
+              <div>
                 <label className="text-sm font-medium text-primary/70 block mb-1">산업군 경험</label>
                 <div className="flex flex-wrap gap-2 p-3 border border-border rounded-xl min-h-[46px]">
                   {INDUSTRY_OPTIONS.map(opt => {
@@ -2377,6 +2410,12 @@ function TalentCreateModal({ onClose, onSave, isPending }: {
   isPending: boolean
 }) {
   const addToast = useUiStore(s => s.addToast)
+  const { data: settings } = useQuery({
+    queryKey: ['settings'],
+    queryFn: () => settingsApi.getAllSettings().then(r => r.data),
+    staleTime: 60_000,
+  })
+  const projectRoles = settings?.masterData?.projectRoles ?? []
   const [form, setForm] = useState<CreateTalentRequest>(EMPTY_FORM)
   const [skillInput, setSkillInput] = useState('')
   const [analyzing, setAnalyzing] = useState(false)
@@ -2505,6 +2544,14 @@ function TalentCreateModal({ onClose, onSave, isPending }: {
               <input value={form.skillGrade ?? ''} onChange={e => setForm(f => ({ ...f, skillGrade: e.target.value }))}
                 className="w-full border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50" placeholder="특급기술자" />
             </div>
+          </div>
+          <div>
+            <label className="text-sm font-medium text-primary/70 block mb-1">역할</label>
+            <select value={form.projectRole ?? ''} onChange={e => setForm(f => ({ ...f, projectRole: e.target.value }))}
+              className="w-full border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50">
+              <option value="">선택 안 함</option>
+              {projectRoles.map(r => <option key={r} value={r}>{r}</option>)}
+            </select>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -2900,6 +2947,7 @@ export function TalentCareerPage() {
         address: talent.address,
         skillGrade: talent.skillGrade,
         title: talent.title,
+        projectRole: talent.projectRole ?? undefined,
         notes: talent.notes,
         industryExperience: talent.industryExperience,
         referralSource: talent.referralSource,
@@ -2934,6 +2982,7 @@ export function TalentCareerPage() {
         address: talent.address,
         skillGrade: talent.skillGrade,
         title: talent.title,
+        projectRole: talent.projectRole ?? undefined,
         notes: talent.notes,
         industryExperience: talent.industryExperience,
         referralSource: patch.referralSource !== undefined ? patch.referralSource : talent.referralSource,

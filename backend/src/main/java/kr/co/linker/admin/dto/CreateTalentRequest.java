@@ -23,6 +23,7 @@ public record CreateTalentRequest(
         String address,
         String skillGrade,
         String title,
+        String projectRole,
         String notes,
         String industryExperience,
         String referralSource,

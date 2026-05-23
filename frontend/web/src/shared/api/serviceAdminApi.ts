@@ -83,6 +83,7 @@ export interface TalentAdmin {
   address?: string
   skillGrade?: string
   title?: string
+  projectRole?: string | null
   notes?: string
   industryExperience?: string
   referralSource?: string
@@ -105,6 +106,7 @@ export interface CreateTalentRequest {
   address?: string
   skillGrade?: string
   title?: string
+  projectRole?: string
   notes?: string
   industryExperience?: string
   referralSource?: string
