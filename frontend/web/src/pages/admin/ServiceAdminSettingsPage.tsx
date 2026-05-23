@@ -763,7 +763,7 @@ function ContractorsTab({ initial }: { initial: MasterData }) {
                     <td className="px-2 py-1.5"><input className={inputCls} value={r.registrationNo} onChange={e => update(idx, { registrationNo: formatBizNo(e.target.value) })} placeholder="000-00-00000" /></td>
                     <td className="px-2 py-1.5"><input className={inputCls} value={r.phone} onChange={e => update(idx, { phone: e.target.value })} placeholder="02-1234-5678" /></td>
                     <td className="px-2 py-1.5">
-                      <div className="flex flex-col gap-0.5">
+                      <div className="flex flex-row gap-1">
                         <select className={inputCls} value={parseBankAccount(r.bankAccount).bank}
                           onChange={e => update(idx, { bankAccount: combineBankAccount(e.target.value, parseBankAccount(r.bankAccount).account) })}>
                           <option value="">은행 선택</option>
@@ -852,7 +852,7 @@ function ContractorsTab({ initial }: { initial: MasterData }) {
               <td className="px-2 py-2"><input className={inputCls} value={newItem.registrationNo} onChange={e => setNewItem(r => ({ ...r, registrationNo: formatBizNo(e.target.value) }))} placeholder="000-00-00000" /></td>
               <td className="px-2 py-2"><input className={inputCls} value={newItem.phone} onChange={e => setNewItem(r => ({ ...r, phone: e.target.value }))} placeholder="02-1234-5678" /></td>
               <td className="px-2 py-2">
-                <div className="flex flex-col gap-0.5">
+                <div className="flex flex-row gap-1">
                   <select className={inputCls} value={parseBankAccount(newItem.bankAccount).bank}
                     onChange={e => setNewItem(r => ({ ...r, bankAccount: combineBankAccount(e.target.value, parseBankAccount(r.bankAccount).account) }))}>
                     <option value="">은행 선택</option>
@@ -1022,7 +1022,7 @@ function ReferralTab({ initial }: { initial: MasterData }) {
                     <td className="px-2 py-1.5"><input className={refInputCls} value={r.registrationNo} onChange={e => update(idx, { registrationNo: formatBizNo(e.target.value) })} placeholder="000-00-00000" /></td>
                     <td className="px-2 py-1.5"><input className={refInputCls} value={r.phone} onChange={e => update(idx, { phone: e.target.value })} placeholder="021-555-1234" /></td>
                     <td className="px-2 py-1.5">
-                      <div className="flex flex-col gap-0.5">
+                      <div className="flex flex-row gap-1">
                         <select className={refInputCls} value={parseBankAccount(r.bankAccount).bank}
                           onChange={e => update(idx, { bankAccount: combineBankAccount(e.target.value, parseBankAccount(r.bankAccount).account) })}>
                           <option value="">은행 선택</option>
@@ -1105,7 +1105,7 @@ function ReferralTab({ initial }: { initial: MasterData }) {
               <td className="px-2 py-2"><input className={refInputCls} value={newRef.registrationNo} onChange={e => setNewRef(r => ({ ...r, registrationNo: formatBizNo(e.target.value) }))} placeholder="000-00-00000" /></td>
               <td className="px-2 py-2"><input className={refInputCls} value={newRef.phone} onChange={e => setNewRef(r => ({ ...r, phone: e.target.value }))} placeholder="021-555-1234" /></td>
               <td className="px-2 py-2">
-                <div className="flex flex-col gap-0.5">
+                <div className="flex flex-row gap-1">
                   <select className={refInputCls} value={parseBankAccount(newRef.bankAccount).bank}
                     onChange={e => setNewRef(r => ({ ...r, bankAccount: combineBankAccount(e.target.value, parseBankAccount(r.bankAccount).account) }))}>
                     <option value="">은행 선택</option>
