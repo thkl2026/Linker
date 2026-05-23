@@ -93,7 +93,8 @@ public class TalentProfileService {
         if (request.desiredRate() != null) {
             profile.updateProfile(request.name(), null, request.desiredRate(),
                     request.category(), request.field(), request.workType(),
-                    profile.getBirthDate(), profile.getEmail(), profile.getAddress(), profile.getSkillGrade(), profile.getTitle());
+                    profile.getBirthDate(), profile.getEmail(), profile.getAddress(),
+                    profile.getTitle(), profile.getProjectRole());
         }
         if (request.phone() != null && !request.phone().isBlank()) {
             profile.updatePhone(encryptionService.encrypt(request.phone()));
@@ -119,7 +120,8 @@ public class TalentProfileService {
         }
         profile.updateProfile(request.name(), null, request.desiredRate(),
                 request.category(), request.field(), request.workType(),
-                profile.getBirthDate(), profile.getEmail(), profile.getAddress(), profile.getSkillGrade(), request.title());
+                profile.getBirthDate(), profile.getEmail(), profile.getAddress(),
+                request.title(), profile.getProjectRole());
         log.info("[TALENT_UPDATED] profileId={}", talentId);
     }
 

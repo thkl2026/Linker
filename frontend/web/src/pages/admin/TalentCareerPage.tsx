@@ -1336,21 +1336,11 @@ function TalentDetailModal({
                       </div>
                       <div className="bg-surface px-3 py-2 text-center text-[13px] font-bold text-primary border-r border-b border-border/50 flex items-center justify-center">기술등급</div>
                       <div className="border-b border-border/50 bg-white text-[13px]">
-                        {editingField === 'skillGrade' ? (
-                          <div className="p-0.5"><input autoFocus type="text"
-                            className="w-full bg-blue-50 px-2.5 py-1.5 outline-none ring-1 ring-blue-400 rounded-sm text-primary/80"
-                            value={form.skillGrade ?? ''}
-                            onChange={e => setForm(f => ({ ...f, skillGrade: e.target.value }))}
-                            onBlur={() => { setHasChanges(true); setEditingField(null) }}
-                            onKeyDown={e => { if (e.key === 'Enter') { setHasChanges(true); setEditingField(null) } if (e.key === 'Escape') setEditingField(null) }}
-                          /></div>
-                        ) : (
-                          <div onDoubleClick={() => setEditingField('skillGrade')}
-                            className="px-3 py-2 cursor-default group flex items-center gap-1 min-h-[38px] select-none">
-                            <span className="text-primary/80">{form.skillGrade || '—'}</span>
-                            <span className="text-[10px] text-primary/20 opacity-0 group-hover:opacity-100 transition-opacity">✎</span>
-                          </div>
-                        )}
+                        <div className="px-3 py-2 flex items-center gap-1.5 min-h-[38px]">
+                          {form.skillGrade
+                            ? <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">{form.skillGrade}</span>
+                            : <span className="text-primary/30 text-xs">자격증·경력 기반 자동산정</span>}
+                        </div>
                       </div>
 
                       <div className="bg-surface px-3 py-2 text-center text-[13px] font-bold text-primary border-r border-b border-border/50 flex items-center justify-center">역할</div>
@@ -1965,9 +1955,10 @@ function TalentDetailModal({
                     className="w-full border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50" placeholder="서울특별시 강남구..." />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-primary/70 block mb-1">기술등급</label>
-                  <input value={form.skillGrade ?? ''} onChange={e => { setForm(f => ({ ...f, skillGrade: e.target.value })); setHasChanges(true) }}
-                    className="w-full border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50" placeholder="특급기술자" />
+                  <label className="text-sm font-medium text-primary/70 block mb-1">기술등급 <span className="text-xs font-normal text-primary/40">(자동산정)</span></label>
+                  <div className="w-full border border-border bg-surface rounded-xl px-4 py-2.5 text-sm text-primary/50 min-h-[42px] flex items-center">
+                    {form.skillGrade || '자격증·경력 입력 시 자동 산정됩니다'}
+                  </div>
                 </div>
               </div>
               <div>
@@ -2540,9 +2531,10 @@ function TalentCreateModal({ onClose, onSave, isPending }: {
                 className="w-full border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50" placeholder="서울특별시 강남구..." />
             </div>
             <div>
-              <label className="text-sm font-medium text-primary/70 block mb-1">기술등급</label>
-              <input value={form.skillGrade ?? ''} onChange={e => setForm(f => ({ ...f, skillGrade: e.target.value }))}
-                className="w-full border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50" placeholder="특급기술자" />
+              <label className="text-sm font-medium text-primary/70 block mb-1">기술등급 <span className="text-xs font-normal text-primary/40">(자동산정)</span></label>
+              <div className="w-full border border-border bg-surface rounded-xl px-4 py-2.5 text-sm text-primary/40 min-h-[42px] flex items-center">
+                자격증·경력 입력 후 자동 산정됩니다
+              </div>
             </div>
           </div>
           <div>

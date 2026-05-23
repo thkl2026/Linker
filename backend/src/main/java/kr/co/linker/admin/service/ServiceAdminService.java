@@ -76,6 +76,7 @@ public class ServiceAdminService {
     private final NotificationService notificationService;
     private final NoticeService noticeService;
     private final FileStorageService fileStorageService;
+    private final GradeCalculationService gradeCalculationService;
 
     @Transactional(readOnly = true)
     public Page<TalentAdminResponse> listTalents(String keyword, TalentCategory category,
@@ -129,7 +130,7 @@ public class ServiceAdminService {
         }
         
         profile.updateProfile(req.name(), req.nameEn(), req.desiredRate(), req.category(), req.field(), workType,
-                              birth, req.email(), req.address(), req.skillGrade(), req.title(), req.projectRole());
+                              birth, req.email(), req.address(), req.title(), req.projectRole());
 
         if (req.skills() != null) {
             req.skills().forEach(skill ->
@@ -154,6 +155,7 @@ public class ServiceAdminService {
         saveExperiences(profile, "PROJECT", req.projectExps());
         saveExperiences(profile, "CERTIFICATION", req.certifications());
 
+        gradeCalculationService.recalculate(profile.getId());
         log.info("[SERVICE_ADMIN] 전문가 등록 talentId={} name={}", profile.getId(), req.name());
         try {
             notificationService.create("TALENT_REGISTERED", "새 전문가 등록",
@@ -213,7 +215,6 @@ public class ServiceAdminService {
                               req.desiredRate(), category, field, workType,
                               birth, req.email() != null ? req.email() : profile.getEmail(),
                               req.address() != null ? req.address() : profile.getAddress(),
-                              req.skillGrade() != null ? req.skillGrade() : profile.getSkillGrade(),
                               req.title() != null ? req.title() : profile.getTitle(),
                               req.projectRole() != null ? req.projectRole() : profile.getProjectRole());
 
@@ -243,6 +244,7 @@ public class ServiceAdminService {
         if (req.resumeKey() != null && !req.resumeKey().isBlank()) {
             profile.updateResumeKey(req.resumeKey());
         }
+        gradeCalculationService.recalculate(talentId);
         log.info("[SERVICE_ADMIN] 전문가 수정 talentId={}", talentId);
     }
 
@@ -289,6 +291,7 @@ public class ServiceAdminService {
                 req.department(), req.employmentType(),
                 req.startDate(), req.endDate(), req.description(), req.techStack());
         experienceRepository.save(exp);
+        gradeCalculationService.recalculate(talentId);
         log.info("[SERVICE_ADMIN] 경력 등록 talentId={} type={} title={}", talentId, req.experienceType(), req.projectName());
         return exp.getId();
     }
@@ -300,6 +303,7 @@ public class ServiceAdminService {
         exp.update(req.experienceType(), req.companyName(), req.projectName(), req.role(),
                 req.department(), req.employmentType(),
                 req.startDate(), req.endDate(), req.description(), req.techStack());
+        gradeCalculationService.recalculate(talentId);
         log.info("[SERVICE_ADMIN] 경력 수정 expId={}", expId);
     }
 
@@ -311,6 +315,7 @@ public class ServiceAdminService {
         saveExperiences(profile, "COMPANY",        req.companyExps());
         saveExperiences(profile, "PROJECT",        req.projectExps());
         saveExperiences(profile, "CERTIFICATION",  req.certifications());
+        gradeCalculationService.recalculate(talentId);
         log.info("[SERVICE_ADMIN] 경력 일괄 교체 talentId={}", talentId);
     }
 
@@ -319,6 +324,7 @@ public class ServiceAdminService {
         TalentExperience exp = experienceRepository.findByIdAndTalentProfileId(expId, talentId)
                 .orElseThrow(() -> new LinkerException(HttpStatus.NOT_FOUND, "EXPERIENCE_NOT_FOUND", "프로젝트를 찾을 수 없습니다."));
         experienceRepository.delete(exp);
+        gradeCalculationService.recalculate(talentId);
         log.info("[SERVICE_ADMIN] 프로젝트 삭제 expId={}", expId);
     }
 

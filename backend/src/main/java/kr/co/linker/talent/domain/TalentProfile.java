@@ -200,7 +200,7 @@ public class TalentProfile {
                               TalentCategory category, TalentField field,
                               WorkType workType,
                               LocalDate birthDate, String email, String address,
-                              String skillGrade, String title, String projectRole) {
+                              String title, String projectRole) {
         this.name = name;
         this.nameEn = nameEn;
         this.desiredRate = desiredRate;
@@ -210,9 +210,12 @@ public class TalentProfile {
         this.birthDate = birthDate;
         this.email = email;
         this.address = address;
-        this.skillGrade = skillGrade;
         this.title = title;
         this.projectRole = projectRole;
+    }
+
+    public void updateSkillGrade(String grade) {
+        this.skillGrade = grade;
     }
 
     /**
