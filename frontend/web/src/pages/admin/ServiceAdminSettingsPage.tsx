@@ -17,6 +17,13 @@ import {
 
 type Tab = 'general' | 'users' | 'evaluation' | 'master' | 'contractors' | 'referral' | 'notifications' | 'smtp'
 
+function formatBizNo(raw: string): string {
+  const d = raw.replace(/\D/g, '').slice(0, 10)
+  if (d.length <= 3) return d
+  if (d.length <= 5) return `${d.slice(0, 3)}-${d.slice(3)}`
+  return `${d.slice(0, 3)}-${d.slice(3, 5)}-${d.slice(5)}`
+}
+
 const TABS: { id: Tab; label: string }[] = [
   { id: 'general',       label: '일반 설정' },
   { id: 'users',         label: '사용자 초대 및 관리' },
@@ -733,7 +740,7 @@ function ContractorsTab({ initial }: { initial: MasterData }) {
                 {editingIdx === idx ? (
                   <>
                     <td className="px-2 py-1.5"><input className={inputCls} value={r.name} onChange={e => update(idx, { name: e.target.value })} /></td>
-                    <td className="px-2 py-1.5"><input className={inputCls} value={r.registrationNo} onChange={e => update(idx, { registrationNo: e.target.value })} placeholder="000-00-00000" /></td>
+                    <td className="px-2 py-1.5"><input className={inputCls} value={r.registrationNo} onChange={e => update(idx, { registrationNo: formatBizNo(e.target.value) })} placeholder="000-00-00000" /></td>
                     <td className="px-2 py-1.5"><input className={inputCls} value={r.phone} onChange={e => update(idx, { phone: e.target.value })} placeholder="02-1234-5678" /></td>
                     <td className="px-2 py-1.5"><input className={inputCls} value={r.bankAccount} onChange={e => update(idx, { bankAccount: e.target.value })} placeholder="은행 계좌번호" /></td>
                     <td className="px-2 py-1.5">
@@ -802,7 +809,7 @@ function ContractorsTab({ initial }: { initial: MasterData }) {
             {/* 신규 입력 행 */}
             <tr className="bg-surface/30">
               <td className="px-2 py-2"><input className={inputCls} value={newItem.name} onChange={e => setNewItem(r => ({ ...r, name: e.target.value }))} onKeyDown={e => e.key === 'Enter' && addItem()} placeholder="회사명 *" /></td>
-              <td className="px-2 py-2"><input className={inputCls} value={newItem.registrationNo} onChange={e => setNewItem(r => ({ ...r, registrationNo: e.target.value }))} placeholder="000-00-00000" /></td>
+              <td className="px-2 py-2"><input className={inputCls} value={newItem.registrationNo} onChange={e => setNewItem(r => ({ ...r, registrationNo: formatBizNo(e.target.value) }))} placeholder="000-00-00000" /></td>
               <td className="px-2 py-2"><input className={inputCls} value={newItem.phone} onChange={e => setNewItem(r => ({ ...r, phone: e.target.value }))} placeholder="02-1234-5678" /></td>
               <td className="px-2 py-2"><input className={inputCls} value={newItem.bankAccount} onChange={e => setNewItem(r => ({ ...r, bankAccount: e.target.value }))} placeholder="은행 계좌번호" /></td>
               <td className="px-2 py-2"><span className="text-xs text-primary/30">추가 후 수정에서 첨부</span></td>
@@ -943,7 +950,7 @@ function ReferralTab({ initial }: { initial: MasterData }) {
           <thead className="bg-surface text-[11px] font-black text-primary/40 uppercase tracking-wider">
             <tr>
               <th className="px-4 py-3 text-left border-b border-border/20 w-[18%]">기관명</th>
-              <th className="px-4 py-3 text-left border-b border-border/20 w-[13%]">등록번호</th>
+              <th className="px-4 py-3 text-left border-b border-border/20 w-[13%]">사업자등록번호</th>
               <th className="px-4 py-3 text-left border-b border-border/20 w-[13%]">전화번호</th>
               <th className="px-4 py-3 text-left border-b border-border/20 w-[15%]">통장번호</th>
               <th className="px-4 py-3 text-left border-b border-border/20 w-[14%]">첨부파일</th>
@@ -957,7 +964,7 @@ function ReferralTab({ initial }: { initial: MasterData }) {
                 {editingIdx === idx ? (
                   <>
                     <td className="px-2 py-1.5"><input className={refInputCls} value={r.name} onChange={e => update(idx, { name: e.target.value })} /></td>
-                    <td className="px-2 py-1.5"><input className={refInputCls} value={r.registrationNo} onChange={e => update(idx, { registrationNo: e.target.value })} placeholder="000-00-00000" /></td>
+                    <td className="px-2 py-1.5"><input className={refInputCls} value={r.registrationNo} onChange={e => update(idx, { registrationNo: formatBizNo(e.target.value) })} placeholder="000-00-00000" /></td>
                     <td className="px-2 py-1.5"><input className={refInputCls} value={r.phone} onChange={e => update(idx, { phone: e.target.value })} placeholder="021-555-1234" /></td>
                     <td className="px-2 py-1.5"><input className={refInputCls} value={r.bankAccount} onChange={e => update(idx, { bankAccount: e.target.value })} placeholder="은행 계좌번호" /></td>
                     <td className="px-2 py-1.5">
@@ -1025,7 +1032,7 @@ function ReferralTab({ initial }: { initial: MasterData }) {
             ))}
             <tr className="bg-surface/30">
               <td className="px-2 py-2"><input className={refInputCls} value={newRef.name} onChange={e => setNewRef(r => ({ ...r, name: e.target.value }))} onKeyDown={e => e.key === 'Enter' && addSource()} placeholder="기관명 *" /></td>
-              <td className="px-2 py-2"><input className={refInputCls} value={newRef.registrationNo} onChange={e => setNewRef(r => ({ ...r, registrationNo: e.target.value }))} placeholder="000-00-00000" /></td>
+              <td className="px-2 py-2"><input className={refInputCls} value={newRef.registrationNo} onChange={e => setNewRef(r => ({ ...r, registrationNo: formatBizNo(e.target.value) }))} placeholder="000-00-00000" /></td>
               <td className="px-2 py-2"><input className={refInputCls} value={newRef.phone} onChange={e => setNewRef(r => ({ ...r, phone: e.target.value }))} placeholder="021-555-1234" /></td>
               <td className="px-2 py-2"><input className={refInputCls} value={newRef.bankAccount} onChange={e => setNewRef(r => ({ ...r, bankAccount: e.target.value }))} placeholder="은행 계좌번호" /></td>
               <td className="px-2 py-2"><span className="text-xs text-primary/30">추가 후 수정에서 첨부</span></td>
