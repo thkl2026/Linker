@@ -10,6 +10,7 @@ import kr.co.linker.admin.dto.InvitedUserResponse;
 import kr.co.linker.admin.dto.SaveEvaluationSettingsRequest;
 import kr.co.linker.admin.dto.SaveGeneralSettingsRequest;
 import kr.co.linker.admin.dto.SaveMasterDataRequest;
+import kr.co.linker.admin.dto.SaveSmtpSettingsRequest;
 import kr.co.linker.admin.dto.SaveNotificationSettingsRequest;
 import kr.co.linker.admin.repository.PlatformSettingRepository;
 import kr.co.linker.admin.repository.UserInvitationRepository;
@@ -91,7 +92,7 @@ public class SettingsService {
         } else {
             List<String> oldOrgs = parseJson(map.getOrDefault("master.referralOrgs", "[]"), new TypeReference<>() {});
             referralSources = oldOrgs.stream()
-                    .map(name -> new AllSettingsResponse.ReferralSource(name, "", "", "", "", List.of()))
+                    .map(name -> new AllSettingsResponse.ReferralSource(name, "", "", "", "", List.of(), List.of()))
                     .toList();
         }
 
@@ -111,7 +112,14 @@ public class SettingsService {
             );
         }
 
-        return new AllSettingsResponse(general, evaluation, notifications, new AllSettingsResponse.MasterData(contractors, techStacks, referralSources, projectRoles));
+        AllSettingsResponse.SmtpSettings smtp = new AllSettingsResponse.SmtpSettings(
+                map.getOrDefault("smtp.host", ""),
+                Integer.parseInt(map.getOrDefault("smtp.port", "587")),
+                map.getOrDefault("smtp.username", ""),
+                map.containsKey("smtp.password") && !map.get("smtp.password").isBlank()
+        );
+
+        return new AllSettingsResponse(general, evaluation, notifications, new AllSettingsResponse.MasterData(contractors, techStacks, referralSources, projectRoles), smtp);
     }
 
     // ── 섹션별 저장 ───────────────────────────────────────────────────────────
@@ -142,6 +150,15 @@ public class SettingsService {
         put("notification.urgentHours",         String.valueOf(req.urgentHours()));
         put("notification.urgentEnabled",       String.valueOf(req.urgentEnabled()));
         log.info("[SETTINGS] 알림 설정 저장");
+    }
+
+    @Transactional
+    public void saveSmtp(SaveSmtpSettingsRequest req) {
+        if (req.host()     != null) put("smtp.host",     req.host());
+        if (req.port()     != null) put("smtp.port",     String.valueOf(req.port()));
+        if (req.username() != null) put("smtp.username", req.username());
+        if (req.password() != null && !req.password().isBlank()) put("smtp.password", req.password());
+        log.info("[SETTINGS] SMTP 설정 저장");
     }
 
     @Transactional

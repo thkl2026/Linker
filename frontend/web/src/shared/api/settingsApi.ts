@@ -33,6 +33,13 @@ export interface ReferralAttachment {
   key: string
 }
 
+export interface ReferralContact {
+  name: string
+  position: string
+  email: string
+  phone: string
+}
+
 export interface ReferralSource {
   name: string
   registrationNo: string
@@ -40,6 +47,7 @@ export interface ReferralSource {
   phone: string
   bankAccount: string
   attachments?: ReferralAttachment[]
+  contacts?: ReferralContact[]
 }
 
 export interface MasterData {
@@ -49,11 +57,19 @@ export interface MasterData {
   projectRoles: string[]
 }
 
+export interface SmtpSettings {
+  host: string
+  port: number
+  username: string
+  hasPassword: boolean
+}
+
 export interface AllSettings {
   general: GeneralSettings
   evaluation: EvaluationSettings
   notifications: NotificationSettings
   masterData: MasterData
+  smtp: SmtpSettings
 }
 
 export type InvitationStatus = 'PENDING' | 'ACCEPTED' | 'EXPIRED'
@@ -109,4 +125,7 @@ export const settingsApi = {
 
   deleteAttachment: (key: string) =>
     axiosInstance.delete('/api/v1/service-admin/settings/attachments', { params: { key } }),
+
+  saveSmtp: (req: { host: string; port: number; username: string; password?: string }) =>
+    axiosInstance.put('/api/v1/service-admin/settings/smtp', req),
 }

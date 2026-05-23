@@ -7,19 +7,24 @@ import {
   type EvaluationSettings,
   type NotificationSettings,
   type MasterData,
+  type SmtpSettings,
   type ReferralSource,
   type ReferralAttachment,
+  type ReferralContact,
   type InvitedUser,
 } from '@/shared/api/settingsApi'
 
-type Tab = 'general' | 'users' | 'evaluation' | 'master' | 'notifications'
+type Tab = 'general' | 'users' | 'evaluation' | 'master' | 'contractors' | 'referral' | 'notifications' | 'smtp'
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'general',       label: '일반 설정' },
   { id: 'users',         label: '사용자 초대 및 관리' },
   { id: 'evaluation',    label: '평가 시스템 설정' },
   { id: 'master',        label: '마스터 데이터 관리' },
+  { id: 'contractors',   label: '주사업자 관리' },
+  { id: 'referral',      label: '추천기관' },
   { id: 'notifications', label: '알림 규칙 설정' },
+  { id: 'smtp',          label: '메일 설정' },
 ]
 
 // ─── Toggle component ─────────────────────────────────────────────────────────
@@ -542,16 +547,12 @@ const ATTACH_LABELS = ['사업자등록증', '통장사본', '계약서', '기�
 
 function MasterDataTab({ initial }: { initial: MasterData }) {
   const [form, setForm] = useState(initial)
-  const [newContractor, setNewContractor] = useState('')
   const [newTech, setNewTech] = useState('')
   const [newRole, setNewRole] = useState('')
-  const [newRef, setNewRef] = useState<ReferralSource>(EMPTY_REFERRAL)
-  const [editingRefIdx, setEditingRefIdx] = useState<number | null>(null)
-  const [uploadingIdx, setUploadingIdx] = useState<number | null>(null)
   const { addToast } = useUiStore()
   const qc = useQueryClient()
 
-  useEffect(() => { setForm(initial) }, [initial.contractors.length, initial.techStacks.length, initial.referralSources?.length, initial.projectRoles?.length])
+  useEffect(() => { setForm(initial) }, [initial.techStacks.length, initial.projectRoles?.length])
 
   const { mutate, isPending } = useMutation({
     mutationFn: () => settingsApi.saveMasterData(form),
@@ -561,17 +562,6 @@ function MasterDataTab({ initial }: { initial: MasterData }) {
     },
     onError: () => addToast('저장에 실패했습니다.', 'error'),
   })
-
-  function addContractor() {
-    const v = newContractor.trim()
-    if (!v || form.contractors.includes(v)) return
-    setForm(f => ({ ...f, contractors: [...f.contractors, v] }))
-    setNewContractor('')
-  }
-
-  function removeContractor(item: string) {
-    setForm(f => ({ ...f, contractors: f.contractors.filter(c => c !== item) }))
-  }
 
   function addTech() {
     const v = newTech.trim()
@@ -595,79 +585,30 @@ function MasterDataTab({ initial }: { initial: MasterData }) {
     setForm(f => ({ ...f, projectRoles: (f.projectRoles ?? []).filter(r => r !== item) }))
   }
 
-  function addReferralSource() {
-    if (!newRef.name.trim()) return
-    setForm(f => ({ ...f, referralSources: [...(f.referralSources ?? []), { ...newRef, name: newRef.name.trim() }] }))
-    setNewRef(EMPTY_REFERRAL)
-  }
-
-  function updateReferralSource(idx: number, patch: Partial<ReferralSource>) {
-    setForm(f => {
-      const list = [...(f.referralSources ?? [])]
-      list[idx] = { ...list[idx], ...patch }
-      return { ...f, referralSources: list }
-    })
-  }
-
-  function removeReferralSource(idx: number) {
-    setForm(f => ({ ...f, referralSources: (f.referralSources ?? []).filter((_, i) => i !== idx) }))
-  }
-
-  const refInputCls = 'bg-background border border-dashed border-border/50 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-secondary transition-all w-full'
-  const refCellCls  = 'px-3 py-2.5 text-sm text-primary/70'
-
   return (
     <div className="bg-white p-10 rounded-[40px] border border-border/30 shadow-sm space-y-8">
-      {/* 주사업자 + 기술스택 */}
-      <div className="grid grid-cols-2 gap-10">
-        {/* Contractors */}
-        <div className="space-y-6">
-          <div className="flex justify-between items-center pb-4 border-b border-border/10">
-            <h3 className="text-base font-black">주사업자 리스트</h3>
-            <span className="text-xs text-primary/30">{form.contractors.length}개</span>
-          </div>
-          <div className="flex flex-wrap gap-2 min-h-[80px]">
-            {form.contractors.map(c => (
-              <span key={c} className="px-4 py-2 bg-surface border border-border/50 rounded-xl text-xs font-bold flex items-center gap-2">
-                {c}
-                <button onClick={() => removeContractor(c)} className="opacity-30 hover:opacity-100 hover:text-danger transition-all">✕</button>
-              </span>
-            ))}
-          </div>
-          <div className="flex gap-2">
-            <input value={newContractor} onChange={e => setNewContractor(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && addContractor()} placeholder="(주)회사명..."
-              className="flex-1 bg-background border border-dashed border-border/50 rounded-2xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary transition-all" />
-            <button onClick={addContractor}
-              className="px-4 py-2.5 bg-secondary/5 border border-secondary/20 text-secondary text-xs font-black rounded-2xl hover:bg-secondary hover:text-white transition-all">
-              + 추가
-            </button>
-          </div>
+      {/* Tech stacks */}
+      <div className="space-y-4">
+        <div className="flex justify-between items-center pb-4 border-b border-border/10">
+          <h3 className="text-base font-black">공통 기술 스택</h3>
+          <span className="text-xs text-primary/30">{form.techStacks.length}개</span>
         </div>
-
-        {/* Tech stacks */}
-        <div className="space-y-6">
-          <div className="flex justify-between items-center pb-4 border-b border-border/10">
-            <h3 className="text-base font-black">공통 기술 스택</h3>
-            <span className="text-xs text-primary/30">{form.techStacks.length}개</span>
-          </div>
-          <div className="flex flex-wrap gap-2 min-h-[80px]">
-            {form.techStacks.map((t, i) => (
-              <span key={t} className={`px-3 py-1.5 rounded-lg text-xs font-black flex items-center gap-1.5 ${TECH_COLORS[i % TECH_COLORS.length]}`}>
-                {t}
-                <button onClick={() => removeTech(t)} className="opacity-40 hover:opacity-100 transition-all">✕</button>
-              </span>
-            ))}
-          </div>
-          <div className="flex gap-2">
-            <input value={newTech} onChange={e => setNewTech(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && addTech()} placeholder="React, Java Spring..."
-              className="flex-1 bg-background border border-dashed border-border/50 rounded-2xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary transition-all" />
-            <button onClick={addTech}
-              className="px-4 py-2.5 bg-secondary/5 border border-secondary/20 text-secondary text-xs font-black rounded-2xl hover:bg-secondary hover:text-white transition-all">
-              + 추가
-            </button>
-          </div>
+        <div className="flex flex-wrap gap-2 min-h-[80px]">
+          {form.techStacks.map((t, i) => (
+            <span key={t} className={`px-3 py-1.5 rounded-lg text-xs font-black flex items-center gap-1.5 ${TECH_COLORS[i % TECH_COLORS.length]}`}>
+              {t}
+              <button onClick={() => removeTech(t)} className="opacity-40 hover:opacity-100 transition-all">✕</button>
+            </span>
+          ))}
+        </div>
+        <div className="flex gap-2">
+          <input value={newTech} onChange={e => setNewTech(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && addTech()} placeholder="React, Java Spring..."
+            className="flex-1 bg-background border border-dashed border-border/50 rounded-2xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary transition-all" />
+          <button onClick={addTech}
+            className="px-4 py-2.5 bg-secondary/5 border border-secondary/20 text-secondary text-xs font-black rounded-2xl hover:bg-secondary hover:text-white transition-all">
+            + 추가
+          </button>
         </div>
       </div>
 
@@ -682,136 +623,27 @@ function MasterDataTab({ initial }: { initial: MasterData }) {
         </div>
         <div className="flex flex-wrap gap-2 min-h-[80px]">
           {(form.projectRoles ?? []).map((r, i) => (
-            <span
-              key={r}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 border ${
-                i < 3 ? 'bg-blue-50 text-blue-600 border-blue-100' :
-                i < 8 ? 'bg-purple-50 text-purple-600 border-purple-100' :
-                i < 14 ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                i < 17 ? 'bg-orange-50 text-orange-600 border-orange-100' :
-                'bg-surface text-primary/60 border-border/30'
-              }`}
-            >
+            <span key={r} className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 border ${
+              i < 3 ? 'bg-blue-50 text-blue-600 border-blue-100' :
+              i < 8 ? 'bg-purple-50 text-purple-600 border-purple-100' :
+              i < 14 ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+              i < 17 ? 'bg-orange-50 text-orange-600 border-orange-100' :
+              'bg-surface text-primary/60 border-border/30'
+            }`}>
               {r}
               <button onClick={() => removeRole(r)} className="opacity-40 hover:opacity-100 hover:text-danger transition-all">✕</button>
             </span>
           ))}
         </div>
         <div className="flex gap-2">
-          <input
-            value={newRole}
-            onChange={e => setNewRole(e.target.value)}
+          <input value={newRole} onChange={e => setNewRole(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && addRole()}
             placeholder="예: SAP 컨설턴트, 스토리지 엔지니어..."
-            className="flex-1 bg-background border border-dashed border-border/50 rounded-2xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary transition-all"
-          />
-          <button
-            onClick={addRole}
-            className="px-4 py-2.5 bg-secondary/5 border border-secondary/20 text-secondary text-xs font-black rounded-2xl hover:bg-secondary hover:text-white transition-all"
-          >
+            className="flex-1 bg-background border border-dashed border-border/50 rounded-2xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary transition-all" />
+          <button onClick={addRole}
+            className="px-4 py-2.5 bg-secondary/5 border border-secondary/20 text-secondary text-xs font-black rounded-2xl hover:bg-secondary hover:text-white transition-all">
             + 추가
           </button>
-        </div>
-      </div>
-
-      {/* 추천소스 테이블 */}
-      <div className="space-y-4">
-        <div className="flex justify-between items-center pb-4 border-b border-border/10">
-          <h3 className="text-base font-black">추천소스 관리</h3>
-          <span className="text-xs text-primary/30">{(form.referralSources ?? []).length}개</span>
-        </div>
-
-        <div className="border border-border/30 rounded-2xl overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-surface text-[11px] font-black text-primary/40 uppercase tracking-wider">
-              <tr>
-                <th className="px-4 py-3 text-left border-b border-border/20 w-[15%]">기관명</th>
-                <th className="px-4 py-3 text-left border-b border-border/20 w-[13%]">등록번호</th>
-                <th className="px-4 py-3 text-left border-b border-border/20 w-[17%]">담당자 이메일</th>
-                <th className="px-4 py-3 text-left border-b border-border/20 w-[13%]">전화번호</th>
-                <th className="px-4 py-3 text-left border-b border-border/20 w-[15%]">통장번호</th>
-                <th className="px-4 py-3 text-left border-b border-border/20 w-[17%]">첨부파일</th>
-                <th className="px-4 py-3 text-center border-b border-border/20 w-[10%]">액션</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(form.referralSources ?? []).map((r, idx) => (
-                <tr key={idx} className="border-b border-border/10 hover:bg-surface/50 transition-colors">
-                  {editingRefIdx === idx ? (
-                    <>
-                      <td className="px-2 py-1.5"><input className={refInputCls} value={r.name} onChange={e => updateReferralSource(idx, { name: e.target.value })} placeholder="기관명" /></td>
-                      <td className="px-2 py-1.5"><input className={refInputCls} value={r.registrationNo} onChange={e => updateReferralSource(idx, { registrationNo: e.target.value })} placeholder="000-00-00000" /></td>
-                      <td className="px-2 py-1.5"><input className={refInputCls} value={r.contactEmail} onChange={e => updateReferralSource(idx, { contactEmail: e.target.value })} placeholder="contact@org.com" /></td>
-                      <td className="px-2 py-1.5"><input className={refInputCls} value={r.phone} onChange={e => updateReferralSource(idx, { phone: e.target.value.replace(/\D/g, '') })} placeholder="0215551234" /></td>
-                      <td className="px-2 py-1.5"><input className={refInputCls} value={r.bankAccount} onChange={e => updateReferralSource(idx, { bankAccount: e.target.value })} placeholder="은행 계좌번호" /></td>
-                      <td className="px-2 py-1.5">
-                        <AttachmentCell
-                          attachments={r.attachments ?? []}
-                          uploading={uploadingIdx === idx}
-                          onUpload={async (file, name) => {
-                            setUploadingIdx(idx)
-                            try {
-                              const res = await settingsApi.uploadReferralAttachment(file, name)
-                              updateReferralSource(idx, { attachments: [...(r.attachments ?? []), res.data] })
-                            } finally { setUploadingIdx(null) }
-                          }}
-                          onDelete={att => updateReferralSource(idx, { attachments: (r.attachments ?? []).filter(a => a.key !== att.key) })}
-                          onDownload={async att => {
-                            const res = await settingsApi.getAttachmentDownloadUrl(att.key)
-                            window.open(res.data.url, '_blank')
-                          }}
-                        />
-                      </td>
-                      <td className="px-2 py-1.5 text-center">
-                        <button onClick={() => setEditingRefIdx(null)} className="text-[11px] font-black text-secondary hover:underline">완료</button>
-                      </td>
-                    </>
-                  ) : (
-                    <>
-                      <td className={`${refCellCls} font-bold text-primary`}>{r.name}</td>
-                      <td className={refCellCls}>{r.registrationNo || <span className="text-primary/20">—</span>}</td>
-                      <td className={refCellCls}>{r.contactEmail || <span className="text-primary/20">—</span>}</td>
-                      <td className={refCellCls}>{r.phone || <span className="text-primary/20">—</span>}</td>
-                      <td className={refCellCls}>{r.bankAccount || <span className="text-primary/20">—</span>}</td>
-                      <td className={refCellCls}>
-                        {(r.attachments ?? []).length > 0 ? (
-                          <div className="flex flex-wrap gap-1">
-                            {(r.attachments ?? []).map(att => (
-                              <button key={att.key} onClick={async () => {
-                                const res = await settingsApi.getAttachmentDownloadUrl(att.key)
-                                window.open(res.data.url, '_blank')
-                              }} className="flex items-center gap-1 px-2 py-0.5 bg-amber-50 border border-amber-200 rounded-lg text-[11px] font-bold text-amber-700 hover:bg-amber-100 transition-colors">
-                                📎 {att.name}
-                              </button>
-                            ))}
-                          </div>
-                        ) : <span className="text-primary/20">—</span>}
-                      </td>
-                      <td className="px-2 py-2.5 text-center flex items-center justify-center gap-2">
-                        <button onClick={() => setEditingRefIdx(idx)} className="text-[11px] font-black text-primary/40 hover:text-secondary transition-colors">수정</button>
-                        <button onClick={() => removeReferralSource(idx)} className="text-[11px] font-black text-primary/40 hover:text-danger transition-colors">삭제</button>
-                      </td>
-                    </>
-                  )}
-                </tr>
-              ))}
-              {/* 신규 입력 행 */}
-              <tr className="bg-surface/30">
-                <td className="px-2 py-2"><input className={refInputCls} value={newRef.name} onChange={e => setNewRef(r => ({ ...r, name: e.target.value }))} onKeyDown={e => e.key === 'Enter' && addReferralSource()} placeholder="기관명 *" /></td>
-                <td className="px-2 py-2"><input className={refInputCls} value={newRef.registrationNo} onChange={e => setNewRef(r => ({ ...r, registrationNo: e.target.value }))} placeholder="000-00-00000" /></td>
-                <td className="px-2 py-2"><input className={refInputCls} value={newRef.contactEmail} onChange={e => setNewRef(r => ({ ...r, contactEmail: e.target.value }))} placeholder="contact@org.com" /></td>
-                <td className="px-2 py-2"><input className={refInputCls} value={newRef.phone} onChange={e => setNewRef(r => ({ ...r, phone: e.target.value.replace(/\D/g, '') }))} placeholder="0215551234" /></td>
-                <td className="px-2 py-2"><input className={refInputCls} value={newRef.bankAccount} onChange={e => setNewRef(r => ({ ...r, bankAccount: e.target.value }))} placeholder="은행 계좌번호" /></td>
-                <td className="px-2 py-2"><span className="text-xs text-primary/30">추가 후 수정에서 첨부</span></td>
-                <td className="px-2 py-2 text-center">
-                  <button onClick={addReferralSource} disabled={!newRef.name.trim()}
-                    className="px-3 py-1.5 bg-secondary/5 border border-secondary/20 text-secondary text-xs font-black rounded-xl hover:bg-secondary hover:text-white transition-all disabled:opacity-30">
-                    + 추가
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
         </div>
       </div>
 
@@ -822,6 +654,287 @@ function MasterDataTab({ initial }: { initial: MasterData }) {
         </button>
       </div>
     </div>
+  )
+}
+
+// ─── Contractors tab ──────────────────────────────────────────────────────────
+function ContractorsTab({ initial }: { initial: MasterData }) {
+  const [contractors, setContractors] = useState(initial.contractors)
+  const [newContractor, setNewContractor] = useState('')
+  const { addToast } = useUiStore()
+  const qc = useQueryClient()
+
+  useEffect(() => { setContractors(initial.contractors) }, [initial.contractors.length])
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: () => settingsApi.saveMasterData({ ...initial, contractors }),
+    onSuccess: () => {
+      addToast('주사업자 목록이 저장되었습니다.', 'success')
+      qc.invalidateQueries({ queryKey: ['settings'] })
+    },
+    onError: () => addToast('저장에 실패했습니다.', 'error'),
+  })
+
+  function add() {
+    const v = newContractor.trim()
+    if (!v || contractors.includes(v)) return
+    setContractors(c => [...c, v])
+    setNewContractor('')
+  }
+
+  return (
+    <Section title="주사업자 관리" sub="프로젝트에 참여하는 주사업자(원도급) 회사 목록을 관리합니다.">
+      <div className="flex flex-wrap gap-2 min-h-[80px] mb-6">
+        {contractors.map(c => (
+          <span key={c} className="px-4 py-2 bg-surface border border-border/50 rounded-xl text-sm font-bold flex items-center gap-2">
+            {c}
+            <button onClick={() => setContractors(cs => cs.filter(x => x !== c))}
+              className="opacity-30 hover:opacity-100 hover:text-danger transition-all">✕</button>
+          </span>
+        ))}
+        {contractors.length === 0 && <p className="text-sm text-primary/30">등록된 주사업자가 없습니다.</p>}
+      </div>
+      <div className="flex gap-2">
+        <input value={newContractor} onChange={e => setNewContractor(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && add()} placeholder="(주)회사명..."
+          className="flex-1 bg-background border border-dashed border-border/50 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-secondary transition-all" />
+        <button onClick={add}
+          className="px-5 py-3 bg-secondary/5 border border-secondary/20 text-secondary text-sm font-black rounded-2xl hover:bg-secondary hover:text-white transition-all">
+          + 추가
+        </button>
+      </div>
+      <div className="pt-8 border-t border-border/10 flex justify-end mt-8">
+        <button onClick={() => mutate()} disabled={isPending}
+          className="px-10 py-4 bg-primary text-white rounded-2xl text-sm font-black shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50">
+          {isPending ? '저장 중...' : '변경 사항 저장'}
+        </button>
+      </div>
+    </Section>
+  )
+}
+
+// ─── Referral tab ─────────────────────────────────────────────────────────────
+const EMPTY_CONTACT: ReferralContact = { name: '', position: '', email: '', phone: '' }
+
+function ReferralTab({ initial }: { initial: MasterData }) {
+  const [sources, setSources]           = useState<ReferralSource[]>(initial.referralSources ?? [])
+  const [newRef, setNewRef]             = useState<ReferralSource>(EMPTY_REFERRAL)
+  const [editingIdx, setEditingIdx]     = useState<number | null>(null)
+  const [expandedIdx, setExpandedIdx]   = useState<number | null>(null)
+  const [newContact, setNewContact]     = useState<ReferralContact>(EMPTY_CONTACT)
+  const [uploadingIdx, setUploadingIdx] = useState<number | null>(null)
+  const { addToast } = useUiStore()
+  const qc = useQueryClient()
+
+  useEffect(() => { setSources(initial.referralSources ?? []) }, [initial.referralSources?.length])
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: () => settingsApi.saveMasterData({ ...initial, referralSources: sources }),
+    onSuccess: () => {
+      addToast('추천기관 정보가 저장되었습니다.', 'success')
+      qc.invalidateQueries({ queryKey: ['settings'] })
+    },
+    onError: () => addToast('저장에 실패했습니다.', 'error'),
+  })
+
+  function update(idx: number, patch: Partial<ReferralSource>) {
+    setSources(s => s.map((r, i) => i === idx ? { ...r, ...patch } : r))
+  }
+
+  function remove(idx: number) {
+    setSources(s => s.filter((_, i) => i !== idx))
+    if (expandedIdx === idx) setExpandedIdx(null)
+    else if (expandedIdx !== null && expandedIdx > idx) setExpandedIdx(expandedIdx - 1)
+  }
+
+  function addSource() {
+    if (!newRef.name.trim()) return
+    setSources(s => [...s, { ...newRef, name: newRef.name.trim(), contacts: [] }])
+    setNewRef(EMPTY_REFERRAL)
+  }
+
+  function addContact(agencyIdx: number) {
+    if (!newContact.name.trim()) return
+    update(agencyIdx, { contacts: [...(sources[agencyIdx].contacts ?? []), { ...newContact }] })
+    setNewContact(EMPTY_CONTACT)
+  }
+
+  function removeContact(agencyIdx: number, contactIdx: number) {
+    update(agencyIdx, { contacts: (sources[agencyIdx].contacts ?? []).filter((_, i) => i !== contactIdx) })
+  }
+
+  const refInputCls = 'bg-background border border-dashed border-border/50 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-secondary transition-all w-full'
+  const refCellCls  = 'px-3 py-2.5 text-sm text-primary/70'
+
+  return (
+    <Section title="추천기관 관리" sub="인력 추천을 받는 기관의 정보 및 담당자를 관리합니다.">
+      <div className="border border-border/30 rounded-2xl overflow-hidden mb-6">
+        <table className="w-full text-sm">
+          <thead className="bg-surface text-[11px] font-black text-primary/40 uppercase tracking-wider">
+            <tr>
+              <th className="px-4 py-3 text-left border-b border-border/20 w-[18%]">기관명</th>
+              <th className="px-4 py-3 text-left border-b border-border/20 w-[13%]">등록번호</th>
+              <th className="px-4 py-3 text-left border-b border-border/20 w-[13%]">전화번호</th>
+              <th className="px-4 py-3 text-left border-b border-border/20 w-[15%]">통장번호</th>
+              <th className="px-4 py-3 text-left border-b border-border/20 w-[14%]">첨부파일</th>
+              <th className="px-4 py-3 text-center border-b border-border/20 w-[12%]">담당자</th>
+              <th className="px-4 py-3 text-center border-b border-border/20 w-[15%]">액션</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sources.map((r, idx) => (
+              <tr key={idx} className={`border-b border-border/10 transition-colors ${expandedIdx === idx ? 'bg-primary/5' : 'hover:bg-surface/50'}`}>
+                {editingIdx === idx ? (
+                  <>
+                    <td className="px-2 py-1.5"><input className={refInputCls} value={r.name} onChange={e => update(idx, { name: e.target.value })} /></td>
+                    <td className="px-2 py-1.5"><input className={refInputCls} value={r.registrationNo} onChange={e => update(idx, { registrationNo: e.target.value })} placeholder="000-00-00000" /></td>
+                    <td className="px-2 py-1.5"><input className={refInputCls} value={r.phone} onChange={e => update(idx, { phone: e.target.value })} placeholder="021-555-1234" /></td>
+                    <td className="px-2 py-1.5"><input className={refInputCls} value={r.bankAccount} onChange={e => update(idx, { bankAccount: e.target.value })} placeholder="은행 계좌번호" /></td>
+                    <td className="px-2 py-1.5">
+                      <AttachmentCell
+                        attachments={r.attachments ?? []}
+                        uploading={uploadingIdx === idx}
+                        onUpload={async (file, name) => {
+                          setUploadingIdx(idx)
+                          try {
+                            const res = await settingsApi.uploadReferralAttachment(file, name)
+                            update(idx, { attachments: [...(r.attachments ?? []), res.data] })
+                          } finally { setUploadingIdx(null) }
+                        }}
+                        onDelete={att => update(idx, { attachments: (r.attachments ?? []).filter(a => a.key !== att.key) })}
+                        onDownload={async att => { const res = await settingsApi.getAttachmentDownloadUrl(att.key); window.open(res.data.url, '_blank') }}
+                      />
+                    </td>
+                    <td className="px-2 py-1.5 text-center">
+                      <span className="text-xs text-primary/40">{(r.contacts ?? []).length}명</span>
+                    </td>
+                    <td className="px-2 py-1.5 text-center">
+                      <button onClick={() => setEditingIdx(null)} className="text-[11px] font-black text-secondary hover:underline">완료</button>
+                    </td>
+                  </>
+                ) : (
+                  <>
+                    <td className={`${refCellCls} font-bold text-primary`}>{r.name}</td>
+                    <td className={refCellCls}>{r.registrationNo || <span className="text-primary/20">—</span>}</td>
+                    <td className={refCellCls}>{r.phone || <span className="text-primary/20">—</span>}</td>
+                    <td className={refCellCls}>{r.bankAccount || <span className="text-primary/20">—</span>}</td>
+                    <td className={refCellCls}>
+                      {(r.attachments ?? []).length > 0 ? (
+                        <div className="flex flex-wrap gap-1">
+                          {(r.attachments ?? []).map(att => (
+                            <button key={att.key}
+                              onClick={async () => { const res = await settingsApi.getAttachmentDownloadUrl(att.key); window.open(res.data.url, '_blank') }}
+                              className="flex items-center gap-1 px-2 py-0.5 bg-amber-50 border border-amber-200 rounded-lg text-[11px] font-bold text-amber-700 hover:bg-amber-100 transition-colors">
+                              📎 {att.name}
+                            </button>
+                          ))}
+                        </div>
+                      ) : <span className="text-primary/20">—</span>}
+                    </td>
+                    <td className="px-2 py-2.5 text-center">
+                      <button
+                        onClick={() => { setExpandedIdx(expandedIdx === idx ? null : idx); setNewContact(EMPTY_CONTACT) }}
+                        className={`px-3 py-1 rounded-xl text-[11px] font-black transition-all ${
+                          expandedIdx === idx
+                            ? 'bg-primary text-white'
+                            : 'bg-secondary/5 border border-secondary/20 text-secondary hover:bg-secondary hover:text-white'
+                        }`}
+                      >
+                        담당자 {(r.contacts ?? []).length}명
+                      </button>
+                    </td>
+                    <td className="px-2 py-2.5 text-center">
+                      <div className="flex items-center justify-center gap-2">
+                        <button onClick={() => setEditingIdx(idx)} className="text-[11px] font-black text-primary/40 hover:text-secondary transition-colors">수정</button>
+                        <button onClick={() => remove(idx)} className="text-[11px] font-black text-primary/40 hover:text-danger transition-colors">삭제</button>
+                      </div>
+                    </td>
+                  </>
+                )}
+              </tr>
+            ))}
+            <tr className="bg-surface/30">
+              <td className="px-2 py-2"><input className={refInputCls} value={newRef.name} onChange={e => setNewRef(r => ({ ...r, name: e.target.value }))} onKeyDown={e => e.key === 'Enter' && addSource()} placeholder="기관명 *" /></td>
+              <td className="px-2 py-2"><input className={refInputCls} value={newRef.registrationNo} onChange={e => setNewRef(r => ({ ...r, registrationNo: e.target.value }))} placeholder="000-00-00000" /></td>
+              <td className="px-2 py-2"><input className={refInputCls} value={newRef.phone} onChange={e => setNewRef(r => ({ ...r, phone: e.target.value }))} placeholder="021-555-1234" /></td>
+              <td className="px-2 py-2"><input className={refInputCls} value={newRef.bankAccount} onChange={e => setNewRef(r => ({ ...r, bankAccount: e.target.value }))} placeholder="은행 계좌번호" /></td>
+              <td className="px-2 py-2"><span className="text-xs text-primary/30">추가 후 수정에서 첨부</span></td>
+              <td className="px-2 py-2"></td>
+              <td className="px-2 py-2 text-center">
+                <button onClick={addSource} disabled={!newRef.name.trim()}
+                  className="px-3 py-1.5 bg-secondary/5 border border-secondary/20 text-secondary text-xs font-black rounded-xl hover:bg-secondary hover:text-white transition-all disabled:opacity-30">
+                  + 추가
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      {/* 담당자 패널 */}
+      {expandedIdx !== null && sources[expandedIdx] && (
+        <div className="bg-surface/50 border border-border/30 rounded-2xl p-6 mb-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <h4 className="text-sm font-black text-primary">
+              {sources[expandedIdx].name}
+              <span className="text-primary/40 font-bold ml-2">담당자 목록</span>
+            </h4>
+            <span className="text-xs text-primary/30">{(sources[expandedIdx].contacts ?? []).length}명</span>
+          </div>
+
+          {(sources[expandedIdx].contacts ?? []).length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {(sources[expandedIdx].contacts ?? []).map((contact, cIdx) => (
+                <div key={cIdx} className="flex items-start justify-between bg-white rounded-2xl p-4 border border-border/30 shadow-sm">
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="text-sm font-black text-primary">{contact.name}</p>
+                      {contact.position && (
+                        <span className="text-[10px] font-bold text-primary/50 bg-surface px-2 py-0.5 rounded-lg border border-border/30">
+                          {contact.position}
+                        </span>
+                      )}
+                    </div>
+                    {contact.email && <p className="text-xs text-primary/60">✉️ {contact.email}</p>}
+                    {contact.phone && <p className="text-xs text-primary/60">📞 {contact.phone}</p>}
+                  </div>
+                  <button onClick={() => removeContact(expandedIdx, cIdx)}
+                    className="text-primary/20 hover:text-danger transition-colors text-xs shrink-0 mt-0.5">✕</button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-xs text-primary/30 py-2">등록된 담당자가 없습니다. 아래에서 추가하세요.</p>
+          )}
+
+          <div className="grid grid-cols-5 gap-2 pt-4 border-t border-border/10">
+            <input value={newContact.name} onChange={e => setNewContact(c => ({ ...c, name: e.target.value }))}
+              placeholder="이름 *"
+              className="bg-white border border-dashed border-border/50 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-secondary transition-all" />
+            <input value={newContact.position} onChange={e => setNewContact(c => ({ ...c, position: e.target.value }))}
+              placeholder="직책"
+              className="bg-white border border-dashed border-border/50 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-secondary transition-all" />
+            <input value={newContact.email} onChange={e => setNewContact(c => ({ ...c, email: e.target.value }))}
+              placeholder="이메일"
+              className="bg-white border border-dashed border-border/50 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-secondary transition-all" />
+            <input value={newContact.phone} onChange={e => setNewContact(c => ({ ...c, phone: e.target.value }))}
+              placeholder="전화번호"
+              className="bg-white border border-dashed border-border/50 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-secondary transition-all" />
+            <button onClick={() => addContact(expandedIdx)} disabled={!newContact.name.trim()}
+              className="px-3 py-2.5 bg-secondary/5 border border-secondary/20 text-secondary text-xs font-black rounded-xl hover:bg-secondary hover:text-white transition-all disabled:opacity-30">
+              + 담당자 추가
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="pt-6 border-t border-border/10 flex justify-end">
+        <button onClick={() => mutate()} disabled={isPending}
+          className="px-10 py-4 bg-primary text-white rounded-2xl text-sm font-black shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50">
+          {isPending ? '저장 중...' : '변경 사항 저장'}
+        </button>
+      </div>
+    </Section>
   )
 }
 
@@ -903,6 +1016,93 @@ function NotificationsTab({ initial }: { initial: NotificationSettings }) {
   )
 }
 
+// ─── SMTP tab ─────────────────────────────────────────────────────────────────
+function SmtpTab({ initial }: { initial: SmtpSettings }) {
+  const [host,     setHost]     = useState(initial.host)
+  const [port,     setPort]     = useState(initial.port)
+  const [username, setUsername] = useState(initial.username)
+  const [password, setPassword] = useState('')
+  const { addToast } = useUiStore()
+  const qc = useQueryClient()
+
+  useEffect(() => {
+    setHost(initial.host)
+    setPort(initial.port)
+    setUsername(initial.username)
+  }, [initial.host, initial.port, initial.username])
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: () => settingsApi.saveSmtp({ host, port, username, password: password || undefined }),
+    onSuccess: () => {
+      addToast('메일 설정이 저장되었습니다.', 'success')
+      setPassword('')
+      qc.invalidateQueries({ queryKey: ['settings'] })
+    },
+    onError: () => addToast('저장에 실패했습니다.', 'error'),
+  })
+
+  return (
+    <Section
+      title="SMTP 메일 서버 설정"
+      sub="초대 메일 발송에 사용할 SMTP 서버 정보를 입력합니다. 비밀번호는 변경 시에만 입력하세요."
+    >
+      <div className="grid grid-cols-2 gap-10">
+        <div className="space-y-6">
+          <div>
+            <Label>SMTP 서버 주소</Label>
+            <Input value={host} onChange={e => setHost(e.target.value)} placeholder="smtp.gmail.com" />
+          </div>
+          <div>
+            <Label>포트</Label>
+            <Input type="number" value={port} onChange={e => setPort(Number(e.target.value))} placeholder="587" />
+          </div>
+          <div>
+            <Label>발신 계정 (이메일)</Label>
+            <Input value={username} onChange={e => setUsername(e.target.value)} placeholder="sender@gmail.com" />
+          </div>
+          <div>
+            <Label>앱 비밀번호 {initial.hasPassword && <span className="text-success normal-case font-medium ml-1">· 설정됨</span>}</Label>
+            <Input
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder={initial.hasPassword ? '변경하지 않으려면 비워두세요' : 'Gmail 앱 비밀번호 16자리'}
+            />
+          </div>
+        </div>
+        <div className="space-y-4 pt-2">
+          <div className="p-5 bg-amber-50 border border-amber-200 rounded-2xl space-y-3">
+            <p className="text-sm font-black text-amber-800">Gmail 앱 비밀번호 발급 방법</p>
+            <ol className="text-xs text-amber-700 space-y-1.5 list-decimal list-inside leading-relaxed">
+              <li>Google 계정 → 보안 → 2단계 인증 활성화</li>
+              <li>보안 → 앱 비밀번호 선택</li>
+              <li>앱: 메일, 기기: 기타(직접 입력) → 생성</li>
+              <li>생성된 16자리 코드를 위 비밀번호 칸에 입력</li>
+            </ol>
+          </div>
+          <div className="p-5 bg-surface border border-border/30 rounded-2xl space-y-2">
+            <p className="text-xs font-black text-primary/60">현재 설정 상태</p>
+            <div className="space-y-1.5 text-xs text-primary/50">
+              <p>서버: <span className="font-bold text-primary">{initial.host || '미설정'}</span></p>
+              <p>포트: <span className="font-bold text-primary">{initial.port}</span></p>
+              <p>계정: <span className="font-bold text-primary">{initial.username || '미설정'}</span></p>
+              <p>비밀번호: <span className={`font-bold ${initial.hasPassword ? 'text-success' : 'text-danger'}`}>{initial.hasPassword ? '설정됨' : '미설정'}</span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="pt-8 border-t border-border/10 flex justify-end mt-8">
+        <button
+          onClick={() => mutate()}
+          disabled={isPending}
+          className="px-10 py-4 bg-primary text-white rounded-2xl text-sm font-black shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50">
+          {isPending ? '저장 중...' : '변경 사항 저장'}
+        </button>
+      </div>
+    </Section>
+  )
+}
+
 // ─── Main page ────────────────────────────────────────────────────────────────
 export function ServiceAdminSettingsPage() {
   const [activeTab, setActiveTab] = useState<Tab>('general')
@@ -953,7 +1153,10 @@ export function ServiceAdminSettingsPage() {
             {activeTab === 'users'         && <UsersTab />}
             {activeTab === 'evaluation'    && <EvaluationTab    initial={settings.evaluation} />}
             {activeTab === 'master'        && <MasterDataTab    initial={settings.masterData} />}
+            {activeTab === 'contractors'   && <ContractorsTab   initial={settings.masterData} />}
+            {activeTab === 'referral'      && <ReferralTab      initial={settings.masterData} />}
             {activeTab === 'notifications' && <NotificationsTab initial={settings.notifications} />}
+            {activeTab === 'smtp'          && <SmtpTab          initial={settings.smtp} />}
           </div>
         ) : null}
       </div>

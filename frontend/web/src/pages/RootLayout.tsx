@@ -71,10 +71,7 @@ export function RootLayout() {
       <aside className={`bg-white border-r border-border/30 flex flex-col shrink-0 transition-all duration-300 ${isSidebarOpen ? 'w-52' : 'w-14'}`}>
         <div className="px-3 py-5 flex items-center justify-center relative">
           <div className={`overflow-hidden transition-all duration-300 ${isSidebarOpen ? 'w-auto opacity-100' : 'w-0 opacity-0'}`}>
-            <img src={linkerLogo} alt="Linker" className="h-5 object-contain mb-1 mx-auto" />
-            <p className="text-[10px] font-bold text-primary/30 tracking-widest opacity-80 uppercase whitespace-nowrap text-center">
-              {ROLE_LABEL[role] ?? role}
-            </p>
+            <img src={linkerLogo} alt="Linker" className="h-[26px] object-contain mx-auto" />
           </div>
           <button onClick={toggleSidebar}
             className="absolute right-2 p-1 rounded-lg hover:bg-primary/5 text-primary/60 transition-colors shrink-0" aria-label="사이드바 토글">

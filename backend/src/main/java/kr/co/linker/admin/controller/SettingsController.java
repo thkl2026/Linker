@@ -9,6 +9,7 @@ import kr.co.linker.admin.dto.InvitedUserResponse;
 import kr.co.linker.admin.dto.SaveEvaluationSettingsRequest;
 import kr.co.linker.admin.dto.SaveGeneralSettingsRequest;
 import kr.co.linker.admin.dto.SaveMasterDataRequest;
+import kr.co.linker.admin.dto.SaveSmtpSettingsRequest;
 import kr.co.linker.admin.dto.SaveNotificationSettingsRequest;
 import kr.co.linker.admin.service.SettingsService;
 import lombok.RequiredArgsConstructor;
@@ -55,6 +56,13 @@ public class SettingsController {
     @PutMapping("/notifications")
     public ResponseEntity<Void> saveNotifications(@RequestBody SaveNotificationSettingsRequest req) {
         settingsService.saveNotifications(req);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "SMTP 메일 설정 저장")
+    @PutMapping("/smtp")
+    public ResponseEntity<Void> saveSmtp(@RequestBody SaveSmtpSettingsRequest req) {
+        settingsService.saveSmtp(req);
         return ResponseEntity.noContent().build();
     }
 

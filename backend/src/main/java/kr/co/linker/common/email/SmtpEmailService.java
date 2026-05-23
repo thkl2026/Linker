@@ -1,42 +1,86 @@
 package kr.co.linker.common.email;
 
 import jakarta.mail.internet.MimeMessage;
+import kr.co.linker.admin.domain.PlatformSetting;
+import kr.co.linker.admin.repository.PlatformSettingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
-@ConditionalOnProperty(name = "spring.mail.host")
+import java.util.Map;
+import java.util.Properties;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class SmtpEmailService implements EmailService {
 
-    private final JavaMailSender mailSender;
+    private final PlatformSettingRepository settingRepo;
 
-    @Value("${spring.mail.username}")
-    private String from;
+    @Value("${spring.mail.host:}")
+    private String envHost;
 
-    private static final java.util.Map<String, String> ROLE_LABELS = java.util.Map.of(
+    @Value("${spring.mail.port:587}")
+    private int envPort;
+
+    @Value("${spring.mail.username:}")
+    private String envUsername;
+
+    @Value("${spring.mail.password:}")
+    private String envPassword;
+
+    private static final Map<String, String> ROLE_LABELS = Map.of(
             "TALENT",        "전문가 (Expert)",
             "PM",            "PM (Project Manager)",
             "PROCUREMENT",   "기업 담당자 (Client)",
             "SERVICE_ADMIN", "서비스 관리자 (Admin)"
     );
 
+    private JavaMailSenderImpl buildSender() {
+        String host = settingRepo.findById("smtp.host").map(PlatformSetting::getValue).orElse(null);
+        if (host == null || host.isBlank()) host = envHost;
+        if (host == null || host.isBlank()) return null;
+
+        String portStr = settingRepo.findById("smtp.port").map(PlatformSetting::getValue).orElse(null);
+        int port = (portStr != null && !portStr.isBlank()) ? Integer.parseInt(portStr) : envPort;
+
+        String username = settingRepo.findById("smtp.username").map(PlatformSetting::getValue).orElse(null);
+        if (username == null || username.isBlank()) username = envUsername;
+
+        String password = settingRepo.findById("smtp.password").map(PlatformSetting::getValue).orElse(null);
+        if (password == null || password.isBlank()) password = envPassword;
+
+        JavaMailSenderImpl sender = new JavaMailSenderImpl();
+        sender.setHost(host);
+        sender.setPort(port);
+        sender.setUsername(username);
+        sender.setPassword(password);
+
+        Properties props = sender.getJavaMailProperties();
+        props.put("mail.transport.protocol", "smtp");
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+        return sender;
+    }
+
     @Override
     public void sendInvitation(String to, String role, String inviteUrl) {
+        JavaMailSenderImpl sender = buildSender();
+        if (sender == null) {
+            log.info("[EMAIL-NOOP] SMTP 설정 없음, 초대 메일 생략 to={} role={}", to, role);
+            return;
+        }
         try {
-            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessage message = sender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, false, "UTF-8");
-            helper.setFrom(from);
+            helper.setFrom(sender.getUsername());
             helper.setTo(to);
             helper.setSubject("[Linker] 서비스 초대 안내");
             helper.setText(buildHtml(to, role, inviteUrl), true);
-            mailSender.send(message);
+            sender.send(message);
             log.info("[EMAIL] 초대 메일 발송 to={} role={}", to, role);
         } catch (Exception e) {
             log.error("[EMAIL] 초대 메일 발송 실패 to={}", to, e);
