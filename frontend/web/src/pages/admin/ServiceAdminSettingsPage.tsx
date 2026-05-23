@@ -24,6 +24,26 @@ function formatBizNo(raw: string): string {
   return `${d.slice(0, 3)}-${d.slice(3, 5)}-${d.slice(5)}`
 }
 
+const BANK_LIST: { group: string; banks: string[] }[] = [
+  { group: '시중은행', banks: ['KB국민은행', '신한은행', '우리은행', '하나은행', 'NH농협은행', 'IBK기업은행', 'KDB산업은행', 'SC제일은행', '한국씨티은행', '카카오뱅크', '케이뱅크', '토스뱅크', '수협은행', '전북은행', '광주은행', '경남은행', 'DGB대구은행', '부산은행', '제주은행', '우체국'] },
+  { group: '증권사', banks: ['미래에셋증권', '삼성증권', 'NH투자증권', '한국투자증권', 'KB증권', '신한투자증권', '하나증권', '키움증권', '대신증권', '메리츠증권'] },
+  { group: '저축은행', banks: ['SBI저축은행', 'OK저축은행', '페퍼저축은행', '한국투자저축은행', '다올저축은행'] },
+]
+
+const ALL_BANKS = BANK_LIST.flatMap(g => g.banks)
+
+function parseBankAccount(combined: string): { bank: string; account: string } {
+  const bank = ALL_BANKS.find(b => combined.startsWith(b + ' '))
+  if (bank) return { bank, account: combined.slice(bank.length + 1) }
+  return { bank: '', account: combined }
+}
+
+function combineBankAccount(bank: string, account: string): string {
+  if (!bank) return account
+  if (!account) return bank
+  return `${bank} ${account}`
+}
+
 const TABS: { id: Tab; label: string }[] = [
   { id: 'general',       label: '일반 설정' },
   { id: 'users',         label: '사용자 초대 및 관리' },
@@ -742,7 +762,22 @@ function ContractorsTab({ initial }: { initial: MasterData }) {
                     <td className="px-2 py-1.5"><input className={inputCls} value={r.name} onChange={e => update(idx, { name: e.target.value })} /></td>
                     <td className="px-2 py-1.5"><input className={inputCls} value={r.registrationNo} onChange={e => update(idx, { registrationNo: formatBizNo(e.target.value) })} placeholder="000-00-00000" /></td>
                     <td className="px-2 py-1.5"><input className={inputCls} value={r.phone} onChange={e => update(idx, { phone: e.target.value })} placeholder="02-1234-5678" /></td>
-                    <td className="px-2 py-1.5"><input className={inputCls} value={r.bankAccount} onChange={e => update(idx, { bankAccount: e.target.value })} placeholder="은행 계좌번호" /></td>
+                    <td className="px-2 py-1.5">
+                      <div className="flex flex-col gap-0.5">
+                        <select className={inputCls} value={parseBankAccount(r.bankAccount).bank}
+                          onChange={e => update(idx, { bankAccount: combineBankAccount(e.target.value, parseBankAccount(r.bankAccount).account) })}>
+                          <option value="">은행 선택</option>
+                          {BANK_LIST.map(g => (
+                            <optgroup key={g.group} label={g.group}>
+                              {g.banks.map(b => <option key={b} value={b}>{b}</option>)}
+                            </optgroup>
+                          ))}
+                        </select>
+                        <input className={inputCls} value={parseBankAccount(r.bankAccount).account}
+                          onChange={e => update(idx, { bankAccount: combineBankAccount(parseBankAccount(r.bankAccount).bank, e.target.value) })}
+                          placeholder="계좌번호" />
+                      </div>
+                    </td>
                     <td className="px-2 py-1.5">
                       <AttachmentCell
                         attachments={r.attachments ?? []}
@@ -770,7 +805,12 @@ function ContractorsTab({ initial }: { initial: MasterData }) {
                     <td className={`${cellCls} font-bold text-primary`}>{r.name}</td>
                     <td className={cellCls}>{r.registrationNo || <span className="text-primary/20">—</span>}</td>
                     <td className={cellCls}>{r.phone || <span className="text-primary/20">—</span>}</td>
-                    <td className={cellCls}>{r.bankAccount || <span className="text-primary/20">—</span>}</td>
+                    <td className={cellCls}>{r.bankAccount ? (
+                      <div className="flex flex-col leading-tight">
+                        <span className="text-[10px] text-primary/40">{parseBankAccount(r.bankAccount).bank || '—'}</span>
+                        <span>{parseBankAccount(r.bankAccount).account || r.bankAccount}</span>
+                      </div>
+                    ) : <span className="text-primary/20">—</span>}</td>
                     <td className={cellCls}>
                       {(r.attachments ?? []).length > 0 ? (
                         <div className="flex flex-wrap gap-1">
@@ -811,7 +851,22 @@ function ContractorsTab({ initial }: { initial: MasterData }) {
               <td className="px-2 py-2"><input className={inputCls} value={newItem.name} onChange={e => setNewItem(r => ({ ...r, name: e.target.value }))} onKeyDown={e => e.key === 'Enter' && addItem()} placeholder="회사명 *" /></td>
               <td className="px-2 py-2"><input className={inputCls} value={newItem.registrationNo} onChange={e => setNewItem(r => ({ ...r, registrationNo: formatBizNo(e.target.value) }))} placeholder="000-00-00000" /></td>
               <td className="px-2 py-2"><input className={inputCls} value={newItem.phone} onChange={e => setNewItem(r => ({ ...r, phone: e.target.value }))} placeholder="02-1234-5678" /></td>
-              <td className="px-2 py-2"><input className={inputCls} value={newItem.bankAccount} onChange={e => setNewItem(r => ({ ...r, bankAccount: e.target.value }))} placeholder="은행 계좌번호" /></td>
+              <td className="px-2 py-2">
+                <div className="flex flex-col gap-0.5">
+                  <select className={inputCls} value={parseBankAccount(newItem.bankAccount).bank}
+                    onChange={e => setNewItem(r => ({ ...r, bankAccount: combineBankAccount(e.target.value, parseBankAccount(r.bankAccount).account) }))}>
+                    <option value="">은행 선택</option>
+                    {BANK_LIST.map(g => (
+                      <optgroup key={g.group} label={g.group}>
+                        {g.banks.map(b => <option key={b} value={b}>{b}</option>)}
+                      </optgroup>
+                    ))}
+                  </select>
+                  <input className={inputCls} value={parseBankAccount(newItem.bankAccount).account}
+                    onChange={e => setNewItem(r => ({ ...r, bankAccount: combineBankAccount(parseBankAccount(r.bankAccount).bank, e.target.value) }))}
+                    placeholder="계좌번호" />
+                </div>
+              </td>
               <td className="px-2 py-2"><span className="text-xs text-primary/30">추가 후 수정에서 첨부</span></td>
               <td className="px-2 py-2"></td>
               <td className="px-2 py-2 text-center">
@@ -966,7 +1021,22 @@ function ReferralTab({ initial }: { initial: MasterData }) {
                     <td className="px-2 py-1.5"><input className={refInputCls} value={r.name} onChange={e => update(idx, { name: e.target.value })} /></td>
                     <td className="px-2 py-1.5"><input className={refInputCls} value={r.registrationNo} onChange={e => update(idx, { registrationNo: formatBizNo(e.target.value) })} placeholder="000-00-00000" /></td>
                     <td className="px-2 py-1.5"><input className={refInputCls} value={r.phone} onChange={e => update(idx, { phone: e.target.value })} placeholder="021-555-1234" /></td>
-                    <td className="px-2 py-1.5"><input className={refInputCls} value={r.bankAccount} onChange={e => update(idx, { bankAccount: e.target.value })} placeholder="은행 계좌번호" /></td>
+                    <td className="px-2 py-1.5">
+                      <div className="flex flex-col gap-0.5">
+                        <select className={refInputCls} value={parseBankAccount(r.bankAccount).bank}
+                          onChange={e => update(idx, { bankAccount: combineBankAccount(e.target.value, parseBankAccount(r.bankAccount).account) })}>
+                          <option value="">은행 선택</option>
+                          {BANK_LIST.map(g => (
+                            <optgroup key={g.group} label={g.group}>
+                              {g.banks.map(b => <option key={b} value={b}>{b}</option>)}
+                            </optgroup>
+                          ))}
+                        </select>
+                        <input className={refInputCls} value={parseBankAccount(r.bankAccount).account}
+                          onChange={e => update(idx, { bankAccount: combineBankAccount(parseBankAccount(r.bankAccount).bank, e.target.value) })}
+                          placeholder="계좌번호" />
+                      </div>
+                    </td>
                     <td className="px-2 py-1.5">
                       <AttachmentCell
                         attachments={r.attachments ?? []}
@@ -1034,7 +1104,22 @@ function ReferralTab({ initial }: { initial: MasterData }) {
               <td className="px-2 py-2"><input className={refInputCls} value={newRef.name} onChange={e => setNewRef(r => ({ ...r, name: e.target.value }))} onKeyDown={e => e.key === 'Enter' && addSource()} placeholder="기관명 *" /></td>
               <td className="px-2 py-2"><input className={refInputCls} value={newRef.registrationNo} onChange={e => setNewRef(r => ({ ...r, registrationNo: formatBizNo(e.target.value) }))} placeholder="000-00-00000" /></td>
               <td className="px-2 py-2"><input className={refInputCls} value={newRef.phone} onChange={e => setNewRef(r => ({ ...r, phone: e.target.value }))} placeholder="021-555-1234" /></td>
-              <td className="px-2 py-2"><input className={refInputCls} value={newRef.bankAccount} onChange={e => setNewRef(r => ({ ...r, bankAccount: e.target.value }))} placeholder="은행 계좌번호" /></td>
+              <td className="px-2 py-2">
+                <div className="flex flex-col gap-0.5">
+                  <select className={refInputCls} value={parseBankAccount(newRef.bankAccount).bank}
+                    onChange={e => setNewRef(r => ({ ...r, bankAccount: combineBankAccount(e.target.value, parseBankAccount(r.bankAccount).account) }))}>
+                    <option value="">은행 선택</option>
+                    {BANK_LIST.map(g => (
+                      <optgroup key={g.group} label={g.group}>
+                        {g.banks.map(b => <option key={b} value={b}>{b}</option>)}
+                      </optgroup>
+                    ))}
+                  </select>
+                  <input className={refInputCls} value={parseBankAccount(newRef.bankAccount).account}
+                    onChange={e => setNewRef(r => ({ ...r, bankAccount: combineBankAccount(parseBankAccount(r.bankAccount).bank, e.target.value) }))}
+                    placeholder="계좌번호" />
+                </div>
+              </td>
               <td className="px-2 py-2"><span className="text-xs text-primary/30">추가 후 수정에서 첨부</span></td>
               <td className="px-2 py-2"></td>
               <td className="px-2 py-2 text-center">
