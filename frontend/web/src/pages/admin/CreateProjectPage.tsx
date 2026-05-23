@@ -25,8 +25,13 @@ interface RoleRow {
   techStack: string
 }
 
+function genId(): string {
+  if (typeof crypto.randomUUID === 'function') return crypto.randomUUID()
+  return Math.random().toString(36).slice(2) + Date.now().toString(36)
+}
+
 function initRole(): RoleRow {
-  return { id: crypto.randomUUID(), role: '프론트엔드 개발자', roleDescription: '', headcount: 1, mm: 1, roleStart: '', roleEnd: '', techStack: '' }
+  return { id: genId(), role: '프론트엔드 개발자', roleDescription: '', headcount: 1, mm: 1, roleStart: '', roleEnd: '', techStack: '' }
 }
 
 function initials(name: string | null): string {
