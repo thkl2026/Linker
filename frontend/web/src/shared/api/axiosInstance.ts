@@ -1,15 +1,10 @@
 import axios from 'axios'
 import { useAuthStore } from '@/store/authStore'
+import { APP_CONSTANTS } from '@/shared/constants/appConstants'
 
-/**
- * Axios 인스턴스 — 모든 API 요청의 기본 설정
- *
- * @rule 그라운드룰 Rule 1: 요청·응답 타임스탬프 로그 자동 기록
- * @rule 그라운드룰 Rule 2: API base URL은 환경 변수에서 주입
- */
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
-  timeout: 180000, // AI 분석 소요 시간을 고려하여 3분으로 연장
+  timeout: 180000,
   headers: { 'Content-Type': 'application/json' },
 })
 
@@ -25,7 +20,6 @@ axiosInstance.interceptors.request.use((config) => {
     config.headers.Authorization = `Bearer ${token}`
   }
 
-  // FormData는 브라우저가 Content-Type(+boundary)을 자동 설정하도록 헤더를 제거
   if (config.data instanceof FormData) {
     delete config.headers['Content-Type']
   }
@@ -33,16 +27,70 @@ axiosInstance.interceptors.request.use((config) => {
   return config
 })
 
+let isRefreshing = false
+let pendingQueue: { resolve: (token: string) => void; reject: (err: unknown) => void }[] = []
+
+function drainQueue(token: string) {
+  pendingQueue.forEach(p => p.resolve(token))
+  pendingQueue = []
+}
+
+function rejectQueue(err: unknown) {
+  pendingQueue.forEach(p => p.reject(err))
+  pendingQueue = []
+}
+
 axiosInstance.interceptors.response.use(
   (response) => {
-    // @ts-expect-error: metadata is added by request interceptor but not in AxiosRequestConfig type
+    // @ts-expect-error: metadata is added by request interceptor
     const durationMs = Date.now() - response.config.metadata?.startTime
     console.info(`[RES] ${response.status} ${response.config.url} ${durationMs}ms`)
     return response
   },
-  (error) => {
-    console.error(`[RES_ERR] ${error.response?.status} ${error.config?.url}`, error)
-    return Promise.reject(error)
+  async (error) => {
+    const original = error.config
+    console.error(`[RES_ERR] ${error.response?.status} ${original?.url}`, error)
+
+    if (error.response?.status !== 401 || original?._retry || original?.url?.includes('/auth/refresh')) {
+      return Promise.reject(error)
+    }
+
+    const refreshToken = localStorage.getItem(APP_CONSTANTS.REFRESH_TOKEN_KEY)
+    if (!refreshToken) {
+      useAuthStore.getState().clearAuth()
+      return Promise.reject(error)
+    }
+
+    if (isRefreshing) {
+      return new Promise((resolve, reject) => {
+        pendingQueue.push({
+          resolve: (token) => {
+            original.headers.Authorization = `Bearer ${token}`
+            resolve(axiosInstance(original))
+          },
+          reject,
+        })
+      })
+    }
+
+    original._retry = true
+    isRefreshing = true
+
+    try {
+      const res = await axiosInstance.post('/api/v1/auth/refresh', { refreshToken })
+      const { accessToken, refreshToken: newRefresh } = res.data
+      useAuthStore.getState().setAccessToken(accessToken)
+      localStorage.setItem(APP_CONSTANTS.REFRESH_TOKEN_KEY, newRefresh)
+      original.headers.Authorization = `Bearer ${accessToken}`
+      drainQueue(accessToken)
+      return axiosInstance(original)
+    } catch (refreshErr) {
+      rejectQueue(refreshErr)
+      useAuthStore.getState().clearAuth()
+      return Promise.reject(refreshErr)
+    } finally {
+      isRefreshing = false
+    }
   },
 )
 

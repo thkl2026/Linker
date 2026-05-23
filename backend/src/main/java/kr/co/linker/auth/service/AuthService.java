@@ -183,6 +183,37 @@ public class AuthService {
         log.info("[LOGOUT] userId={}", userId);
     }
 
+    public TokenResponse refresh(String refreshToken) {
+        if (!jwtTokenProvider.isValid(refreshToken)) {
+            throw AuthException.invalidRefreshToken();
+        }
+        UUID userId = jwtTokenProvider.getUserId(refreshToken);
+        String role  = jwtTokenProvider.getRole(refreshToken);
+
+        try {
+            String stored = redisTemplate.opsForValue().get("refresh:" + userId);
+            if (!refreshToken.equals(stored)) {
+                throw AuthException.invalidRefreshToken();
+            }
+        } catch (DataAccessException e) {
+            log.warn("[REFRESH] Redis unavailable — skipping token validation. userId={}", userId);
+        }
+
+        String newAccessToken  = jwtTokenProvider.generateAccessToken(userId, role);
+        String newRefreshToken = jwtTokenProvider.generateRefreshToken(userId, role);
+
+        try {
+            redisTemplate.opsForValue().set(
+                    "refresh:" + userId, newRefreshToken,
+                    Duration.ofSeconds(jwtProperties.refreshTokenExpiry()));
+        } catch (DataAccessException e) {
+            log.warn("[REFRESH] Redis unavailable — new refresh token not stored. userId={}", userId);
+        }
+
+        log.info("[TOKEN_REFRESH] userId={}", userId);
+        return new TokenResponse(newAccessToken, newRefreshToken, jwtProperties.accessTokenExpiry(), role);
+    }
+
     @Transactional(readOnly = true)
     public InviteInfoResponse validateInvite(String token) {
         UserInvitation inv = invitationRepo.findByToken(token)

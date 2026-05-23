@@ -31,6 +31,10 @@ export const authApi = {
   login: (req: LoginRequest) =>
     axiosInstance.post<TokenResponse>('/api/v1/auth/login', req),
 
+  /** Refresh Token으로 새 Access Token 발급 */
+  refresh: (refreshToken: string) =>
+    axiosInstance.post<import('@/shared/types/auth').TokenResponse>('/api/v1/auth/refresh', { refreshToken }),
+
   /** 로그아웃 */
   logout: () =>
     axiosInstance.post<void>('/api/v1/auth/logout'),

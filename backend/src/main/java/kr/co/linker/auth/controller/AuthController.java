@@ -92,6 +92,13 @@ public class AuthController {
      * @param userId 인증된 사용자 UUID (JWT에서 추출)
      * @return 204 No Content
      */
+    @Operation(summary = "토큰 갱신: Refresh Token으로 새 Access Token 발급")
+    @PostMapping("/refresh")
+    public ResponseEntity<TokenResponse> refresh(@RequestBody java.util.Map<String, String> body) {
+        String refreshToken = body.get("refreshToken");
+        return ResponseEntity.ok(authService.refresh(refreshToken));
+    }
+
     @Operation(summary = "로그아웃: Refresh Token 무효화")
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(@AuthenticationPrincipal UUID userId) {

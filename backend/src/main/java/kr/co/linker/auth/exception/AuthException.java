@@ -46,4 +46,9 @@ public class AuthException extends LinkerException {
     public static AuthException identityVerificationRequired() {
         return new AuthException(HttpStatus.FORBIDDEN, "IDENTITY_VERIFICATION_REQUIRED", "실명인증이 필요합니다.");
     }
+
+    /** Refresh Token 무효 또는 만료 */
+    public static AuthException invalidRefreshToken() {
+        return new AuthException(HttpStatus.UNAUTHORIZED, "INVALID_REFRESH_TOKEN", "Refresh Token이 유효하지 않거나 만료되었습니다.");
+    }
 }
