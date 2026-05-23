@@ -2798,6 +2798,74 @@ function TalentCreateModal({ onClose, onSave, isPending }: {
   )
 }
 
+// ── 프로젝트 할당 모달 ────────────────────────────────────────────────────────
+
+function ProjectAssignModal({ talent, onClose }: { talent: TalentAdmin; onClose: () => void }) {
+  const qc = useQueryClient()
+  const { addToast } = useUiStore()
+  const [selectedProjectId, setSelectedProjectId] = useState('')
+  const [role, setRole] = useState('')
+
+  const { data: projectsPage } = useQuery({
+    queryKey: ['service-admin', 'projects', 'open'],
+    queryFn: () => serviceAdminApi.listProjects({ status: 'OPEN', size: 100 }).then(r => r.data),
+  })
+  const projects = projectsPage?.content ?? []
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: () => serviceAdminApi.assignMember(selectedProjectId, talent.id, role || undefined),
+    onSuccess: () => {
+      addToast(`${talent.name}을(를) 프로젝트에 할당했습니다.`, 'success')
+      qc.invalidateQueries({ queryKey: ['service-admin', 'projects'] })
+      onClose()
+    },
+    onError: () => addToast('할당에 실패했습니다.', 'error'),
+  })
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8">
+        <h3 className="text-lg font-black mb-1">프로젝트 할당</h3>
+        <p className="text-xs text-primary/40 mb-6">{talent.name} · {talent.category ?? '-'}</p>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-[11px] font-black text-primary/40 uppercase mb-1.5">프로젝트 선택 *</label>
+            <select
+              value={selectedProjectId}
+              onChange={e => setSelectedProjectId(e.target.value)}
+              className="w-full bg-background border border-border/50 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-secondary transition-all">
+              <option value="">모집 중인 프로젝트 선택</option>
+              {projects.map(p => (
+                <option key={p.id} value={p.id}>{p.title}{p.clientCompany ? ` (${p.clientCompany})` : ''}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-[11px] font-black text-primary/40 uppercase mb-1.5">역할 (선택)</label>
+            <input
+              value={role}
+              onChange={e => setRole(e.target.value)}
+              placeholder="예: 백엔드 개발자"
+              className="w-full bg-background border border-border/50 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-secondary transition-all"
+            />
+          </div>
+        </div>
+
+        <div className="flex gap-3 mt-8">
+          <button onClick={onClose} className="flex-1 py-3 rounded-xl border border-border/50 text-sm font-bold text-primary/60 hover:bg-surface transition-all">취소</button>
+          <button
+            onClick={() => mutate()}
+            disabled={!selectedProjectId || isPending}
+            className="flex-1 py-3 rounded-xl bg-secondary text-white text-sm font-bold hover:bg-secondary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all">
+            {isPending ? '할당 중...' : '할당'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ── 가용상태 변경 모달 ────────────────────────────────────────────────────────
 
 function AvailabilityModal({
@@ -3039,6 +3107,7 @@ export function TalentCareerPage() {
   const [detailTarget, setDetailTarget] = useState<TalentAdmin | null>(null)
   const [availabilityTarget, setAvailabilityTarget] = useState<TalentAdmin | null>(null)
   const [evaluationTarget, setEvaluationTarget] = useState<TalentAdmin | null>(null)
+  const [assignTarget, setAssignTarget] = useState<TalentAdmin | null>(null)
 
   // 그리드 인라인 편집
   const [inlineAvailId, setInlineAvailId] = useState<string | null>(null)
@@ -3488,6 +3557,13 @@ export function TalentCareerPage() {
         />
       )}
 
+      {assignTarget && (
+        <ProjectAssignModal
+          talent={assignTarget}
+          onClose={() => setAssignTarget(null)}
+        />
+      )}
+
       {/* 이름 드롭다운 */}
       {openDropdownId && (() => {
         const t = talents.find(x => x.id === openDropdownId)
@@ -3508,9 +3584,9 @@ export function TalentCareerPage() {
               <span className="text-base">✏️</span> 평가등록
             </button>
             <button
-              onClick={() => { setAvailabilityTarget(t); setOpenDropdownId(null) }}
+              onClick={() => { setAssignTarget(t); setOpenDropdownId(null) }}
               className="w-full text-left px-4 py-2.5 text-sm text-primary hover:bg-surface transition-colors flex items-center gap-2">
-              <span className="text-base">🟢</span> 가용상태
+              <span className="text-base">📋</span> 프로젝트 할당
             </button>
           </div>
         )
