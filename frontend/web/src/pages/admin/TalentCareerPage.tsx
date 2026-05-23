@@ -2812,6 +2812,13 @@ function ProjectAssignModal({ talent, onClose }: { talent: TalentAdmin; onClose:
   })
   const projects = projectsPage?.content ?? []
 
+  const { data: settingsData } = useQuery({
+    queryKey: ['settings'],
+    queryFn: () => settingsApi.getAllSettings().then(r => r.data),
+    staleTime: 60_000,
+  })
+  const roleOptions = settingsData?.masterData?.projectRoles ?? []
+
   const { mutate, isPending } = useMutation({
     mutationFn: () => serviceAdminApi.assignMember(selectedProjectId, talent.id, role || undefined),
     onSuccess: () => {
@@ -2843,12 +2850,15 @@ function ProjectAssignModal({ talent, onClose }: { talent: TalentAdmin; onClose:
           </div>
           <div>
             <label className="block text-[11px] font-black text-primary/40 uppercase mb-1.5">역할 (선택)</label>
-            <input
+            <select
               value={role}
               onChange={e => setRole(e.target.value)}
-              placeholder="예: 백엔드 개발자"
-              className="w-full bg-background border border-border/50 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-secondary transition-all"
-            />
+              className="w-full bg-background border border-border/50 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-secondary transition-all">
+              <option value="">역할 선택</option>
+              {roleOptions.map(r => (
+                <option key={r} value={r}>{r}</option>
+              ))}
+            </select>
           </div>
         </div>
 
