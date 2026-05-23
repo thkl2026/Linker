@@ -36,6 +36,8 @@ public interface TalentProfileRepository extends JpaRepository<TalentProfile, UU
 
     long countByDeletedAtIsNull();
 
+    List<TalentProfile> findByDeletedAtIsNull();
+
     /**
      * 통합 검색: 이름 또는 기술스택명 포함, category/field 필터 (null 이면 전체)
      */
@@ -134,4 +136,62 @@ public interface TalentProfileRepository extends JpaRepository<TalentProfile, UU
             ORDER BY DATE_TRUNC('month', created_at AT TIME ZONE 'UTC')
             """, nativeQuery = true)
     List<Object[]> countMonthlyNew();
+
+    // ── 보고서 전용 ─────────────────────────────────────────────────────────────
+
+    long countByAvailabilityStatusAndDeletedAtIsNull(AvailabilityStatus status);
+
+    long countByCreatedAtAfterAndDeletedAtIsNull(java.time.OffsetDateTime since);
+
+    @Query("SELECT AVG(t.desiredRate) FROM TalentProfile t WHERE t.deletedAt IS NULL AND t.desiredRate IS NOT NULL")
+    Double avgDesiredRate();
+
+    @Query(value = """
+            SELECT TO_CHAR(DATE_TRUNC('month', created_at AT TIME ZONE 'UTC'), 'YYYY-MM') AS month,
+                   COUNT(*) AS cnt
+            FROM talent_profiles
+            WHERE deleted_at IS NULL
+              AND created_at >= :since
+            GROUP BY DATE_TRUNC('month', created_at AT TIME ZONE 'UTC')
+            ORDER BY DATE_TRUNC('month', created_at AT TIME ZONE 'UTC')
+            """, nativeQuery = true)
+    List<Object[]> countMonthlyNewSince(@Param("since") java.time.Instant since);
+
+    @Query(value = """
+            SELECT s.skill_name, COUNT(*) AS cnt
+            FROM talent_skills s
+            JOIN talent_profiles tp ON s.talent_id = tp.id
+            WHERE tp.deleted_at IS NULL
+            GROUP BY s.skill_name
+            ORDER BY cnt DESC
+            LIMIT 8
+            """, nativeQuery = true)
+    List<Object[]> topSkills();
+
+    @Query("SELECT t.referralSource, COUNT(t) FROM TalentProfile t WHERE t.deletedAt IS NULL AND t.referralSource IS NOT NULL GROUP BY t.referralSource ORDER BY COUNT(t) DESC")
+    List<Object[]> countByReferralSource();
+
+    @Query(value = """
+            SELECT
+              CASE
+                WHEN desired_rate < 300 THEN '300만 미만'
+                WHEN desired_rate < 500 THEN '300~500만'
+                WHEN desired_rate < 700 THEN '500~700만'
+                WHEN desired_rate < 900 THEN '700~900만'
+                ELSE '900만 이상'
+              END AS band,
+              CASE
+                WHEN desired_rate < 300 THEN 1
+                WHEN desired_rate < 500 THEN 2
+                WHEN desired_rate < 700 THEN 3
+                WHEN desired_rate < 900 THEN 4
+                ELSE 5
+              END AS band_order,
+              COUNT(*) AS cnt
+            FROM talent_profiles
+            WHERE deleted_at IS NULL AND desired_rate IS NOT NULL
+            GROUP BY band, band_order
+            ORDER BY band_order
+            """, nativeQuery = true)
+    List<Object[]> countByRateBand();
 }

@@ -307,6 +307,40 @@ export interface ExperienceResponse {
   verificationStatus: string
 }
 
+// ── Reports ──────────────────────────────────────────────────────────────────
+
+export interface TalentReport {
+  total: number; available: number; busy: number; rest: number
+  newThisPeriod: number; avgRate: number
+  byCategory: { label: string; count: number }[]
+  byGrade:    { label: string; count: number }[]
+  monthlyNew: { month: string; count: number }[]
+  topSkills:  { skill: string; count: number }[]
+}
+
+export interface ProjectReport {
+  total: number; open: number; matched: number; closed: number
+  cancelled: number; avgHeadcount: number
+  byMonth:    { month: string; open: number; closed: number }[]
+  topClients: { name: string; count: number; rate: number }[]
+  byWorkType: { label: string; count: number }[]
+}
+
+export interface RevenueReport {
+  totalMonthly: number; avgRate: number
+  byMonth:    { month: string; amount: number }[]
+  byRateBand: { label: string; count: number }[]
+  byReferral: { name: string; count: number; pct: number }[]
+}
+
+export interface EvalReport {
+  avgScore: number; totalReviews: number; highPerformers: number
+  avgCollab: number; avgTech: number; avgReliable: number
+  byMonth:     { month: string; avg: number }[]
+  topTalents:  { name: string; category: string; grade: string; score: number; reviews: number }[]
+  distribution: { label: string; count: number }[]
+}
+
 export const serviceAdminApi = {
   listTalents: (params?: {
     keyword?: string
@@ -326,6 +360,9 @@ export const serviceAdminApi = {
 
   deleteTalent: (id: string) =>
     axiosInstance.delete(`/api/v1/service-admin/talents/${id}`),
+
+  recalculateAllGrades: () =>
+    axiosInstance.post<void>('/api/v1/service-admin/talents/recalculate-grades'),
 
   analyzeResume: (file: File) => {
     const fd = new FormData()
@@ -427,4 +464,17 @@ export const serviceAdminApi = {
 
   deleteReview: (talentId: string, reviewId: string) =>
     axiosInstance.delete(`/api/v1/service-admin/evaluations/talents/${talentId}/history/${reviewId}`),
+
+  // ── Reports ────────────────────────────────────────────────────────────────
+  getTalentReport: (period = '6m') =>
+    axiosInstance.get<TalentReport>('/api/v1/service-admin/reports/talent', { params: { period } }),
+
+  getProjectReport: (period = '6m') =>
+    axiosInstance.get<ProjectReport>('/api/v1/service-admin/reports/project', { params: { period } }),
+
+  getRevenueReport: (period = '6m') =>
+    axiosInstance.get<RevenueReport>('/api/v1/service-admin/reports/revenue', { params: { period } }),
+
+  getEvalReport: (period = '6m') =>
+    axiosInstance.get<EvalReport>('/api/v1/service-admin/reports/evaluation', { params: { period } }),
 }

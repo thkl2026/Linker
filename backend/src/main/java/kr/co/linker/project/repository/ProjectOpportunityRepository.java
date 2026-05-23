@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -138,4 +139,39 @@ public interface ProjectOpportunityRepository extends JpaRepository<ProjectOppor
             @Param("statuses") Collection<ProjectStatus> statuses,
             Pageable pageable
     );
+
+    // ── 보고서 전용 ─────────────────────────────────────────────────────────────
+
+    @Query("SELECT AVG(p.requiredHeadcount) FROM ProjectOpportunity p")
+    Double avgRequiredHeadcount();
+
+    @Query(value = """
+            SELECT p.client_company, COUNT(*) AS cnt,
+                   COALESCE(AVG(p.evaluation_score), 0) AS avg_score
+            FROM project_opportunities p
+            WHERE p.client_company IS NOT NULL AND p.client_company <> ''
+            GROUP BY p.client_company
+            ORDER BY cnt DESC
+            LIMIT 10
+            """, nativeQuery = true)
+    List<Object[]> topClientsByCount();
+
+    @Query(value = """
+            SELECT p.work_type, COUNT(*) AS cnt
+            FROM project_opportunities p
+            GROUP BY p.work_type
+            ORDER BY cnt DESC
+            """, nativeQuery = true)
+    List<Object[]> countByWorkType();
+
+    @Query(value = """
+            SELECT TO_CHAR(DATE_TRUNC('month', created_at AT TIME ZONE 'UTC'), 'YYYY-MM') AS month,
+                   COUNT(*) FILTER (WHERE status <> 'CANCELLED') AS opened,
+                   COUNT(*) FILTER (WHERE status = 'CLOSED') AS closed_count
+            FROM project_opportunities
+            WHERE created_at >= :since
+            GROUP BY DATE_TRUNC('month', created_at AT TIME ZONE 'UTC')
+            ORDER BY DATE_TRUNC('month', created_at AT TIME ZONE 'UTC')
+            """, nativeQuery = true)
+    List<Object[]> countMonthlyOpenClosed(@Param("since") java.time.Instant since);
 }

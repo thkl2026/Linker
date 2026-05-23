@@ -312,4 +312,11 @@ public class ServiceAdminController {
         serviceAdminService.deleteExperience(id, expId);
         return ResponseEntity.noContent().build();
     }
+
+    @Operation(summary = "전체 전문가 기술 등급 일괄 재산정")
+    @PostMapping("/talents/recalculate-grades")
+    public ResponseEntity<Void> recalculateAllGrades() {
+        serviceAdminService.recalculateAllTalentGrades();
+        return ResponseEntity.ok().build();
+    }
 }

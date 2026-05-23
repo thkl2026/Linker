@@ -758,6 +758,7 @@ function TalentDetailModal({
   const referralSources = settings?.masterData?.referralSources ?? []
   const projectRoles = settings?.masterData?.projectRoles ?? []
   const [mode, setMode] = useState<'view' | 'edit'>('view')
+  const [tempPhotoUrl, setTempPhotoUrl] = useState<string | null>(null)
   const [form, setForm] = useState<CreateTalentRequest>({
     name: talent.name,
     nameEn: talent.nameEn ?? '',
@@ -778,6 +779,36 @@ function TalentDetailModal({
     referralSource: talent.referralSource ?? '',
     itCareerMonths: talent.itCareerMonths ?? null,
   })
+
+  useEffect(() => {
+    setForm({
+      name: talent.name,
+      nameEn: talent.nameEn ?? '',
+      phone: talent.phone ?? '',
+      category: talent.category ?? undefined,
+      field: talent.field ?? undefined,
+      workType: talent.workType,
+      desiredRate: talent.desiredRate ?? undefined,
+      skills: talent.skills,
+      birthDate: talent.birthDate ?? '',
+      email: talent.email ?? '',
+      address: talent.address ?? '',
+      skillGrade: talent.skillGrade ?? '',
+      projectRole: talent.projectRole ?? '',
+      title: talent.title ?? '',
+      notes: talent.notes ?? '',
+      industryExperience: talent.industryExperience ?? '',
+      referralSource: talent.referralSource ?? '',
+      itCareerMonths: talent.itCareerMonths ?? null,
+    })
+    setTempPhotoUrl(null)
+    setUploadedFileName(null)
+    setAnalysisResult(null)
+    setInsight(null)
+    setInsightKeywords('')
+    setMode('view')
+    setHasChanges(false)
+  }, [talent])
   const [editingField, setEditingField] = useState<string | null>(null)
   const [skillInput, setSkillInput] = useState('')
   const [analyzing, setAnalyzing] = useState(false)
@@ -936,6 +967,16 @@ function TalentDetailModal({
         projectExps:    data.projectExps,
         certifications: data.certifications,
       }))
+      if (data.photoKey) {
+        try {
+          const res = await serviceAdminApi.getPhotoUrl(data.photoKey)
+          setTempPhotoUrl(res.data.url)
+        } catch (e) {
+          console.error("Failed to get photo url", e)
+        }
+      } else {
+        setTempPhotoUrl(null)
+      }
       setHasChanges(true)
       addToast('이력서 분석 완료. 저장 시 경력 정보도 함께 반영됩니다.', 'success')
     } catch { addToast('이력서 분석에 실패했습니다.', 'error') }
@@ -1203,8 +1244,8 @@ function TalentDetailModal({
                   <div className="flex flex-col md:flex-row gap-6">
                     {/* 프로필 사진 */}
                     <div className="w-32 h-40 bg-surface border border-border/50 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden shadow-sm">
-                      {talent.photoUrl
-                        ? <img src={talent.photoUrl} alt={talent.name} className="w-full h-full object-cover" />
+                      {(tempPhotoUrl || talent.photoUrl)
+                        ? <img src={tempPhotoUrl || talent.photoUrl || ''} alt={talent.name} className="w-full h-full object-cover" />
                         : <span className="text-5xl text-primary/20">👤</span>
                       }
                     </div>
@@ -1944,28 +1985,39 @@ function TalentDetailModal({
                 </a>
               )}
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-primary/70 block mb-1">이름 *</label>
-                  <input value={form.name} onChange={e => { setForm(f => ({ ...f, name: e.target.value })); setHasChanges(true) }}
-                    className="w-full border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50" placeholder="홍길동" />
+              <div className="flex flex-col md:flex-row gap-6">
+                {/* 프로필 사진 미리보기 */}
+                <div className="w-32 h-40 bg-surface border border-border/50 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden shadow-sm">
+                  {(tempPhotoUrl || talent.photoUrl)
+                    ? <img src={tempPhotoUrl || talent.photoUrl || ''} alt={form.name} className="w-full h-full object-cover" />
+                    : <span className="text-5xl text-primary/20">👤</span>
+                  }
                 </div>
-                <div>
-                  <label className="text-sm font-medium text-primary/70 block mb-1">이메일</label>
-                  <input type="email" value={form.email ?? ''} onChange={e => { setForm(f => ({ ...f, email: e.target.value })); setHasChanges(true) }}
-                    className="w-full border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50" placeholder="user@example.com" />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-primary/70 block mb-1">연락처</label>
-                  <input value={formatPhone(form.phone)} onChange={e => { setForm(f => ({ ...f, phone: e.target.value.replace(/\D/g, '') })); setHasChanges(true) }}
-                    className="w-full border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50" placeholder="01000000000" />
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-primary/70 block mb-1">생년월일</label>
-                  <input type="date" value={form.birthDate ?? ''} onChange={e => { setForm(f => ({ ...f, birthDate: e.target.value })); setHasChanges(true) }}
-                    className="w-full border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50" />
+                <div className="flex-1 space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium text-primary/70 block mb-1">이름 *</label>
+                      <input value={form.name} onChange={e => { setForm(f => ({ ...f, name: e.target.value })); setHasChanges(true) }}
+                        className="w-full border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50" placeholder="홍길동" />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-primary/70 block mb-1">이메일</label>
+                      <input type="email" value={form.email ?? ''} onChange={e => { setForm(f => ({ ...f, email: e.target.value })); setHasChanges(true) }}
+                        className="w-full border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50" placeholder="user@example.com" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium text-primary/70 block mb-1">연락처</label>
+                      <input value={formatPhone(form.phone)} onChange={e => { setForm(f => ({ ...f, phone: e.target.value.replace(/\D/g, '') })); setHasChanges(true) }}
+                        className="w-full border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50" placeholder="01000000000" />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-primary/70 block mb-1">생년월일</label>
+                      <input type="date" value={form.birthDate ?? ''} onChange={e => { setForm(f => ({ ...f, birthDate: e.target.value })); setHasChanges(true) }}
+                        className="w-full border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50" />
+                    </div>
+                  </div>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -2428,6 +2480,7 @@ function TalentCreateModal({ onClose, onSave, isPending }: {
   })
   const projectRoles = settings?.masterData?.projectRoles ?? []
   const [form, setForm] = useState<CreateTalentRequest>(EMPTY_FORM)
+  const [tempPhotoUrl, setTempPhotoUrl] = useState<string | null>(null)
   const [skillInput, setSkillInput] = useState('')
   const [analyzing, setAnalyzing] = useState(false)
   const [dragging, setDragging] = useState(false)
@@ -2461,6 +2514,16 @@ function TalentCreateModal({ onClose, onSave, isPending }: {
         photoKey:       data.photoKey ?? f.photoKey,
         resumeKey:      data.resumeKey ?? f.resumeKey,
       }))
+      if (data.photoKey) {
+        try {
+          const res = await serviceAdminApi.getPhotoUrl(data.photoKey)
+          setTempPhotoUrl(res.data.url)
+        } catch (e) {
+          console.error("Failed to get photo url", e)
+        }
+      } else {
+        setTempPhotoUrl(null)
+      }
       addToast('이력서 분석 완료. 내용을 확인하세요.', 'success')
     } catch { addToast('이력서 분석에 실패했습니다.', 'error') }
     finally { setAnalyzing(false) }
@@ -2515,55 +2578,69 @@ function TalentCreateModal({ onClose, onSave, isPending }: {
         )}
 
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-medium text-primary/70 block mb-1">이름 (한글) *</label>
-              <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                className="w-full border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50" placeholder="홍길동" />
+          <div className="flex flex-col md:flex-row gap-6">
+            {/* 프로필 사진 미리보기 */}
+            <div className="w-32 h-40 bg-surface border border-border/50 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden shadow-sm">
+              {tempPhotoUrl
+                ? <img src={tempPhotoUrl} alt="프로필 미리보기" className="w-full h-full object-cover" />
+                : <span className="text-5xl text-primary/20">👤</span>
+              }
             </div>
-            <div>
-              <label className="text-sm font-medium text-primary/70 block mb-1">이름 (영문)</label>
-              <input value={form.nameEn ?? ''} onChange={e => setForm(f => ({ ...f, nameEn: e.target.value }))}
-                className="w-full border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50" placeholder="HONG GIL DONG" />
+            {/* 기본 입력 폼들 */}
+            <div className="flex-1 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-primary/70 block mb-1">이름 (한글) *</label>
+                  <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                    className="w-full border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50" placeholder="홍길동" />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-primary/70 block mb-1">이름 (영문)</label>
+                  <input value={form.nameEn ?? ''} onChange={e => setForm(f => ({ ...f, nameEn: e.target.value }))}
+                    className="w-full border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50" placeholder="HONG GIL DONG" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-primary/70 block mb-1">이메일</label>
+                  <input type="email" value={form.email ?? ''} onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                    className="w-full border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50" placeholder="user@example.com" />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-primary/70 block mb-1">연락처</label>
+                  <input value={formatPhone(form.phone)} onChange={e => setForm(f => ({ ...f, phone: e.target.value.replace(/\D/g, '') }))}
+                    className="w-full border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50" placeholder="01000000000" />
+                </div>
+              </div>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-medium text-primary/70 block mb-1">이메일</label>
-              <input type="email" value={form.email ?? ''} onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-                className="w-full border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50" placeholder="user@example.com" />
-            </div>
-            <div>
-              <label className="text-sm font-medium text-primary/70 block mb-1">연락처</label>
-              <input value={formatPhone(form.phone)} onChange={e => setForm(f => ({ ...f, phone: e.target.value.replace(/\D/g, '') }))}
-                className="w-full border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50" placeholder="01000000000" />
-            </div>
             <div>
               <label className="text-sm font-medium text-primary/70 block mb-1">생년월일</label>
               <input type="date" value={form.birthDate ?? ''} onChange={e => setForm(f => ({ ...f, birthDate: e.target.value }))}
                 className="w-full border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50" />
             </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-medium text-primary/70 block mb-1">주소</label>
               <input value={form.address ?? ''} onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
                 className="w-full border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50" placeholder="서울특별시 강남구..." />
             </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-medium text-primary/70 block mb-1">기술등급 <span className="text-xs font-normal text-primary/40">(자동산정)</span></label>
               <div className="w-full border border-border bg-surface rounded-xl px-4 py-2.5 text-sm text-primary/40 min-h-[42px] flex items-center">
                 자격증·경력 입력 후 자동 산정됩니다
               </div>
             </div>
-          </div>
-          <div>
-            <label className="text-sm font-medium text-primary/70 block mb-1">역할</label>
-            <select value={form.projectRole ?? ''} onChange={e => setForm(f => ({ ...f, projectRole: e.target.value }))}
-              className="w-full border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50">
-              <option value="">선택 안 함</option>
-              {projectRoles.map(r => <option key={r} value={r}>{r}</option>)}
-            </select>
+            <div>
+              <label className="text-sm font-medium text-primary/70 block mb-1">역할</label>
+              <select value={form.projectRole ?? ''} onChange={e => setForm(f => ({ ...f, projectRole: e.target.value }))}
+                className="w-full border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50">
+                <option value="">선택 안 함</option>
+                {projectRoles.map(r => <option key={r} value={r}>{r}</option>)}
+              </select>
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>

@@ -686,4 +686,15 @@ public class ServiceAdminService {
         try { return encryptionService.decrypt(p.getPhone()); }
         catch (Exception e) { return "***"; }
     }
+
+    @Transactional
+    public void recalculateAllTalentGrades() {
+        List<TalentProfile> activeTalents = talentProfileRepository.findByDeletedAtIsNull();
+        long updatedCount = 0;
+        for (TalentProfile profile : activeTalents) {
+            gradeCalculationService.recalculate(profile.getId());
+            updatedCount++;
+        }
+        log.info("[SERVICE_ADMIN] 전문가 기술 등급 일괄 재산정 완료. 대상 건수={}", updatedCount);
+    }
 }
