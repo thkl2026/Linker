@@ -615,8 +615,9 @@ public class ServiceAdminService {
         talent.updateAvailability(AvailabilityStatus.BUSY, project.getEndDate());
         log.info("[SERVICE_ADMIN] 멤버 배정 projectId={} talentId={} → BUSY until {}",
                 projectId, req.talentId(), project.getEndDate());
+        String talentDisplayName = decryptSafe(talent.getName());
         notificationService.create("MEMBER_ASSIGNED", "프로젝트 투입",
-                talent.getName() + " 전문가가 「" + project.getTitle() + "」에 배정되었습니다.");
+                talentDisplayName + " 전문가가 「" + project.getTitle() + "」에 배정되었습니다.");
         return member.getId();
     }
 
@@ -685,6 +686,12 @@ public class ServiceAdminService {
         if (p.getPhone() == null) return null;
         try { return encryptionService.decrypt(p.getPhone()); }
         catch (Exception e) { return "***"; }
+    }
+
+    private String decryptSafe(String encrypted) {
+        if (encrypted == null) return "알 수 없음";
+        try { return encryptionService.decrypt(encrypted); }
+        catch (Exception e) { return encrypted; }
     }
 
     @Transactional
