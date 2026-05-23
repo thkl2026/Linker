@@ -3582,7 +3582,7 @@ export function TalentCareerPage() {
           <div
             ref={dropdownRef}
             style={{ position: 'fixed', top: dropdownPos.top, left: dropdownPos.left, zIndex: 9999 }}
-            className="bg-white rounded-xl shadow-xl border border-border/50 w-36 overflow-hidden py-1">
+            className="bg-white rounded-xl shadow-xl border border-border/50 w-44 overflow-hidden py-1">
             <button
               onClick={() => { setDetailTarget(t); setOpenDropdownId(null) }}
               className="w-full text-left px-4 py-2.5 text-sm text-primary hover:bg-surface transition-colors flex items-center gap-2">
