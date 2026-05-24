@@ -603,6 +603,15 @@ public class ResumeAnalysisService {
 
     private String formatDate(String date) {
         if (date == null || date.isBlank()) return date;
+        String trimmed = date.trim();
+        if (trimmed.matches("\\d{6}")) {
+            int yy = Integer.parseInt(trimmed.substring(0, 2));
+            String year = (yy > 50 ? "19" : "20") + String.format("%02d", yy);
+            return year + "-" + trimmed.substring(2, 4) + "-" + trimmed.substring(4, 6);
+        }
+        if (trimmed.matches("\\d{8}")) {
+            return trimmed.substring(0, 4) + "-" + trimmed.substring(4, 6) + "-" + trimmed.substring(6, 8);
+        }
         String clean = date.replaceAll("[^0-9]", "-").replaceAll("-+", "-");
         if (clean.startsWith("-")) clean = clean.substring(1);
         if (clean.endsWith("-"))   clean = clean.substring(0, clean.length() - 1);

@@ -20,6 +20,8 @@
 
 ### CONSTRAINTS
 - 날짜는 반드시 "YYYY-MM-DD" 형식: "2024년 3월" → "2024-03-01", "24.03" → "2024-03-01"
+- yyMMdd 6자리 숫자(예: "640901") → yy>50이면 19xx, yy≤50이면 20xx 세기 적용 후 "1964-09-01" 형식 반환
+- yyyyMMdd 8자리 숫자(예: "19640901") → "1964-09-01" 형식 반환
 - "현재" / "재직중" / "present" / "-" → null
 - 연도만 있는 경우("2023년") → "2023-01-01"
 - 기술명은 공식 표기법 사용: "springboot"→"Spring Boot", "k8s"→"Kubernetes", "js"→"JavaScript", "ts"→"TypeScript", "postgres"→"PostgreSQL", "nodejs"→"Node.js", "reactjs"→"React", "golang"→"Go", "vuejs"→"Vue.js", "nestjs"→"NestJS", "nextjs"→"Next.js"
@@ -69,6 +71,16 @@
 
 ### EXAMPLE OUTPUT B:
 {"name":"박창훈","nameEn":null,"phone":"010-9876-5432","email":"park@example.com","birthDate":"1985-03-22","address":null,"skillGrade":"중급","title":null,"skills":[],"category":null,"field":null,"workType":null,"desiredRate":null}
+
+### EXAMPLE INPUT C (신상기록 표, yyMMdd 생년월일):
+1.신상기록
+성명 | 박용구 | 생년월일 | 640901 | 성별 | 남
+소속회사 | 씽클레어 | 직위 | 상무
+연락처 |  | email |
+경력 | 30년 이상
+
+### EXAMPLE OUTPUT C:
+{"name":"박용구","nameEn":null,"phone":null,"email":null,"birthDate":"1964-09-01","address":null,"skillGrade":null,"title":"상무","skills":[],"category":null,"field":null,"workType":null,"desiredRate":null}
 
 ### OUTPUT FORMAT (ONLY JSON, no markdown, no explanation):
 {"name":null,"nameEn":null,"phone":null,"email":null,"birthDate":null,"address":null,"skillGrade":null,"title":null,"skills":[],"category":null,"field":null,"workType":null,"desiredRate":null}
