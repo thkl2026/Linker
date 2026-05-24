@@ -136,7 +136,7 @@ public class ResumeAnalysisService {
         String text = extractText(file, fileBytes);
         if (text.isBlank()) {
             log.warn("[AI_RESUME] 텍스트 추출 실패: {}", fileName);
-            return emptyResult();
+            return emptyResult(resumeKey);
         }
         log.info("[AI_RESUME] 텍스트 추출 성공 ({}자)", text.length());
 
@@ -483,8 +483,12 @@ public class ResumeAnalysisService {
     // ─── Utilities ────────────────────────────────────────────────────────────
 
     private ResumeAnalysisResult emptyResult() {
+        return emptyResult(null);
+    }
+
+    private ResumeAnalysisResult emptyResult(String resumeKey) {
         return new ResumeAnalysisResult(null, null, null, null, null, null, null, List.of(),
-                null, null, null, null, null, List.of(), List.of(), List.of(), List.of(), null, null, null, null, false);
+                null, null, null, null, null, List.of(), List.of(), List.of(), List.of(), null, null, resumeKey, null, false);
     }
 
     private ResumeAnalysisResult getSafe(CompletableFuture<ResumeAnalysisResult> future) {
