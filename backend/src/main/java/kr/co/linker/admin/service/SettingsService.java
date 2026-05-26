@@ -188,7 +188,9 @@ public class SettingsService {
                             .map(user -> {
                                 String name = resolveUserName(user, inv.getEmail());
                                 String phone = decryptSafe(user.getPhone());
-                                return InvitedUserResponse.from(inv, baseUrl, name, phone);
+                                String lastLoginAt = user.getLastLoginAt() != null ? user.getLastLoginAt().toString() : null;
+                                String accountCreatedAt = user.getCreatedAt() != null ? user.getCreatedAt().toString() : null;
+                                return InvitedUserResponse.from(inv, baseUrl, name, phone, lastLoginAt, user.getLastLoginIp(), accountCreatedAt);
                             })
                             .orElseGet(() -> InvitedUserResponse.from(inv, baseUrl));
                 }).toList();

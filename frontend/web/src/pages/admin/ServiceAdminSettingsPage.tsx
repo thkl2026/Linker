@@ -243,10 +243,53 @@ const STATUS_LABEL: Record<string, string> = { PENDING: '초대 발송됨', ACCE
 const STATUS_DOT: Record<string, string>   = { PENDING: 'bg-warning animate-pulse', ACCEPTED: 'bg-success', EXPIRED: 'bg-border' }
 const STATUS_TEXT: Record<string, string>  = { PENDING: 'text-warning', ACCEPTED: 'text-success', EXPIRED: 'text-primary/30' }
 
+function ActivityLogModal({ inv, onClose }: { inv: InvitedUser; onClose: () => void }) {
+  const fmt = (s: string | null) => s ? s.slice(0, 16).replace('T', ' ') : '—'
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm" onClick={onClose}>
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-8 border border-border/30" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg font-black tracking-tight">활동 로그</h3>
+          <button onClick={onClose} className="text-xl text-primary/30 hover:text-primary">&times;</button>
+        </div>
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-black text-sm shrink-0">
+              {inv.email.slice(0, 2).toUpperCase()}
+            </div>
+            <div>
+              <p className="text-sm font-bold">{inv.name ?? inv.email.split('@')[0]}</p>
+              <p className="text-xs text-primary/50">{inv.email}</p>
+            </div>
+          </div>
+          <div className="border-t border-border/10 pt-4 space-y-3">
+            {[
+              { label: '계정 생성일', value: fmt(inv.accountCreatedAt) },
+              { label: '초대일',      value: fmt(inv.invitedAt) },
+              { label: '가입 완료일', value: fmt(inv.acceptedAt) },
+              { label: '마지막 로그인', value: fmt(inv.lastLoginAt) },
+              { label: '마지막 접속 IP', value: inv.lastLoginIp ?? '—' },
+            ].map(({ label, value }) => (
+              <div key={label} className="flex justify-between items-center">
+                <span className="text-xs text-primary/40 font-medium">{label}</span>
+                <span className="text-xs font-bold text-primary/80">{value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <button onClick={onClose} className="mt-6 w-full py-2.5 rounded-2xl border border-border/50 text-sm font-bold text-primary/60 hover:bg-primary/5 transition-all">
+          닫기
+        </button>
+      </div>
+    </div>
+  )
+}
+
 function UsersTab() {
   const [email,   setEmail]   = useState('')
   const [company, setCompany] = useState('')
   const [role,    setRole]    = useState('TALENT')
+  const [activityTarget, setActivityTarget] = useState<InvitedUser | null>(null)
   const { addToast } = useUiStore()
   const qc = useQueryClient()
 
@@ -290,7 +333,7 @@ function UsersTab() {
     return '📧'
   }
 
-  return (
+  return (<>
     <Section
       title="신규 사용자 초대"
       sub="전문가 또는 기업 담당자에게 초대 메일을 발송하여 가입을 진행합니다."
@@ -424,7 +467,7 @@ function UsersTab() {
                       </button>
                     </div>
                   ) : (
-                    <button className="text-xs font-bold text-primary/30 hover:text-primary transition-all">
+                    <button onClick={() => setActivityTarget(inv)} className="text-xs font-bold text-primary/30 hover:text-primary transition-all">
                       활동 로그
                     </button>
                   )}
@@ -435,6 +478,11 @@ function UsersTab() {
         </table>
       </div>
     </Section>
+
+    {activityTarget && (
+      <ActivityLogModal inv={activityTarget} onClose={() => setActivityTarget(null)} />
+    )}
+  </>
   )
 }
 

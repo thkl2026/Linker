@@ -14,13 +14,17 @@ public record InvitedUserResponse(
         String status,
         String invitedAt,
         String acceptedAt,
-        String inviteUrl
+        String inviteUrl,
+        String lastLoginAt,
+        String lastLoginIp,
+        String accountCreatedAt
 ) {
     public static InvitedUserResponse from(UserInvitation inv, String baseUrl) {
-        return from(inv, baseUrl, null, null);
+        return from(inv, baseUrl, null, null, null, null, null);
     }
 
-    public static InvitedUserResponse from(UserInvitation inv, String baseUrl, String name, String phone) {
+    public static InvitedUserResponse from(UserInvitation inv, String baseUrl,
+            String name, String phone, String lastLoginAt, String lastLoginIp, String accountCreatedAt) {
         return new InvitedUserResponse(
                 inv.getId(),
                 inv.getEmail(),
@@ -31,7 +35,10 @@ public record InvitedUserResponse(
                 inv.getStatus(),
                 inv.getInvitedAt() != null ? inv.getInvitedAt().toString() : null,
                 inv.getAcceptedAt() != null ? inv.getAcceptedAt().toString() : null,
-                inv.getToken() != null ? baseUrl + "/invite/" + inv.getToken() : null
+                inv.getToken() != null ? baseUrl + "/invite/" + inv.getToken() : null,
+                lastLoginAt,
+                lastLoginIp,
+                accountCreatedAt
         );
     }
 }

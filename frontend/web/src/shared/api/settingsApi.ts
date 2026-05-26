@@ -96,6 +96,9 @@ export interface InvitedUser {
   invitedAt: string
   acceptedAt: string | null
   inviteUrl?: string | null
+  lastLoginAt: string | null
+  lastLoginIp: string | null
+  accountCreatedAt: string | null
 }
 
 export const settingsApi = {
