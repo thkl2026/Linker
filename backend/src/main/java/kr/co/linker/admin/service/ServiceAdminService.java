@@ -140,6 +140,15 @@ public class ServiceAdminService {
         if (req.itCareerMonths() != null) {
             profile.updateItCareerMonths(req.itCareerMonths());
         }
+        if (req.notes() != null) {
+            profile.updateNotes(req.notes());
+        }
+        if (req.skillGrade() != null && !req.skillGrade().isBlank()) {
+            profile.updateSkillGrade(req.skillGrade());
+        }
+        if (req.industryExperience() != null || req.referralSource() != null) {
+            profile.updateIndustryAndReferral(req.industryExperience(), req.referralSource());
+        }
         if (req.photoKey() != null && !req.photoKey().isBlank()) {
             profile.updatePhotoKey(req.photoKey());
         }

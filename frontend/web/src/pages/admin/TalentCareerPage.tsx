@@ -2524,7 +2524,11 @@ function TalentCreateModal({ onClose, onSave, isPending }: {
       } else {
         setTempPhotoUrl(null)
       }
-      addToast('이력서 분석 완료. 내용을 확인하세요.', 'success')
+      if (data.resumeKey) {
+        addToast('이력서 분석 완료. 내용을 확인하세요.', 'success')
+      } else {
+        addToast('이력서 분석 완료. 파일 저장은 등록 후 상세보기에서 다시 업로드해 주세요.', 'warning')
+      }
     } catch { addToast('이력서 분석에 실패했습니다.', 'error') }
     finally { setAnalyzing(false) }
   }
