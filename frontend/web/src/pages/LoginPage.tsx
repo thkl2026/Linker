@@ -46,7 +46,14 @@ export function LoginPage() {
         localStorage.removeItem(STORAGE_KEY)
       }
       setAuth(
-        { id: '', email, role: res.data.role, mfaEnabled: false, identityVerified: false },
+        {
+          id: res.data.userId,
+          email,
+          role: res.data.role,
+          name: res.data.name,
+          mfaEnabled: res.data.mfaEnabled,
+          identityVerified: res.data.identityVerified,
+        },
         res.data.accessToken,
         res.data.refreshToken,
       )

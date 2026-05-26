@@ -163,8 +163,11 @@ public class AuthService {
             log.warn("[LOGIN] Redis unavailable — refresh token not stored. userId={}", user.getId());
         }
 
+        String displayName = resolveDisplayName(user, request.email());
         log.info("[LOGIN_SUCCESS] userId={} role={} ip={}", user.getId(), user.getRole(), clientIp);
-        return new TokenResponse(accessToken, refreshToken, jwtProperties.accessTokenExpiry(), user.getRole().name());
+        return new TokenResponse(accessToken, refreshToken, jwtProperties.accessTokenExpiry(),
+                user.getRole().name(), user.getId().toString(), displayName,
+                user.isMfaEnabled(), user.isIdentityVerified());
     }
 
 
@@ -257,5 +260,13 @@ public class AuthService {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new kr.co.linker.common.exception.LinkerException(
                         org.springframework.http.HttpStatus.NOT_FOUND, "USER_NOT_FOUND", "사용자를 찾을 수 없습니다."));
+    }
+
+    private String resolveDisplayName(User user, String plainEmail) {
+        if (user.isIdentityVerified() && user.getRealName() != null) {
+            try { return encryptionService.decrypt(user.getRealName()); } catch (Exception ignored) {}
+        }
+        int at = plainEmail.indexOf('@');
+        return at > 0 ? plainEmail.substring(0, at) : plainEmail;
     }
 }

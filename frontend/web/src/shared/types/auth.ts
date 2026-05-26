@@ -11,6 +11,7 @@ export interface AuthUser {
   id: string
   email: string
   role: UserRole
+  name: string
   mfaEnabled: boolean
   identityVerified: boolean
 }
@@ -35,6 +36,10 @@ export interface TokenResponse {
   refreshToken: string
   expiresIn: number
   role: UserRole
+  userId: string
+  name: string
+  mfaEnabled: boolean
+  identityVerified: boolean
 }
 
 export interface RegisterInitiateRequest {
