@@ -88,6 +88,8 @@ export type InvitationStatus = 'PENDING' | 'ACCEPTED' | 'EXPIRED'
 export interface InvitedUser {
   id: string
   email: string
+  name: string | null
+  phone: string | null
   company: string | null
   role: string
   status: InvitationStatus

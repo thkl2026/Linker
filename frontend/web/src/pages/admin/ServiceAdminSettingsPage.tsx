@@ -344,6 +344,8 @@ function UsersTab() {
           <thead>
             <tr className="text-[10px] font-black text-primary/30 uppercase tracking-widest border-b border-border/10">
               <th className="pb-4 px-2">이메일 (계정 정보)</th>
+              <th className="pb-4 px-2">이름</th>
+              <th className="pb-4 px-2">전화번호</th>
               <th className="pb-4 px-2">소속</th>
               <th className="pb-4 px-2">유형</th>
               <th className="pb-4 px-2">가입 상태</th>
@@ -354,7 +356,7 @@ function UsersTab() {
           <tbody className="divide-y divide-border/5">
             {invitations.length === 0 ? (
               <tr>
-                <td colSpan={6} className="py-12 text-center text-xs text-primary/30">초대 내역이 없습니다.</td>
+                <td colSpan={8} className="py-12 text-center text-xs text-primary/30">초대 내역이 없습니다.</td>
               </tr>
             ) : invitations.map(inv => (
               <tr key={inv.id} className="group">
@@ -371,6 +373,12 @@ function UsersTab() {
                       </p>
                     </div>
                   </div>
+                </td>
+                <td className="py-5 px-2">
+                  <p className="text-xs font-medium text-primary/80">{inv.name || <span className="text-primary/20">—</span>}</p>
+                </td>
+                <td className="py-5 px-2">
+                  <p className="text-xs font-medium text-primary/60">{inv.phone || <span className="text-primary/20">—</span>}</p>
                 </td>
                 <td className="py-5 px-2">
                   <p className="text-xs font-medium text-primary/60">{inv.company || <span className="text-primary/20">—</span>}</p>

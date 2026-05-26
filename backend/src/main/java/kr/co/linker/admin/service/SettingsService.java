@@ -14,7 +14,9 @@ import kr.co.linker.admin.dto.SaveSmtpSettingsRequest;
 import kr.co.linker.admin.dto.SaveNotificationSettingsRequest;
 import kr.co.linker.admin.repository.PlatformSettingRepository;
 import kr.co.linker.admin.repository.UserInvitationRepository;
+import kr.co.linker.auth.repository.UserRepository;
 import kr.co.linker.common.email.EmailService;
+import kr.co.linker.common.encryption.EncryptionService;
 import kr.co.linker.common.exception.LinkerException;
 import kr.co.linker.common.storage.FileStorageService;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +44,8 @@ public class SettingsService {
 
     private final PlatformSettingRepository settingRepo;
     private final UserInvitationRepository invitationRepo;
+    private final UserRepository userRepository;
+    private final EncryptionService encryptionService;
     private final ObjectMapper objectMapper;
     private final FileStorageService fileStorageService;
     private final EmailService emailService;
@@ -175,7 +179,34 @@ public class SettingsService {
     @Transactional(readOnly = true)
     public List<InvitedUserResponse> listInvitations() {
         return invitationRepo.findAllByOrderByInvitedAtDesc()
-                .stream().map(inv -> InvitedUserResponse.from(inv, baseUrl)).toList();
+                .stream().map(inv -> {
+                    if (!"ACCEPTED".equals(inv.getStatus())) {
+                        return InvitedUserResponse.from(inv, baseUrl);
+                    }
+                    String emailHash = encryptionService.hash(inv.getEmail());
+                    return userRepository.findByEmailHash(emailHash)
+                            .map(user -> {
+                                String name = resolveUserName(user, inv.getEmail());
+                                String phone = decryptSafe(user.getPhone());
+                                return InvitedUserResponse.from(inv, baseUrl, name, phone);
+                            })
+                            .orElseGet(() -> InvitedUserResponse.from(inv, baseUrl));
+                }).toList();
+    }
+
+    private String resolveUserName(kr.co.linker.auth.domain.User user, String plainEmail) {
+        if (user.getName() != null) return user.getName();
+        if (user.isIdentityVerified() && user.getRealName() != null) {
+            String decrypted = decryptSafe(user.getRealName());
+            if (decrypted != null) return decrypted;
+        }
+        int at = plainEmail.indexOf('@');
+        return at > 0 ? plainEmail.substring(0, at) : plainEmail;
+    }
+
+    private String decryptSafe(String encrypted) {
+        if (encrypted == null) return null;
+        try { return encryptionService.decrypt(encrypted); } catch (Exception e) { return null; }
     }
 
     @Transactional

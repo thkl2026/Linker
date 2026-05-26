@@ -7,6 +7,8 @@ import java.util.UUID;
 public record InvitedUserResponse(
         UUID id,
         String email,
+        String name,
+        String phone,
         String company,
         String role,
         String status,
@@ -15,9 +17,15 @@ public record InvitedUserResponse(
         String inviteUrl
 ) {
     public static InvitedUserResponse from(UserInvitation inv, String baseUrl) {
+        return from(inv, baseUrl, null, null);
+    }
+
+    public static InvitedUserResponse from(UserInvitation inv, String baseUrl, String name, String phone) {
         return new InvitedUserResponse(
                 inv.getId(),
                 inv.getEmail(),
+                name,
+                phone,
                 inv.getCompany(),
                 inv.getRole(),
                 inv.getStatus(),
