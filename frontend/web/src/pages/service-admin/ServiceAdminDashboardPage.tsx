@@ -241,12 +241,8 @@ export function ServiceAdminDashboardPage() {
 
         {/* 직무별 인력 구성 */}
         <div className="bg-white p-8 rounded-3xl border border-border/30 shadow-sm flex flex-col">
-          <div className="flex justify-between items-center mb-4">
-            <div>
-              <h3 className="text-base font-black tracking-tight">직무별 인력 구성</h3>
-              <p className="text-xs text-primary/40 mt-0.5">카테고리별 분포</p>
-            </div>
-            <div className="w-8 h-8 bg-primary/5 rounded-lg flex items-center justify-center text-sm">🏗️</div>
+          <div className="mb-4">
+            <h3 className="text-base font-black tracking-tight">직무별 인력 구성</h3>
           </div>
           <div className="flex-1 flex items-center justify-center min-h-[275px]">
             {categorySegs.length > 0
@@ -258,12 +254,8 @@ export function ServiceAdminDashboardPage() {
 
         {/* 기술 등급별 분포 */}
         <div className="bg-white p-8 rounded-3xl border border-border/30 shadow-sm flex flex-col">
-          <div className="flex justify-between items-center mb-4">
-            <div>
-              <h3 className="text-base font-black tracking-tight">기술 등급별 분포</h3>
-              <p className="text-xs text-primary/40 mt-0.5">등급별 인력 구성</p>
-            </div>
-            <div className="w-8 h-8 bg-primary/5 rounded-lg flex items-center justify-center text-sm">🎖️</div>
+          <div className="mb-4">
+            <h3 className="text-base font-black tracking-tight">기술 등급별 분포</h3>
           </div>
           <div className="flex-1 flex items-center justify-center min-h-[275px]">
             {gradeSegs.length > 0
@@ -275,12 +267,8 @@ export function ServiceAdminDashboardPage() {
 
         {/* 전문가 평가 분포 */}
         <div className="bg-white p-8 rounded-3xl border border-border/30 shadow-sm flex flex-col">
-          <div className="flex justify-between items-center mb-4">
-            <div>
-              <h3 className="text-base font-black tracking-tight">전문가 평가 분포</h3>
-              <p className="text-xs text-primary/40 mt-0.5">평가 등급 현황</p>
-            </div>
-            <span className="text-[10px] font-bold text-success bg-success/5 px-2 py-1 rounded-md border border-success/10">신뢰도 지표</span>
+          <div className="mb-4">
+            <h3 className="text-base font-black tracking-tight">전문가 평가 분포</h3>
           </div>
           <div className="flex-1 flex items-center justify-center min-h-[275px]">
             {evalSegs.length > 0

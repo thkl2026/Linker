@@ -103,11 +103,12 @@ const EMPTY_EXP_COMPANY: ExperienceRequest = {
 }
 
 function ExperienceFormModal({
-  talentId, initial, defaultType, onClose,
+  talentId, initial, defaultType, showTechStack, onClose,
 }: {
   talentId: string
   initial: (ExperienceResponse & { _edit: true }) | null
   defaultType: ExperienceType
+  showTechStack: boolean
   onClose: () => void
 }) {
   const addToast = useUiStore(s => s.addToast)
@@ -222,6 +223,7 @@ function ExperienceFormModal({
               className="w-full border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/40 resize-none"
               placeholder={isCompany ? '소속 회사에서 담당했던 주요 업무를 작성하세요.' : '개발했던 구체적인 업무와 기능을 작성하세요.'} />
           </div>
+          {showTechStack && (
           <div>
             <label className="text-xs font-bold text-primary/60 block mb-1">사용 기술 스택</label>
             <div className="flex gap-2">
@@ -242,6 +244,7 @@ function ExperienceFormModal({
               </div>
             )}
           </div>
+          )}
         </div>
         <div className="px-7 py-5 border-t border-border/50 bg-gray-50 rounded-b-3xl flex gap-3 justify-end">
           <button onClick={onClose} className="px-6 py-2.5 rounded-xl border border-border font-bold text-primary/70 hover:bg-white text-sm">취소</button>
@@ -1749,18 +1752,20 @@ function TalentDetailModal({
                               </td>
                               <td className="w-[45%] p-1 border-b border-r border-border/50 align-top relative group/btn">
                                 <div className="flex flex-col h-full gap-2 p-1 w-[calc(100%-24px)]">
+                                  {hasTechStack && (
                                   <div className="flex items-center gap-1 border-b border-border/20 pb-1">
                                     <span className="text-xs font-bold text-primary/60 shrink-0">Skills:</span>
                                     <input
                                       placeholder="기술 스택 (쉼표 구분)"
                                       className="flex-1 text-xs bg-transparent hover:bg-white px-1 py-1 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none transition-all"
                                       defaultValue={exp.techStack.join(', ')}
-                                      onBlur={e => { 
+                                      onBlur={e => {
                                         const newTech = e.target.value.split(',').map(s=>s.trim()).filter(Boolean);
                                         if (newTech.join(',') !== exp.techStack.join(',')) handleExpUpdate(exp.id, exp, { techStack: newTech });
                                       }}
                                     />
                                   </div>
+                                  )}
                                   <textarea
                                     rows={2}
                                     placeholder="상세 업무 내용을 입력하세요."
@@ -2167,6 +2172,7 @@ function TalentDetailModal({
           talentId={talent.id}
           initial={editingExp}
           defaultType={expFormType}
+          showTechStack={hasTechStack}
           onClose={() => { setExpFormOpen(false); setEditingExp(null) }}
         />
       )}

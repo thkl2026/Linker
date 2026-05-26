@@ -11,6 +11,8 @@ import kr.co.linker.auth.dto.MfaSetupRequest;
 import kr.co.linker.auth.dto.RegisterInitiateRequest;
 import kr.co.linker.auth.dto.TokenResponse;
 import kr.co.linker.auth.dto.TotpSetupResponse;
+import kr.co.linker.auth.dto.UpdateProfileRequest;
+import kr.co.linker.auth.dto.UserProfileResponse;
 import kr.co.linker.auth.exception.AuthException;
 import kr.co.linker.auth.repository.UserRepository;
 import kr.co.linker.common.exception.LinkerException;
@@ -167,7 +169,8 @@ public class AuthService {
         log.info("[LOGIN_SUCCESS] userId={} role={} ip={}", user.getId(), user.getRole(), clientIp);
         return new TokenResponse(accessToken, refreshToken, jwtProperties.accessTokenExpiry(),
                 user.getRole().name(), user.getId().toString(), displayName,
-                user.isMfaEnabled(), user.isIdentityVerified());
+                user.isMfaEnabled(), user.isIdentityVerified(),
+                user.getPosition(), user.getDepartment());
     }
 
 
@@ -186,6 +189,7 @@ public class AuthService {
         log.info("[LOGOUT] userId={}", userId);
     }
 
+    @Transactional(readOnly = true)
     public TokenResponse refresh(String refreshToken) {
         if (!jwtTokenProvider.isValid(refreshToken)) {
             throw AuthException.invalidRefreshToken();
@@ -202,6 +206,9 @@ public class AuthService {
             log.warn("[REFRESH] Redis unavailable — skipping token validation. userId={}", userId);
         }
 
+        User user = userRepository.findById(userId)
+                .orElseThrow(AuthException::invalidRefreshToken);
+
         String newAccessToken  = jwtTokenProvider.generateAccessToken(userId, role);
         String newRefreshToken = jwtTokenProvider.generateRefreshToken(userId, role);
 
@@ -214,7 +221,10 @@ public class AuthService {
         }
 
         log.info("[TOKEN_REFRESH] userId={}", userId);
-        return new TokenResponse(newAccessToken, newRefreshToken, jwtProperties.accessTokenExpiry(), role);
+        return new TokenResponse(newAccessToken, newRefreshToken, jwtProperties.accessTokenExpiry(),
+                role, userId.toString(), user.getName() != null ? user.getName() : "",
+                user.isMfaEnabled(), user.isIdentityVerified(),
+                user.getPosition(), user.getDepartment());
     }
 
     @Transactional(readOnly = true)
@@ -256,6 +266,19 @@ public class AuthService {
         log.info("[INVITE_ACCEPTED] userId={} role={}", user.getId(), role);
     }
 
+    @Transactional(readOnly = true)
+    public UserProfileResponse getProfile(UUID userId) {
+        User user = findUser(userId);
+        return new UserProfileResponse(user.getName(), user.getPosition(), user.getDepartment());
+    }
+
+    @Transactional
+    public void updateProfile(UUID userId, UpdateProfileRequest request) {
+        User user = findUser(userId);
+        user.updateProfile(request.name(), request.position(), request.department());
+        log.info("[PROFILE_UPDATE] userId={}", userId);
+    }
+
     private User findUser(UUID userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new kr.co.linker.common.exception.LinkerException(
@@ -263,6 +286,7 @@ public class AuthService {
     }
 
     private String resolveDisplayName(User user, String plainEmail) {
+        if (user.getName() != null) return user.getName();
         if (user.isIdentityVerified() && user.getRealName() != null) {
             try { return encryptionService.decrypt(user.getRealName()); } catch (Exception ignored) {}
         }

@@ -106,6 +106,22 @@ public class AuthController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "내 프로필 조회")
+    @GetMapping("/me")
+    public ResponseEntity<UserProfileResponse> getProfile(@AuthenticationPrincipal UUID userId) {
+        if (userId == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        return ResponseEntity.ok(authService.getProfile(userId));
+    }
+
+    @Operation(summary = "내 프로필 수정")
+    @PutMapping("/me")
+    public ResponseEntity<Void> updateProfile(@AuthenticationPrincipal UUID userId,
+                                               @jakarta.validation.Valid @RequestBody UpdateProfileRequest request) {
+        if (userId == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        authService.updateProfile(userId, request);
+        return ResponseEntity.noContent().build();
+    }
+
     @Operation(summary = "초대 토큰 검증: 이메일·역할 조회")
     @GetMapping("/invite/{token}")
     public ResponseEntity<kr.co.linker.auth.dto.InviteInfoResponse> getInviteInfo(

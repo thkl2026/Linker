@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Outlet, NavLink, useNavigate, Navigate } from 'react-router-dom'
+import { useMutation } from '@tanstack/react-query'
 import linkerLogo from '@/statics/linker_bi_logo.png'
 import { ToastContainer } from '@/shared/components/ToastContainer'
 import { useAuthStore } from '@/store/authStore'
@@ -52,8 +53,39 @@ export function RootLayout() {
   const setAccessToken = useAuthStore(s => s.setAccessToken)
   const user = useAuthStore(s => s.user)
   const clearAuth = useAuthStore(s => s.clearAuth)
-  const { isSidebarOpen, toggleSidebar } = useUiStore()
+  const updateUser = useAuthStore(s => s.updateUser)
+  const { isSidebarOpen, toggleSidebar, addToast } = useUiStore()
   const navigate = useNavigate()
+
+  const [showProfile, setShowProfile] = useState(false)
+  const [profileName, setProfileName] = useState('')
+  const [profilePosition, setProfilePosition] = useState('')
+  const [profileDepartment, setProfileDepartment] = useState('')
+
+  const openProfile = () => {
+    setProfileName(user?.name ?? '')
+    setProfilePosition(user?.position ?? '')
+    setProfileDepartment(user?.department ?? '')
+    setShowProfile(true)
+  }
+
+  const profileMutation = useMutation({
+    mutationFn: () => authApi.updateProfile({
+      name: profileName || null,
+      position: profilePosition || null,
+      department: profileDepartment || null,
+    }),
+    onSuccess: () => {
+      updateUser({
+        name: profileName || user?.name ?? '',
+        position: profilePosition || undefined,
+        department: profileDepartment || undefined,
+      })
+      addToast('프로필이 저장되었습니다.', 'success')
+      setShowProfile(false)
+    },
+    onError: () => addToast('저장에 실패했습니다.', 'error'),
+  })
 
   // reload 시 accessToken은 사라지지만 isAuthenticated는 localStorage에 남아 있음
   // refresh token으로 조용히 새 access token을 발급받는다
@@ -142,7 +174,7 @@ export function RootLayout() {
         <div className="p-4">
           {isSidebarOpen ? (
             <div className="bg-primary/5 rounded-2xl p-4 border border-primary/5">
-              <div className="flex items-center gap-3 mb-3">
+              <button onClick={openProfile} className="flex items-center gap-3 mb-3 w-full text-left hover:opacity-80 transition-opacity">
                 <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold shrink-0">
                   {user?.name?.[0]?.toUpperCase() ?? user?.email?.[0]?.toUpperCase() ?? 'A'}
                 </div>
@@ -150,7 +182,7 @@ export function RootLayout() {
                   <p className="text-xs font-bold truncate">{user?.name}</p>
                   <p className="text-[10px] text-primary/50 truncate">{user?.email}</p>
                 </div>
-              </div>
+              </button>
               <button onClick={handleLogout} className="w-full py-2 bg-white border border-border/50 rounded-lg text-[11px] font-bold text-primary/60 hover:bg-primary hover:text-white transition-all">
                 로그아웃
               </button>
@@ -175,6 +207,70 @@ export function RootLayout() {
           <Outlet />
         </main>
       </div>
+
+      {showProfile && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm" onClick={() => setShowProfile(false)}>
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 border border-border/30" onClick={e => e.stopPropagation()}>
+            <h2 className="text-xl font-black tracking-tight mb-6">프로필 수정</h2>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-primary mb-1.5">이름</label>
+                <input
+                  type="text"
+                  value={profileName}
+                  onChange={e => setProfileName(e.target.value)}
+                  placeholder="표시 이름 입력"
+                  maxLength={100}
+                  className="w-full px-4 py-3 rounded-2xl border border-border bg-surface/30 focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none transition-all text-sm font-medium"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-primary mb-1.5">직책</label>
+                <input
+                  type="text"
+                  value={profilePosition}
+                  onChange={e => setProfilePosition(e.target.value)}
+                  placeholder="예: 선임 개발자"
+                  maxLength={100}
+                  className="w-full px-4 py-3 rounded-2xl border border-border bg-surface/30 focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none transition-all text-sm font-medium"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-primary mb-1.5">부서</label>
+                <input
+                  type="text"
+                  value={profileDepartment}
+                  onChange={e => setProfileDepartment(e.target.value)}
+                  placeholder="예: 개발팀"
+                  maxLength={100}
+                  className="w-full px-4 py-3 rounded-2xl border border-border bg-surface/30 focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none transition-all text-sm font-medium"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-primary mb-1.5">이메일</label>
+                <p className="px-4 py-3 rounded-2xl bg-primary/5 text-sm text-primary/60 font-medium">{user?.email}</p>
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-8">
+              <button
+                onClick={() => setShowProfile(false)}
+                className="flex-1 py-3 rounded-2xl border border-border/50 text-sm font-bold text-primary/60 hover:bg-primary/5 transition-all"
+              >
+                취소
+              </button>
+              <button
+                onClick={() => profileMutation.mutate()}
+                disabled={profileMutation.isPending}
+                className="flex-1 py-3 rounded-2xl bg-primary text-white text-sm font-bold hover:bg-amber-900 transition-all disabled:opacity-50"
+              >
+                {profileMutation.isPending ? '저장 중...' : '저장'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <ToastContainer />
     </div>

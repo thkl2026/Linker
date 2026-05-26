@@ -5,6 +5,18 @@ import type {
   TokenResponse,
 } from '@/shared/types/auth'
 
+export interface UserProfileResponse {
+  name: string | null
+  position: string | null
+  department: string | null
+}
+
+export interface UpdateProfileRequest {
+  name?: string | null
+  position?: string | null
+  department?: string | null
+}
+
 export interface TotpSetupResponse {
   secretKey: string
   otpAuthUri: string
@@ -46,4 +58,12 @@ export const authApi = {
   /** 초대 수락: 비밀번호 설정 후 계정 생성 */
   acceptInvite: (token: string, password: string) =>
     axiosInstance.post<void>(`/api/v1/auth/invite/${token}/accept`, { password }),
+
+  /** 내 프로필 조회 */
+  getMe: () =>
+    axiosInstance.get<UserProfileResponse>('/api/v1/auth/me'),
+
+  /** 내 프로필 수정 */
+  updateProfile: (req: UpdateProfileRequest) =>
+    axiosInstance.put<void>('/api/v1/auth/me', req),
 }

@@ -18,6 +18,7 @@ interface AuthState {
   setAuth: (user: AuthUser, accessToken: string, refreshToken: string) => void
   clearAuth: () => void
   setAccessToken: (token: string) => void
+  updateUser: (partial: Partial<AuthUser>) => void
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -39,6 +40,10 @@ export const useAuthStore = create<AuthState>()(
       },
 
       setAccessToken: (token) => set({ accessToken: token }),
+
+      updateUser: (partial) => set(state => ({
+        user: state.user ? { ...state.user, ...partial } : null,
+      })),
     }),
     {
       name: 'linker-auth',

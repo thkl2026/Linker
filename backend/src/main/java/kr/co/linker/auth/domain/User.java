@@ -79,6 +79,13 @@ public class User {
     @Column(nullable = false, length = 30)
     private UserRole role;
 
+    /** 사용자 직접 설정하는 표시 이름 (KCB 실명과 별개) */
+    @Column(length = 100)
+    private String name;
+
+    @Column(length = 100)
+    private String position;
+
     @Column(length = 100)
     private String department;
 
@@ -175,6 +182,15 @@ public class User {
     /** 계정 잠금 여부 확인 */
     public boolean isLocked() {
         return lockedUntil != null && OffsetDateTime.now().isBefore(lockedUntil);
+    }
+
+    /**
+     * 프로필 수정 — null 필드는 변경하지 않음, 빈 문자열은 null로 저장
+     */
+    public void updateProfile(String name, String position, String department) {
+        if (name != null) this.name = name.isBlank() ? null : name.trim();
+        if (position != null) this.position = position.isBlank() ? null : position.trim();
+        if (department != null) this.department = department.isBlank() ? null : department.trim();
     }
 
     public void deactivate() {

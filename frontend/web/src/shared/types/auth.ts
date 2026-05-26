@@ -14,6 +14,8 @@ export interface AuthUser {
   name: string
   mfaEnabled: boolean
   identityVerified: boolean
+  position?: string
+  department?: string
 }
 
 export interface LoginRequest {
@@ -40,6 +42,8 @@ export interface TokenResponse {
   name: string
   mfaEnabled: boolean
   identityVerified: boolean
+  position: string | null
+  department: string | null
 }
 
 export interface RegisterInitiateRequest {

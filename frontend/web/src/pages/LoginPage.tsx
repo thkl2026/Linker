@@ -53,6 +53,8 @@ export function LoginPage() {
           name: res.data.name,
           mfaEnabled: res.data.mfaEnabled,
           identityVerified: res.data.identityVerified,
+          position: res.data.position ?? undefined,
+          department: res.data.department ?? undefined,
         },
         res.data.accessToken,
         res.data.refreshToken,
