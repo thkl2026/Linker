@@ -236,6 +236,17 @@ public class ServiceAdminController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "전문가 희망 단가 변경")
+    @PatchMapping("/talents/{id}/desired-rate")
+    public ResponseEntity<Void> updateDesiredRate(@PathVariable UUID id,
+                                                   @RequestBody java.util.Map<String, Object> body) {
+        java.math.BigDecimal rate = body.get("desiredRate") != null
+                ? new java.math.BigDecimal(body.get("desiredRate").toString())
+                : null;
+        serviceAdminService.updateDesiredRate(id, rate);
+        return ResponseEntity.noContent().build();
+    }
+
     @Operation(summary = "전문가 가용상태 변경")
     @PatchMapping("/talents/{id}/availability")
     public ResponseEntity<Void> updateAvailability(@PathVariable UUID id,

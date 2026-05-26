@@ -264,6 +264,13 @@ public class ServiceAdminService {
     }
 
     @Transactional
+    public void updateDesiredRate(UUID talentId, java.math.BigDecimal desiredRate) {
+        TalentProfile profile = requireTalent(talentId);
+        profile.updateDesiredRate(desiredRate);
+        log.info("[SERVICE_ADMIN] 희망단가 변경 talentId={} rate={}", talentId, desiredRate);
+    }
+
+    @Transactional
     public void updateAvailability(UUID talentId, UpdateAvailabilityRequest req) {
         TalentProfile profile = requireTalent(talentId);
         profile.updateAvailability(req.status(), req.availableFrom());

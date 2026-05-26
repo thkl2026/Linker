@@ -3210,26 +3210,8 @@ export function TalentCareerPage() {
   })
 
   const inlineRateMutation = useMutation({
-    mutationFn: ({ talent, rate }: { talent: TalentAdmin; rate: number | undefined }) =>
-      serviceAdminApi.updateTalent(talent.id, {
-        name: talent.name,
-        phone: talent.phone ?? undefined,
-        category: talent.category ?? undefined,
-        field: talent.field ?? undefined,
-        workType: talent.workType,
-        desiredRate: rate,
-        skills: talent.skills,
-        birthDate: talent.birthDate,
-        email: talent.email,
-        address: talent.address,
-        skillGrade: talent.skillGrade,
-        title: talent.title,
-        projectRole: talent.projectRole ?? undefined,
-        notes: talent.notes,
-        industryExperience: talent.industryExperience,
-        referralSource: talent.referralSource,
-        itCareerMonths: talent.itCareerMonths ?? null,
-      }),
+    mutationFn: ({ id, rate }: { id: string; rate: number | null }) =>
+      serviceAdminApi.updateDesiredRate(id, rate),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin', 'talents'] })
       showToast('희망 단가가 변경되었습니다.', 'success')
@@ -3239,9 +3221,9 @@ export function TalentCareerPage() {
   })
 
   const saveInlineRate = (t: TalentAdmin) => {
-    const rate = inlineRateVal !== '' ? Number(inlineRateVal) : undefined
-    if (rate === (t.desiredRate ?? undefined)) { setInlineRateId(null); return }
-    inlineRateMutation.mutate({ talent: t, rate })
+    const rate = inlineRateVal !== '' ? Number(inlineRateVal) : null
+    if (rate === t.desiredRate) { setInlineRateId(null); return }
+    inlineRateMutation.mutate({ id: t.id, rate })
   }
 
   const inlineProfileMutation = useMutation({

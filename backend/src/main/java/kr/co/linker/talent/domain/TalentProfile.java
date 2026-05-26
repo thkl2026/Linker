@@ -237,6 +237,10 @@ public class TalentProfile {
         this.bonusScore = bonusScore != null ? bonusScore : BigDecimal.ZERO;
     }
 
+    public void updateDesiredRate(java.math.BigDecimal desiredRate) {
+        this.desiredRate = desiredRate;
+    }
+
     public void updateNotes(String notes) {
         this.notes = notes;
     }

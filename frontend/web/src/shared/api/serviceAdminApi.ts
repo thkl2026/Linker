@@ -358,6 +358,9 @@ export const serviceAdminApi = {
   updateTalent: (id: string, req: CreateTalentRequest) =>
     axiosInstance.put(`/api/v1/service-admin/talents/${id}`, req),
 
+  updateDesiredRate: (id: string, desiredRate: number | null) =>
+    axiosInstance.patch(`/api/v1/service-admin/talents/${id}/desired-rate`, { desiredRate }),
+
   deleteTalent: (id: string) =>
     axiosInstance.delete(`/api/v1/service-admin/talents/${id}`),
 
