@@ -1,6 +1,7 @@
 package kr.co.linker.admin.service;
 
 import kr.co.linker.admin.dto.AdminCreateProjectRequest;
+import kr.co.linker.admin.dto.UpdateProjectRequest;
 import kr.co.linker.admin.dto.AdminReviewRequest;
 import kr.co.linker.admin.dto.AssignMemberRequest;
 import kr.co.linker.admin.dto.CreateTalentRequest;
@@ -383,6 +384,17 @@ public class ServiceAdminService {
             log.warn("[SERVICE_ADMIN] 자동 공지/알림 생성 실패 title={}: {}", req.title(), e.getMessage());
         }
         return project.getId();
+    }
+
+    @Transactional
+    public void updateProject(UUID projectId, UpdateProjectRequest req) {
+        ProjectOpportunity project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new LinkerException(HttpStatus.NOT_FOUND, "PROJECT_NOT_FOUND", "프로젝트를 찾을 수 없습니다."));
+        WorkType wt = req.workType() != null ? WorkType.valueOf(req.workType()) : project.getWorkType();
+        int headcount = req.requiredHeadcount() != null ? req.requiredHeadcount() : project.getRequiredHeadcount();
+        project.update(req.title(), req.description(), req.budgetMin(), req.budgetMax(), wt);
+        project.updateAdminInfo(req.clientCompany(), req.mainContractor(), headcount, req.startDate(), req.endDate());
+        log.info("[SERVICE_ADMIN] 프로젝트 수정 projectId={}", projectId);
     }
 
     @Transactional(readOnly = true)

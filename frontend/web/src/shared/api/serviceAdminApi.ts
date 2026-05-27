@@ -65,6 +65,19 @@ export interface AdminCreateProjectRequest {
   pmId?: string
 }
 
+export interface UpdateProjectRequest {
+  title: string
+  clientCompany?: string | null
+  mainContractor?: string | null
+  startDate?: string | null
+  endDate?: string | null
+  requiredHeadcount?: number
+  workType?: string
+  description?: string | null
+  budgetMin?: number | null
+  budgetMax?: number | null
+}
+
 export interface TalentAdmin {
   id: string
   userId: string
@@ -428,6 +441,9 @@ export const serviceAdminApi = {
 
   getProjectDetail: (id: string) =>
     axiosInstance.get<ProjectDetail>(`/api/v1/service-admin/projects/${id}`),
+
+  updateProject: (id: string, req: UpdateProjectRequest) =>
+    axiosInstance.put<void>(`/api/v1/service-admin/projects/${id}`, req),
 
   assignMember: (projectId: string, talentId: string, role?: string) =>
     axiosInstance.post<string>(`/api/v1/service-admin/projects/${projectId}/members`, { talentId, role }),

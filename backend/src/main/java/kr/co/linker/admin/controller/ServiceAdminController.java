@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import kr.co.linker.admin.dto.AdminCreateProjectRequest;
+import kr.co.linker.admin.dto.UpdateProjectRequest;
 import kr.co.linker.admin.dto.AssignMemberRequest;
 import kr.co.linker.admin.dto.ChangeProjectStatusRequest;
 import kr.co.linker.admin.dto.CreateTalentRequest;
@@ -158,6 +159,14 @@ public class ServiceAdminController {
     @GetMapping("/projects/{id}")
     public ResponseEntity<ProjectDetailResponse> getProjectDetail(@PathVariable UUID id) {
         return ResponseEntity.ok(serviceAdminService.getProjectDetail(id));
+    }
+
+    @Operation(summary = "프로젝트 기본 정보 수정")
+    @PutMapping("/projects/{id}")
+    public ResponseEntity<Void> updateProject(@PathVariable UUID id,
+                                               @Valid @RequestBody UpdateProjectRequest req) {
+        serviceAdminService.updateProject(id, req);
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "프로젝트 멤버 배정")

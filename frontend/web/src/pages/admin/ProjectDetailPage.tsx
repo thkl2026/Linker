@@ -8,6 +8,8 @@ import {
   type ProjectStatus,
   type TalentAdmin,
   type ProjectMember,
+  type ProjectDetail,
+  type UpdateProjectRequest,
 } from '@/shared/api/serviceAdminApi'
 
 const STATUS_LABELS: Record<ProjectStatus, string> = {
@@ -226,6 +228,144 @@ function MemberRow({ member, projectId }: { member: ProjectMember; projectId: st
   )
 }
 
+// ── Project Edit Modal ────────────────────────────────────────────────────────
+
+const WORK_TYPE_OPTIONS = [
+  { value: 'ONSITE', label: '상주' },
+  { value: 'REMOTE', label: '원격' },
+  { value: 'HYBRID', label: '혼합' },
+]
+
+function ProjectEditModal({ project, onClose }: { project: ProjectDetail; onClose: () => void }) {
+  const qc = useQueryClient()
+  const { addToast } = useUiStore()
+  const [form, setForm] = useState<UpdateProjectRequest>({
+    title: project.title,
+    clientCompany: project.clientCompany ?? '',
+    mainContractor: project.mainContractor ?? '',
+    startDate: project.startDate ?? '',
+    endDate: project.endDate ?? '',
+    requiredHeadcount: project.requiredHeadcount,
+    workType: project.workType ?? 'ONSITE',
+    description: project.description ?? '',
+    budgetMin: project.budgetMin ?? null,
+    budgetMax: project.budgetMax ?? null,
+  })
+
+  const set = <K extends keyof UpdateProjectRequest>(k: K, v: UpdateProjectRequest[K]) =>
+    setForm(f => ({ ...f, [k]: v }))
+
+  const save = useMutation({
+    mutationFn: () => serviceAdminApi.updateProject(project.id, {
+      ...form,
+      clientCompany: form.clientCompany || null,
+      mainContractor: form.mainContractor || null,
+      startDate: form.startDate || null,
+      endDate: form.endDate || null,
+      description: form.description || null,
+    }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['project-detail', project.id] })
+      qc.invalidateQueries({ queryKey: ['admin-projects'] })
+      addToast('프로젝트 정보가 수정되었습니다.', 'success')
+      onClose()
+    },
+    onError: () => addToast('저장에 실패했습니다.', 'error'),
+  })
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={onClose}>
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-xl mx-4 flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
+        <div className="px-8 py-6 border-b border-border/30 flex items-center justify-between">
+          <h3 className="text-base font-black text-primary">프로젝트 정보 수정</h3>
+          <button onClick={onClose} className="text-primary/30 hover:text-primary text-xl leading-none">✕</button>
+        </div>
+        <div className="p-8 overflow-y-auto space-y-4">
+          <div>
+            <label className="block text-[11px] font-black text-primary/40 uppercase mb-1">프로젝트명 *</label>
+            <input value={form.title} onChange={e => set('title', e.target.value)}
+              className="w-full border border-border/50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary"
+              placeholder="프로젝트명" />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[11px] font-black text-primary/40 uppercase mb-1">고객사</label>
+              <input value={form.clientCompany ?? ''} onChange={e => set('clientCompany', e.target.value)}
+                className="w-full border border-border/50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary"
+                placeholder="(주)예시" />
+            </div>
+            <div>
+              <label className="block text-[11px] font-black text-primary/40 uppercase mb-1">주사업자</label>
+              <input value={form.mainContractor ?? ''} onChange={e => set('mainContractor', e.target.value)}
+                className="w-full border border-border/50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary"
+                placeholder="(주)예시" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[11px] font-black text-primary/40 uppercase mb-1">시작일</label>
+              <input type="date" value={form.startDate ?? ''} onChange={e => set('startDate', e.target.value)}
+                className="w-full border border-border/50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary" />
+            </div>
+            <div>
+              <label className="block text-[11px] font-black text-primary/40 uppercase mb-1">종료일</label>
+              <input type="date" value={form.endDate ?? ''} onChange={e => set('endDate', e.target.value)}
+                className="w-full border border-border/50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[11px] font-black text-primary/40 uppercase mb-1">필요 인원</label>
+              <input type="number" min={1} value={form.requiredHeadcount ?? 1}
+                onChange={e => set('requiredHeadcount', Number(e.target.value))}
+                className="w-full border border-border/50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary" />
+            </div>
+            <div>
+              <label className="block text-[11px] font-black text-primary/40 uppercase mb-1">근무 형태</label>
+              <select value={form.workType ?? 'ONSITE'} onChange={e => set('workType', e.target.value)}
+                className="w-full border border-border/50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary bg-white">
+                {WORK_TYPE_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[11px] font-black text-primary/40 uppercase mb-1">예산 하한 (원/월)</label>
+              <input type="number" min={0} value={form.budgetMin ?? ''}
+                onChange={e => set('budgetMin', e.target.value ? Number(e.target.value) : null)}
+                className="w-full border border-border/50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary"
+                placeholder="0" />
+            </div>
+            <div>
+              <label className="block text-[11px] font-black text-primary/40 uppercase mb-1">예산 상한 (원/월)</label>
+              <input type="number" min={0} value={form.budgetMax ?? ''}
+                onChange={e => set('budgetMax', e.target.value ? Number(e.target.value) : null)}
+                className="w-full border border-border/50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary"
+                placeholder="0" />
+            </div>
+          </div>
+          <div>
+            <label className="block text-[11px] font-black text-primary/40 uppercase mb-1">설명</label>
+            <textarea value={form.description ?? ''} onChange={e => set('description', e.target.value)}
+              rows={3} className="w-full border border-border/50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary resize-none"
+              placeholder="프로젝트 상세 설명" />
+          </div>
+        </div>
+        <div className="px-8 py-5 border-t border-border/30 bg-gray-50 rounded-b-3xl flex gap-3 justify-end">
+          <button onClick={onClose}
+            className="px-6 py-2.5 border border-border/50 rounded-2xl text-sm font-bold text-primary/50 hover:bg-white transition-all">
+            취소
+          </button>
+          <button onClick={() => save.mutate()} disabled={save.isPending || !form.title.trim()}
+            className="px-8 py-2.5 bg-secondary text-white rounded-2xl text-sm font-black shadow-lg shadow-secondary/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-40">
+            {save.isPending ? '저장 중...' : '저장'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ── Skill Edit Modal ─────────────────────────────────────────────────────────
 
 const EMPTY_SKILL: SkillRow = { role: '', headcount: 1 }
@@ -360,6 +500,7 @@ export function ProjectDetailPage() {
   const statusMenuRef = useRef<HTMLDivElement>(null)
   // null = 닫힘, -1 = 신규 추가, 0+ = 편집 대상 인덱스
   const [skillEditIndex, setSkillEditIndex] = useState<number | null>(null)
+  const [showEditModal, setShowEditModal] = useState(false)
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -472,7 +613,15 @@ export function ProjectDetailPage() {
 
           {/* Basic info */}
           <div className="bg-white rounded-3xl border border-border/30 shadow-sm p-7 space-y-5">
-            <h3 className="text-xs font-black text-primary/40 uppercase tracking-wider">기본 정보</h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-black text-primary/40 uppercase tracking-wider">기본 정보</h3>
+              <button
+                onClick={() => setShowEditModal(true)}
+                className="px-3 py-1.5 bg-secondary text-white text-xs font-black rounded-xl shadow-md shadow-secondary/20 hover:scale-105 active:scale-95 transition-all"
+              >
+                수정
+              </button>
+            </div>
             <div className="grid grid-cols-2 gap-x-8 gap-y-4">
               <InfoRow label="고객사" value={project.clientCompany} />
               <InfoRow label="주사업자" value={project.mainContractor} />
@@ -579,6 +728,10 @@ export function ProjectDetailPage() {
           assignedIds={assignedIds}
           onClose={() => setModalRole(null)}
         />
+      )}
+
+      {showEditModal && (
+        <ProjectEditModal project={project} onClose={() => setShowEditModal(false)} />
       )}
 
       {skillEditIndex !== null && (
