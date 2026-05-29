@@ -147,6 +147,8 @@ function toSegs(dist: LabelCount[], colorMap?: Record<string, string>, fallbackC
 
 const NOTIFICATION_ICON: Record<string, string> = {
   TALENT_REGISTERED: '👤',
+  TALENT_UPDATED:    '✏️',
+  TALENT_DELETED:    '🗑️',
   PROJECT_CREATED:   '🚀',
   MEMBER_ASSIGNED:   '📋',
   EVAL_COMPLETED:    '⭐',

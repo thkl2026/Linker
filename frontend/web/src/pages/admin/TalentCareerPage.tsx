@@ -2297,27 +2297,27 @@ function InsightPanel({
       </div>
 
       <div className="mb-4 p-4 bg-violet-50 border border-violet-200 rounded-2xl space-y-3">
-        <div>
-          <p className="text-xs font-bold text-violet-700 mb-1">집중 분석 키워드 <span className="font-normal text-violet-400">(선택)</span></p>
-          <p className="text-[11px] text-violet-400 mb-2">특정 기술, 도메인, 강점·우려 사항 등을 입력하면 해당 부분을 중점 분석합니다.</p>
-          <textarea
-            value={keywords}
-            onChange={e => setKeywords(e.target.value)}
-            placeholder="예: Oracle DBA 금융권 성능 최적화, 단기 이직 우려"
-            rows={2}
-            className="w-full text-xs px-3 py-2 rounded-xl border border-violet-200 bg-white resize-none focus:outline-none focus:ring-2 focus:ring-violet-300 text-primary placeholder:text-primary/25"
-            onKeyDown={e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) handleSubmit() }}
-          />
-        </div>
-        <div className="flex justify-end">
+        <div className="flex items-center justify-between mb-2">
+          <div>
+            <p className="text-xs font-bold text-violet-700">집중 분석 키워드 <span className="font-normal text-violet-400">(선택)</span></p>
+            <p className="text-[11px] text-violet-400">특정 기술, 도메인, 강점·우려 사항 등을 입력하면 해당 부분을 중점 분석합니다.</p>
+          </div>
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-500 hover:bg-violet-600 disabled:opacity-50 text-white text-xs font-bold transition-colors shadow-sm"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-500 hover:bg-violet-600 disabled:opacity-50 text-white text-xs font-bold transition-colors shadow-sm shrink-0"
           >
             {loading ? '⏳ 분석 중...' : '✨ 분석'}
           </button>
         </div>
+        <textarea
+          value={keywords}
+          onChange={e => setKeywords(e.target.value)}
+          placeholder="예: Oracle DBA 금융권 성능 최적화, 단기 이직 우려"
+          rows={2}
+          className="w-full text-xs px-3 py-2 rounded-xl border border-violet-200 bg-white resize-none focus:outline-none focus:ring-2 focus:ring-violet-300 text-primary placeholder:text-primary/25"
+          onKeyDown={e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) handleSubmit() }}
+        />
       </div>
 
       {!insight && !loading && (

@@ -256,12 +256,27 @@ public class ServiceAdminService {
         }
         gradeCalculationService.recalculate(talentId);
         log.info("[SERVICE_ADMIN] 전문가 수정 talentId={}", talentId);
+        try {
+            String displayName = profile.getName() != null ? profile.getName() : talentId.toString();
+            notificationService.create("TALENT_UPDATED", "전문가 정보 수정",
+                    displayName + " 전문가 정보가 수정되었습니다.");
+        } catch (Exception e) {
+            log.warn("[SERVICE_ADMIN] 수정 알림 생성 실패 talentId={}: {}", talentId, e.getMessage());
+        }
     }
 
     @Transactional
     public void deleteTalent(UUID talentId) {
-        requireTalent(talentId).delete();
+        TalentProfile profile = requireTalent(talentId);
+        String displayName = profile.getName() != null ? profile.getName() : talentId.toString();
+        profile.delete();
         log.info("[SERVICE_ADMIN] 전문가 삭제 talentId={}", talentId);
+        try {
+            notificationService.create("TALENT_DELETED", "전문가 삭제",
+                    displayName + " 전문가가 삭제되었습니다.");
+        } catch (Exception e) {
+            log.warn("[SERVICE_ADMIN] 삭제 알림 생성 실패 talentId={}: {}", talentId, e.getMessage());
+        }
     }
 
     @Transactional
