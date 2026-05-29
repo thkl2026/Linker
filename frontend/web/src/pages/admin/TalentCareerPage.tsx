@@ -904,9 +904,28 @@ function TalentDetailModal({
     mutationFn: (expId: string) => serviceAdminApi.deleteExperience(talent.id, expId),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin', 'experiences', talent.id] })
-      addToast('경력이 삭제되었습니다.', 'success')
+      addToast('삭제되었습니다.', 'success')
     },
     onError: () => addToast('삭제에 실패했습니다.', 'error'),
+  })
+
+  const addExpMutation = useMutation({
+    mutationFn: (type: ExperienceType) => serviceAdminApi.createExperience(talent.id, {
+      experienceType: type,
+      companyName: '',
+      projectName: type === 'EDUCATION' ? '' : '',
+      role: '',
+      department: '',
+      employmentType: type === 'COMPANY' ? '정규직' : undefined,
+      startDate: new Date().toISOString().substring(0, 7) + '-01',
+      endDate: null,
+      description: '',
+      techStack: [],
+    }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin', 'experiences', talent.id] })
+    },
+    onError: () => addToast('추가에 실패했습니다.', 'error'),
   })
 
   // 로컬 변경 감지
@@ -1530,6 +1549,13 @@ function TalentDetailModal({
                       </tbody>
                     </table>
                   </div>
+                  <button
+                    onClick={() => addExpMutation.mutate('EDUCATION')}
+                    disabled={addExpMutation.isPending}
+                    className="mt-2 flex items-center gap-1 text-xs text-secondary font-bold hover:text-secondary/70 disabled:opacity-50 transition-colors"
+                  >
+                    + 학력 추가
+                  </button>
                 </div>
 
                 {/* 3. 근무 경력 */}
@@ -1604,6 +1630,13 @@ function TalentDetailModal({
                       </tbody>
                     </table>
                   </div>
+                  <button
+                    onClick={() => addExpMutation.mutate('COMPANY')}
+                    disabled={addExpMutation.isPending}
+                    className="mt-2 flex items-center gap-1 text-xs text-secondary font-bold hover:text-secondary/70 disabled:opacity-50 transition-colors"
+                  >
+                    + 근무 경력 추가
+                  </button>
                 </div>
 
                 {/* 4. 자격 및 어학 */}
