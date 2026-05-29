@@ -2240,22 +2240,19 @@ function InsightPanel({
   loading: boolean
   onAnalyze: (keywords: string) => void
 }) {
-  const [showInput, setShowInput] = useState(false)
   const [keywords, setKeywords] = useState('')
 
   const kws = usedKeywords
     ? usedKeywords.split(/[\s,，]+/).map(k => k.trim()).filter(k => k.length >= 2)
     : []
 
-  const handleOpen = () => { if (!loading) setShowInput(true) }
-  const handleCancel = () => { setShowInput(false); setKeywords('') }
-  const handleSubmit = () => { setShowInput(false); onAnalyze(keywords); setKeywords('') }
+  const handleSubmit = () => { onAnalyze(keywords) }
 
   return (
     <section className="mb-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-base font-bold flex items-center gap-2 border-l-4 border-violet-400 pl-3 text-primary">
-          AI 종합 분석
+          AI 전문가 분석
           {kws.length > 0 && (
             <span className="flex gap-1 flex-wrap">
               {kws.map((k, i) => (
@@ -2264,40 +2261,35 @@ function InsightPanel({
             </span>
           )}
         </h3>
-        <button
-          onClick={handleOpen}
-          disabled={loading}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-500 hover:bg-violet-600 disabled:opacity-50 text-white text-xs font-bold transition-colors shadow-sm"
-        >
-          {loading ? '⏳ 분석 중...' : '✨ AI 분석 실행'}
-        </button>
       </div>
 
-      {showInput && (
-        <div className="mb-4 p-4 bg-violet-50 border border-violet-200 rounded-2xl space-y-3">
-          <div>
-            <p className="text-xs font-bold text-violet-700 mb-1">집중 분석 키워드 <span className="font-normal text-violet-400">(선택)</span></p>
-            <p className="text-[11px] text-violet-400 mb-2">특정 기술, 도메인, 강점·우려 사항 등을 입력하면 해당 부분을 중점 분석합니다.</p>
-            <textarea
-              value={keywords}
-              onChange={e => setKeywords(e.target.value)}
-              placeholder="예: Oracle DBA 금융권 성능 최적화, 단기 이직 우려"
-              rows={2}
-              className="w-full text-xs px-3 py-2 rounded-xl border border-violet-200 bg-white resize-none focus:outline-none focus:ring-2 focus:ring-violet-300 text-primary placeholder:text-primary/25"
-              autoFocus
-              onKeyDown={e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) handleSubmit() }}
-            />
-          </div>
-          <div className="flex justify-end gap-2">
-            <button onClick={handleCancel} className="px-3 py-1.5 text-xs font-bold text-primary/50 hover:text-primary transition-colors">취소</button>
-            <button onClick={handleSubmit} className="px-4 py-1.5 text-xs font-bold bg-violet-500 hover:bg-violet-600 text-white rounded-lg transition-colors">분석 시작</button>
-          </div>
+      <div className="mb-4 p-4 bg-violet-50 border border-violet-200 rounded-2xl space-y-3">
+        <div>
+          <p className="text-xs font-bold text-violet-700 mb-1">집중 분석 키워드 <span className="font-normal text-violet-400">(선택)</span></p>
+          <p className="text-[11px] text-violet-400 mb-2">특정 기술, 도메인, 강점·우려 사항 등을 입력하면 해당 부분을 중점 분석합니다.</p>
+          <textarea
+            value={keywords}
+            onChange={e => setKeywords(e.target.value)}
+            placeholder="예: Oracle DBA 금융권 성능 최적화, 단기 이직 우려"
+            rows={2}
+            className="w-full text-xs px-3 py-2 rounded-xl border border-violet-200 bg-white resize-none focus:outline-none focus:ring-2 focus:ring-violet-300 text-primary placeholder:text-primary/25"
+            onKeyDown={e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) handleSubmit() }}
+          />
         </div>
-      )}
+        <div className="flex justify-end">
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-violet-500 hover:bg-violet-600 disabled:opacity-50 text-white text-xs font-bold transition-colors shadow-sm"
+          >
+            {loading ? '⏳ 분석 중...' : '✨ 분석'}
+          </button>
+        </div>
+      </div>
 
-      {!insight && !loading && !showInput && (
+      {!insight && !loading && (
         <div className="bg-surface border border-dashed border-border/50 rounded-2xl p-8 text-center text-primary/30 text-sm">
-          AI 분석 실행 버튼을 눌러 종합 인사이트를 확인하세요.
+          분석 버튼을 눌러 전문가 인사이트를 확인하세요.
         </div>
       )}
 
