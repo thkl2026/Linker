@@ -43,7 +43,7 @@
   - domainNote: 주요 프로젝트가 어느 도메인에 속하는지 분류 근거를 2~3문장으로 서술한다.
 
 4단계: PROJECT 이력 전체의 수행 기간을 구간별로 집계한다 — 데이터에서 직접 계산.
-  - shortProjectCount = 기간이 6개월 미만인 PROJECT 건수 (정확한 개월 수 기준).
+  - shortProjectCount = 기간이 2개월 미만인 PROJECT 건수 (정확한 개월 수 기준).
   - 1년(12개월) 이상 PROJECT 건수도 집계한다.
   - persistenceReason: "전체 PROJECT N건 중 1년 미만 A건, 1년 이상 B건" 문구를 반드시 포함하고 실제 프로젝트명·기간을 1~2개 예시로 인용한다.
 
@@ -122,7 +122,7 @@
 
 ### CONSTRAINTS
 - 수치 계산 원칙: 모든 건수·개월·비율은 experiencesJson에서 직접 계산. 추측·보간·창작 금지.
-- shortProjectCount: PROJECT 이력 중 기간이 6개월 미만인 건수만 (COMPANY·EDUCATION·CERTIFICATION 제외)
+- shortProjectCount: PROJECT 이력 중 기간이 2개월 미만인 건수만 (COMPANY·EDUCATION·CERTIFICATION 제외)
 - persistenceReason: "전체 PROJECT N건 중 1년 미만 A건, 1년 이상 B건" 문구 + 실제 프로젝트명·기간 예시 인용 필수
 - gapPeriods: 3개월 이상 공백만 포함, 없으면 []
 - riskFlags: 해당 없으면 [] / gapPeriods 중 6개월 이상인 구간은 반드시 GAP 타입으로 추가 (6~11개월→MEDIUM, 12개월 이상→HIGH)

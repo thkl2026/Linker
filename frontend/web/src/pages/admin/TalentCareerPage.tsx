@@ -1052,7 +1052,7 @@ function TalentDetailModal({
 
   // ── 개발자 분석 지표 ──────────────────────────────────────────────────────────
   const projectDurations = projectExps.map(expMonths)
-  const shortProjects    = projectExps.filter((_, i) => projectDurations[i] <= 1)
+  const shortProjects    = projectExps.filter((_, i) => projectDurations[i] < 2)
   const avgProjectMonths = projectExps.length > 0
     ? Math.round(projectDurations.reduce((a, b) => a + b, 0) / projectExps.length)
     : 0
@@ -1228,7 +1228,7 @@ function TalentDetailModal({
                       <span className="text-2xl font-bold text-primary">{projectExps.length}<span className="text-sm font-normal text-primary/50 ml-1">건</span></span>
                     </div>
                     <div className={`bg-white border rounded-xl px-4 py-3 flex flex-col gap-1 shadow-sm ${shortProjects.length > 0 ? 'border-amber-300' : 'border-border/50'}`}>
-                      <span className="text-[11px] font-semibold text-primary/40 uppercase tracking-wide">단기(1개월↓) 프로젝트</span>
+                      <span className="text-[11px] font-semibold text-primary/40 uppercase tracking-wide">단기(2개월 미만) 프로젝트</span>
                       <span className={`text-2xl font-bold ${shortProjects.length > 0 ? 'text-amber-500' : 'text-primary'}`}>
                         {shortProjects.length}<span className="text-sm font-normal text-primary/50 ml-1">건</span>
                       </span>
