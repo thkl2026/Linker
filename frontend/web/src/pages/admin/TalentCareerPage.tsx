@@ -3345,7 +3345,7 @@ export function TalentCareerPage() {
       {/* 헤더 */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-primary">전문가 경력 관리</h1>
+          <h1 className="text-2xl font-bold text-primary">전문가 목록</h1>
           <p className="text-sm text-primary/50 mt-0.5">총 {data?.totalElements ?? 0}명</p>
         </div>
         <button onClick={() => setShowCreate(true)}
