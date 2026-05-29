@@ -77,7 +77,7 @@ export function RootLayout() {
     }),
     onSuccess: () => {
       updateUser({
-        name: profileName || user?.name ?? '',
+        name: profileName || (user?.name ?? ''),
         position: profilePosition || undefined,
         department: profileDepartment || undefined,
       })
