@@ -3137,8 +3137,6 @@ export function TalentCareerPage() {
   // 검색
   const [keyword, setKeyword] = useState('')
   const [searchKeyword, setSearchKeyword] = useState('')
-  const [filterCategory, setFilterCategory] = useState<TalentCategory | ''>('')
-  const [filterField, setFilterField] = useState<TalentField | ''>('')
   const [page, setPage] = useState(0)
 
   // 정렬
@@ -3219,11 +3217,9 @@ export function TalentCareerPage() {
   }
 
   const { data, isLoading } = useQuery({
-    queryKey: ['admin', 'talents', searchKeyword, filterCategory, filterField, page, sortBy, sortDir],
+    queryKey: ['admin', 'talents', searchKeyword, page, sortBy, sortDir],
     queryFn: () => serviceAdminApi.listTalents({
       keyword:  searchKeyword || undefined,
-      category: filterCategory || undefined,
-      field:    filterField   || undefined,
       page, size: 20,
       sort: `${sortBy},${sortDir}`,
     }).then(r => r.data),
@@ -3310,7 +3306,6 @@ export function TalentCareerPage() {
   const talents = data?.content ?? []
   const totalPages = data?.totalPages ?? 1
   const selectedTalent = selectedIds.length === 1 ? talents.find(t => t.id === selectedIds[0]) ?? null : null
-  const filterFields: TalentField[] = filterCategory ? TALENT_FIELDS_BY_CATEGORY[filterCategory] : []
 
   const handleDelete = async () => {
     if (selectedIds.length === 0) return
@@ -3355,25 +3350,14 @@ export function TalentCareerPage() {
       </div>
 
       {/* 통합 검색 */}
-      <div className="flex flex-wrap gap-3 mb-4">
-        <input value={keyword} onChange={e => setKeyword(e.target.value)} onKeyDown={e => e.key === 'Enter' && doSearch()}
-          className="flex-1 min-w-[200px] max-w-sm border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50"
-          placeholder="이름, 기술스택으로 검색" />
-        <select value={filterCategory} onChange={e => { setFilterCategory(e.target.value as TalentCategory | ''); setFilterField(''); setPage(0) }}
-          className="border border-border rounded-xl px-4 py-2.5 text-sm text-primary/70 focus:outline-none focus:ring-2 focus:ring-secondary/50">
-          <option value="">전체 분류</option>
-          {(Object.keys(TALENT_CATEGORY_LABELS) as TalentCategory[]).map(c => (
-            <option key={c} value={c}>{TALENT_CATEGORY_LABELS[c]}</option>
-          ))}
-        </select>
-        <select value={filterField} onChange={e => { setFilterField(e.target.value as TalentField | ''); setPage(0) }}
-          disabled={!filterCategory}
-          className="border border-border rounded-xl px-4 py-2.5 text-sm text-primary/70 focus:outline-none focus:ring-2 focus:ring-secondary/50 disabled:opacity-50">
-          <option value="">전체 분야</option>
-          {filterFields.map(f => <option key={f} value={f}>{TALENT_FIELD_LABELS[f]}</option>)}
-        </select>
-        <button onClick={doSearch}
-          className="px-5 py-2.5 rounded-xl bg-surface border border-border text-sm font-medium text-primary/70 hover:bg-border/30">검색</button>
+      <div className="mb-4">
+        <div className="flex items-center border border-border rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-secondary/50 bg-white">
+          <input value={keyword} onChange={e => setKeyword(e.target.value)} onKeyDown={e => e.key === 'Enter' && doSearch()}
+            className="flex-1 px-4 py-2.5 text-sm focus:outline-none bg-transparent"
+            placeholder="이름, 기술스택으로 검색" />
+          <button onClick={doSearch}
+            className="px-5 py-2.5 text-sm font-medium text-primary/70 hover:bg-surface border-l border-border transition-colors shrink-0">검색</button>
+        </div>
       </div>
 
       {/* 그리드 툴바 */}
