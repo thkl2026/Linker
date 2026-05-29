@@ -37,8 +37,8 @@ export const TALENT_CATEGORY_LABELS: Record<TalentCategory, string> = {
   DBA:       'DBA',
   PM:        'PM',
   ANALYST:   '분석/품질',
-  DESIGNER:  '디자이너',
-  PLANNER:   'IT 기획자',
+  DESIGNER:  'UI/UX',
+  PLANNER:   '기획자',
 }
 
 export const TALENT_FIELD_LABELS: Record<TalentField, string> = {
@@ -66,7 +66,7 @@ export const TALENT_FIELD_LABELS: Record<TalentField, string> = {
   UX_PLANNER:         'UX 기획자',
 }
 
-/** Tech stack 입력이 필요한 직군 — PLANNER(IT 기획자)만 제외 */
+/** Tech stack 입력이 필요한 직군 — PLANNER(기획자)만 제외 */
 export const TECH_STACK_CATEGORIES: TalentCategory[] = ['DEVELOPER', 'ARCHITECT', 'DBA', 'PM', 'ANALYST', 'DESIGNER']
 
 export interface TalentSummary {
