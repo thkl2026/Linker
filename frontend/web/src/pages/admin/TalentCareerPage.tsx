@@ -3616,6 +3616,19 @@ export function TalentCareerPage() {
               className="w-full text-left px-4 py-2.5 text-sm text-primary hover:bg-surface transition-colors flex items-center gap-2">
               <span className="text-base">📋</span> 프로젝트 배정
             </button>
+            <div className="border-t border-border/30 my-1" />
+            <button
+              onClick={() => {
+                setOpenDropdownId(null)
+                serviceAdminApi.listExperiences(t.id).then(r => {
+                  const exps = r.data
+                  const months = t.itCareerMonths ?? calcItCareerMonths(exps)
+                  void printCareerCard(t, exps, months)
+                })
+              }}
+              className="w-full text-left px-4 py-2.5 text-sm text-primary hover:bg-surface transition-colors flex items-center gap-2">
+              <span className="text-base">📄</span> PDF 출력
+            </button>
           </div>
         )
       })()}
