@@ -3363,7 +3363,7 @@ export function TalentCareerPage() {
       {/* 그리드 툴바 */}
       <div className="flex items-center justify-between mb-3">
         <span className="text-sm text-primary/50">
-          {selectedIds.length > 0 ? <span className="text-secondary font-semibold">{selectedIds.length}명 선택됨</span> : '행을 선택하세요'}
+          {selectedIds.length > 0 && <span className="text-secondary font-semibold">{selectedIds.length}명 선택됨</span>}
         </span>
         <div className="flex gap-2">
           <button onClick={() => selectedTalent && setDetailTarget(selectedTalent)}
