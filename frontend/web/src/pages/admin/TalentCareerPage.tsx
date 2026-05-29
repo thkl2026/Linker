@@ -3343,10 +3343,22 @@ export function TalentCareerPage() {
           <h1 className="text-2xl font-bold text-primary">전문가 목록</h1>
           <p className="text-sm text-primary/50 mt-0.5">총 {data?.totalElements ?? 0}명</p>
         </div>
-        <button onClick={() => setShowCreate(true)}
-          className="px-5 py-2.5 bg-secondary text-white rounded-xl text-sm font-semibold hover:bg-secondary/90">
-          + 전문가 등록
-        </button>
+        <div className="flex gap-2">
+          <button onClick={() => selectedTalent && setDetailTarget(selectedTalent)}
+            disabled={selectedIds.length !== 1}
+            className="w-28 py-2.5 rounded-xl border border-border text-sm font-semibold text-primary/70 hover:bg-surface disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+            상세조회
+          </button>
+          <button onClick={handleDelete}
+            disabled={selectedIds.length === 0 || deleteMutation.isPending}
+            className="w-28 py-2.5 rounded-xl border border-red-200 text-sm font-semibold text-red-500 hover:bg-red-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+            삭제
+          </button>
+          <button onClick={() => setShowCreate(true)}
+            className="w-28 py-2.5 bg-secondary text-white rounded-xl text-sm font-semibold hover:bg-secondary/90">
+            + 전문가 등록
+          </button>
+        </div>
       </div>
 
       {/* 통합 검색 */}
@@ -3365,18 +3377,6 @@ export function TalentCareerPage() {
         <span className="text-sm text-primary/50">
           {selectedIds.length > 0 && <span className="text-secondary font-semibold">{selectedIds.length}명 선택됨</span>}
         </span>
-        <div className="flex gap-2">
-          <button onClick={() => selectedTalent && setDetailTarget(selectedTalent)}
-            disabled={selectedIds.length !== 1}
-            className="px-4 py-2 rounded-xl border border-border text-sm font-semibold text-primary/70 hover:bg-surface disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
-            상세조회
-          </button>
-          <button onClick={handleDelete}
-            disabled={selectedIds.length === 0 || deleteMutation.isPending}
-            className="px-4 py-2 rounded-xl border border-red-200 text-sm font-semibold text-red-500 hover:bg-red-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
-            삭제
-          </button>
-        </div>
       </div>
 
       {/* 테이블 */}
