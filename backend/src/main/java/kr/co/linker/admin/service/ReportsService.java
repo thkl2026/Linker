@@ -212,7 +212,6 @@ public class ReportsService {
             case PM         -> "PM";
             case ANALYST    -> "DA";
             case DESIGNER   -> "UI/UX";
-            case PLANNER    -> "기획자";
         };
     }
 

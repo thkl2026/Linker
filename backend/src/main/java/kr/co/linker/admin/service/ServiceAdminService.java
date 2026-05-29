@@ -716,7 +716,6 @@ public class ServiceAdminService {
             case PM        -> "PM";
             case ANALYST   -> "DA";
             case DESIGNER  -> "UI/UX";
-            case PLANNER   -> "기획자";
             default        -> "기타";
         };
     }

@@ -7,6 +7,5 @@ public enum TalentCategory {
     DBA,         // 데이터베이스 관리자
     PM,          // 프로젝트 관리
     ANALYST,     // 분석/품질
-    DESIGNER,    // UI/UX
-    PLANNER      // 기획자
+    DESIGNER     // UI/UX
 }
