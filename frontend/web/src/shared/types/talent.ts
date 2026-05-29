@@ -9,6 +9,7 @@ export type TalentField =
   | 'FRONTEND' | 'BACKEND' | 'FULLSTACK' | 'MOBILE' | 'EMBEDDED' | 'DEVOPS'
   // ARCHITECT
   | 'SOLUTION_ARCHITECT' | 'CLOUD_ARCHITECT' | 'DATA_ARCHITECT'
+  | 'TECHNICAL_ARCHITECT' | 'APPLICATION_ARCHITECT'
   // DBA
   | 'RDBMS' | 'NOSQL' | 'DATA_ENGINEER'
   // PM
@@ -23,7 +24,7 @@ export type TalentField =
 /** category → 선택 가능한 field 목록 */
 export const TALENT_FIELDS_BY_CATEGORY: Record<TalentCategory, TalentField[]> = {
   DEVELOPER: ['FRONTEND', 'BACKEND', 'FULLSTACK', 'MOBILE', 'EMBEDDED', 'DEVOPS'],
-  ARCHITECT: ['SOLUTION_ARCHITECT', 'CLOUD_ARCHITECT', 'DATA_ARCHITECT'],
+  ARCHITECT: ['SOLUTION_ARCHITECT', 'TECHNICAL_ARCHITECT', 'APPLICATION_ARCHITECT', 'CLOUD_ARCHITECT', 'DATA_ARCHITECT'],
   DBA:       ['RDBMS', 'NOSQL', 'DATA_ENGINEER'],
   PM:        ['PROJECT_MANAGER', 'PRODUCT_OWNER'],
   ANALYST:   ['BUSINESS_ANALYST', 'DATA_ANALYST', 'QA'],
@@ -48,9 +49,11 @@ export const TALENT_FIELD_LABELS: Record<TalentField, string> = {
   MOBILE:             '모바일',
   EMBEDDED:           '임베디드/펌웨어',
   DEVOPS:             'DevOps/인프라',
-  SOLUTION_ARCHITECT: '솔루션 아키텍트',
-  CLOUD_ARCHITECT:    '클라우드 아키텍트',
-  DATA_ARCHITECT:     '데이터 아키텍트',
+  SOLUTION_ARCHITECT:     '솔루션 아키텍트',
+  TECHNICAL_ARCHITECT:    'Technical Architect',
+  APPLICATION_ARCHITECT:  'Application Architect',
+  CLOUD_ARCHITECT:        '클라우드 아키텍트',
+  DATA_ARCHITECT:         '데이터 아키텍트',
   RDBMS:              'RDBMS',
   NOSQL:              'NoSQL',
   DATA_ENGINEER:      '데이터 엔지니어',

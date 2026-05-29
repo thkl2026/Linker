@@ -11,9 +11,11 @@ public enum TalentField {
     DEVOPS,             // DevOps/인프라
 
     // ARCHITECT
-    SOLUTION_ARCHITECT, // 솔루션 아키텍트
-    CLOUD_ARCHITECT,    // 클라우드 아키텍트
-    DATA_ARCHITECT,     // 데이터 아키텍트
+    SOLUTION_ARCHITECT,     // 솔루션 아키텍트
+    TECHNICAL_ARCHITECT,    // Technical Architect
+    APPLICATION_ARCHITECT,  // Application Architect
+    CLOUD_ARCHITECT,        // 클라우드 아키텍트
+    DATA_ARCHITECT,         // 데이터 아키텍트
 
     // DBA
     RDBMS,              // 관계형 DB 관리자
