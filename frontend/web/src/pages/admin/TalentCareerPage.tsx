@@ -3483,12 +3483,12 @@ export function TalentCareerPage() {
                   <tr key={t.id}
                     onClick={() => handleToggleOne(t.id)}
                     className={`border-b border-border/30 last:border-0 cursor-pointer transition-colors ${checked ? 'bg-secondary/5 border-secondary/20' : 'hover:bg-surface/50'}`}>
-                    <td className="px-4 py-4 text-center" onClick={(e) => e.stopPropagation()}>
+                    <td className="px-4 py-2 text-center" onClick={(e) => e.stopPropagation()}>
                       <input type="checkbox" checked={checked}
                         onChange={() => handleToggleOne(t.id)}
                         className="w-4 h-4 accent-secondary cursor-pointer" />
                     </td>
-                    <td className="px-4 py-4" onClick={e => e.stopPropagation()}>
+                    <td className="px-4 py-2" onClick={e => e.stopPropagation()}>
                       <button
                         onClick={e => handleNameClick(e, t)}
                         className="font-medium text-primary hover:text-secondary hover:underline cursor-pointer flex items-center gap-1">
@@ -3496,8 +3496,8 @@ export function TalentCareerPage() {
                         <span className="text-primary/30 text-[10px]">▾</span>
                       </button>
                     </td>
-                    <td className="px-4 py-4 text-primary/60">{t.phone ? formatPhone(t.phone) : '—'}</td>
-                    <td className="px-2 py-3" onClick={e => e.stopPropagation()}>
+                    <td className="px-4 py-2 text-primary/60">{t.phone ? formatPhone(t.phone) : '—'}</td>
+                    <td className="px-2 py-2" onClick={e => e.stopPropagation()}>
                       <select
                         value={t.referralSource || ''}
                         onChange={e => inlineProfileMutation.mutate({ talent: t, patch: { referralSource: e.target.value || undefined } })}
@@ -3506,30 +3506,31 @@ export function TalentCareerPage() {
                         {referralSources.map(s => <option key={s.name} value={s.name}>{s.name}</option>)}
                       </select>
                     </td>
-                    <td className="px-2 py-3" onClick={e => e.stopPropagation()}>
-                      <div className="flex flex-col gap-0.5">
+                    <td className="px-2 py-2" onClick={e => e.stopPropagation()}>
+                      <div className="flex items-center gap-1">
                         <select
                           value={t.category || ''}
                           onChange={e => inlineProfileMutation.mutate({ talent: t, patch: { category: (e.target.value as TalentCategory) || undefined } })}
                           className="text-xs font-semibold text-primary/70 bg-transparent hover:bg-surface/50 focus:bg-blue-50 focus:ring-1 focus:ring-blue-300 outline-none rounded px-1 py-0.5 cursor-pointer transition-all">
-                          <option value="">분류 선택</option>
+                          <option value="">분류</option>
                           {(Object.keys(TALENT_CATEGORY_LABELS) as TalentCategory[]).map(c => (
                             <option key={c} value={c}>{TALENT_CATEGORY_LABELS[c]}</option>
                           ))}
                         </select>
+                        <span className="text-primary/20 text-xs">/</span>
                         <select
                           value={t.field || ''}
                           onChange={e => inlineProfileMutation.mutate({ talent: t, patch: { field: (e.target.value as TalentField) || undefined } })}
                           disabled={!t.category}
-                          className="text-xs text-primary/40 bg-transparent hover:bg-surface/50 focus:bg-blue-50 focus:ring-1 focus:ring-blue-300 outline-none rounded px-1 py-0.5 cursor-pointer disabled:cursor-default transition-all">
-                          <option value="">분야 선택</option>
+                          className="text-xs text-primary/50 bg-transparent hover:bg-surface/50 focus:bg-blue-50 focus:ring-1 focus:ring-blue-300 outline-none rounded px-1 py-0.5 cursor-pointer disabled:cursor-default transition-all">
+                          <option value="">분야</option>
                           {(t.category ? TALENT_FIELDS_BY_CATEGORY[t.category] : []).map(f => (
                             <option key={f} value={f}>{TALENT_FIELD_LABELS[f]}</option>
                           ))}
                         </select>
                       </div>
                     </td>
-                    <td className="px-4 py-4" onClick={e => e.stopPropagation()}>
+                    <td className="px-4 py-2" onClick={e => e.stopPropagation()}>
                       <div className="relative inline-block" ref={inlineAvailId === t.id ? availDropdownRef : undefined}>
                         <button
                           onClick={() => setInlineAvailId(inlineAvailId === t.id ? null : t.id)}
@@ -3549,7 +3550,7 @@ export function TalentCareerPage() {
                         )}
                       </div>
                     </td>
-                    <td className="px-4 py-4 text-primary/60" onClick={e => { e.stopPropagation(); if (inlineRateId !== t.id) { setInlineRateId(t.id); setInlineRateVal(t.desiredRate ? String(t.desiredRate) : '') } }}>
+                    <td className="px-4 py-2 text-primary/60" onClick={e => { e.stopPropagation(); if (inlineRateId !== t.id) { setInlineRateId(t.id); setInlineRateVal(t.desiredRate ? String(t.desiredRate) : '') } }}>
                       {inlineRateId === t.id ? (
                         <input autoFocus type="number"
                           className="w-28 border border-blue-400 ring-1 ring-blue-400 rounded-lg px-2 py-1 text-sm bg-blue-50 outline-none"
@@ -3564,13 +3565,13 @@ export function TalentCareerPage() {
                         </span>
                       )}
                     </td>
-                    <td className="px-4 py-4">
-                      <div className="flex flex-wrap gap-1 max-w-xs">
-                        {t.skills.slice(0, 4).map(s => (
-                          <span key={s} className="px-2 py-0.5 bg-secondary/10 text-secondary text-xs font-semibold rounded-full">{s}</span>
+                    <td className="px-4 py-2">
+                      <div className="flex items-center gap-1 max-w-xs overflow-hidden">
+                        {t.skills.slice(0, 3).map(s => (
+                          <span key={s} className="px-2 py-0.5 bg-secondary/10 text-secondary text-xs font-semibold rounded-full whitespace-nowrap shrink-0">{s}</span>
                         ))}
-                        {t.skills.length > 4 && (
-                          <span className="px-2 py-0.5 bg-surface text-primary/40 text-xs rounded-full">+{t.skills.length - 4}</span>
+                        {t.skills.length > 3 && (
+                          <span className="px-2 py-0.5 bg-surface text-primary/40 text-xs rounded-full shrink-0">+{t.skills.length - 3}</span>
                         )}
                       </div>
                     </td>
