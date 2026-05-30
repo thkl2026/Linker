@@ -223,10 +223,6 @@ export function ServiceAdminDashboardPage() {
         </div>
         <div className="flex items-center gap-4">
           <HelpButton onClick={() => setShowHelp(true)} />
-          <button className="relative w-10 h-10 rounded-xl bg-white border border-border/50 flex items-center justify-center hover:bg-surface transition-all text-lg">
-            🔔
-            <span className="absolute top-2 right-2 w-2 h-2 bg-danger rounded-full border-2 border-white" />
-          </button>
           <Link to="/app/service-admin/talents"
             className="px-5 py-2.5 bg-primary text-white rounded-xl text-sm font-bold shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
             + 전문가 신규 등록
