@@ -51,7 +51,7 @@ const TABS: { id: Tab; label: string }[] = [
   { id: 'users',         label: '사용자 관리' },
   { id: 'evaluation',    label: '평가 관리' },
   { id: 'master',        label: '마스터 데이터 관리' },
-  { id: 'contractors',   label: '주사업자 관리' },
+  { id: 'contractors',   label: '주사업자' },
   { id: 'referral',      label: '추천기관' },
   { id: 'notifications', label: '알림 규칙 설정' },
   { id: 'smtp',          label: '메일 설정' },
@@ -961,7 +961,7 @@ function ContractorsTab({ initial }: { initial: MasterData }) {
   const inputCls = 'bg-background border border-dashed border-border/50 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-secondary transition-all w-full'
 
   return (
-    <Section title="주사업자 관리" sub="프로젝트에 참여하는 주사업자(원도급) 회사 정보 및 담당자를 관리합니다.">
+    <Section title="주사업자" sub="프로젝트에 참여하는 주사업자(원도급) 회사 정보 및 담당자를 관리합니다.">
       <div className="border border-border/30 rounded-2xl overflow-hidden mb-6">
         <table className="w-full text-sm">
           <thead className="bg-surface text-[11px] font-black text-primary/40 uppercase tracking-wider">
