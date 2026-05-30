@@ -369,9 +369,12 @@ function ProjectEditModal({ project, onClose }: { project: ProjectDetail; onClos
       endDate: form.endDate || null,
       description: form.description || null,
       awardStatus: form.awardStatus || null,
+      awardAmount: form.awardAmount || null,
       contractDate: form.contractDate || null,
       awardNote: form.awardNote || null,
       contractorContact: form.contractorContact || null,
+      budgetMin: form.budgetMin || null,
+      budgetMax: form.budgetMax || null,
     }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['project-detail', project.id] })

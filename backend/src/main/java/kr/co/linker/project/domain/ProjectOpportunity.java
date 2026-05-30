@@ -140,6 +140,16 @@ public class ProjectOpportunity {
         this.workType = workType;
     }
 
+    /** 관리자 전체 수정 — 상태 무관 */
+    public void adminUpdate(String title, String description, BigDecimal budgetMin,
+                            BigDecimal budgetMax, WorkType workType) {
+        this.title = title;
+        this.description = description;
+        this.budgetMin = budgetMin;
+        this.budgetMax = budgetMax;
+        this.workType = workType;
+    }
+
     /** 매칭 완료 상태로 전환 */
     public void markMatched() {
         this.status = ProjectStatus.MATCHED;

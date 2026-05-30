@@ -416,7 +416,7 @@ public class ServiceAdminService {
                 .orElseThrow(() -> new LinkerException(HttpStatus.NOT_FOUND, "PROJECT_NOT_FOUND", "프로젝트를 찾을 수 없습니다."));
         WorkType wt = req.workType() != null ? WorkType.valueOf(req.workType()) : project.getWorkType();
         int headcount = req.requiredHeadcount() != null ? req.requiredHeadcount() : project.getRequiredHeadcount();
-        project.update(req.title(), req.description(), req.budgetMin(), req.budgetMax(), wt);
+        project.adminUpdate(req.title(), req.description(), req.budgetMin(), req.budgetMax(), wt);
         project.updateAdminInfo(req.clientCompany(), req.mainContractor(), headcount, req.startDate(), req.endDate());
         project.updateAwardInfo(req.awardStatus(), req.awardAmount(), req.contractDate(),
                 req.awardNote(), req.contractorContact());
