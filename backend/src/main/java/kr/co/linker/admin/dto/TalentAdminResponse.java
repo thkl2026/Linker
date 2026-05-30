@@ -5,6 +5,8 @@ import kr.co.linker.talent.domain.TalentCategory;
 import kr.co.linker.talent.domain.TalentField;
 import kr.co.linker.talent.domain.TalentProfile;
 import kr.co.linker.talent.domain.WorkType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -36,15 +38,30 @@ public record TalentAdminResponse(
         String photoUrl,
         String resumeUrl
 ) {
+    private static final Logger log = LoggerFactory.getLogger(TalentAdminResponse.class);
+
     public static TalentAdminResponse from(TalentProfile p, String decryptedPhone, String photoUrl, String resumeUrl) {
-        List<String> skillNames = p.getSkills().stream()
-                .map(s -> s.getSkillName())
-                .toList();
+        List<String> skillNames;
+        try {
+            skillNames = p.getSkills().stream().map(s -> s.getSkillName()).toList();
+        } catch (Exception e) {
+            log.warn("[TALENT_RESPONSE] skills load failed id={}: {}", p.getId(), e.getMessage());
+            skillNames = List.of();
+        }
+
+        List<TalentField> secondaryFields;
+        try {
+            secondaryFields = List.copyOf(p.getSecondaryFields());
+        } catch (Exception e) {
+            log.warn("[TALENT_RESPONSE] secondaryFields load failed id={}: {}", p.getId(), e.getMessage());
+            secondaryFields = List.of();
+        }
+
         return new TalentAdminResponse(
                 p.getId(), p.getUserId(), p.getName(), p.getNameEn(),
                 decryptedPhone,
                 p.getCategory(), p.getField(),
-                p.getSecondaryFields(),
+                secondaryFields,
                 p.getAvailabilityStatus(), p.getWorkType(),
                 p.getDesiredRate(), p.getTotalScore(),
                 skillNames,
