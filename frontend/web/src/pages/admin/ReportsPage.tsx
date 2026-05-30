@@ -100,18 +100,17 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 // ── 탭별 콘텐츠 ───────────────────────────────────────────────────────────────
 
 function TalentStatsTab({ data }: { data: TalentReport }) {
-  const { total, available, busy, rest, avgRate, byCategory, byGrade, monthlyNew, topSkills } = data
+  const { total, available, busy, rest, byCategory, byGrade, monthlyNew, topSkills } = data
   const coloredCategory = byCategory.map(d => ({ ...d, color: CATEGORY_COLORS[d.label] ?? 'bg-slate-400' }))
   const coloredGrade    = byGrade.map(d => ({ ...d, color: GRADE_COLORS[d.label] ?? 'bg-slate-400' }))
   return (
     <div className="space-y-5">
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         <KpiCard label="총 등록 전문가" value={total} unit="명" />
         <KpiCard label="투입 가능" value={available} unit="명" color="text-emerald-600"
           sub={total ? `전체의 ${Math.round(available/total*100)}%` : '-'} />
         <KpiCard label="현재 수행 중" value={busy} unit="명" color="text-amber-600"
           sub={total ? `전체의 ${Math.round(busy/total*100)}%` : '-'} />
-        <KpiCard label="평균 희망 단가" value={Math.round(avgRate)} unit="만원/월" />
       </div>
 
       <div className="grid grid-cols-3 gap-5">
