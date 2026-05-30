@@ -3537,7 +3537,7 @@ export function TalentCareerPage() {
                       <div className="relative inline-block" ref={inlineAvailId === t.id ? availDropdownRef : undefined}>
                         <button
                           onClick={() => setInlineAvailId(inlineAvailId === t.id ? null : t.id)}
-                          className={`px-2 py-0.5 rounded-full text-xs font-semibold ${AVAILABILITY_COLORS[t.availabilityStatus]} hover:opacity-80 transition-opacity`}>
+                          className="text-sm text-primary/60 hover:text-primary transition-colors">
                           {AVAILABILITY_LABELS[t.availabilityStatus]}
                         </button>
                         {inlineAvailId === t.id && (
