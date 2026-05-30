@@ -627,7 +627,8 @@ export function ProjectDetailPage() {
   const assignedIds = new Set(project.members.map(m => m.talentId))
   const membersByRole = project.members.reduce<Record<string, ProjectMember[]>>((acc, m) => {
     const key = m.role ?? ''
-    ;(acc[key] ??= []).push(m)
+    if (!acc[key]) acc[key] = []
+    acc[key].push(m)
     return acc
   }, {})
 
