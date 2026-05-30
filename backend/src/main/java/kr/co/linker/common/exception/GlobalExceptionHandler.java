@@ -124,9 +124,12 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleUnexpected(Exception ex) {
-        log.error("[UNEXPECTED_ERROR] {}", ex.getMessage(), ex);
-        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
-                HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다.");
+        log.error("[UNEXPECTED_ERROR] {} | cause: {}", ex.getMessage(), ex.getCause() != null ? ex.getCause().getMessage() : "none", ex);
+        String detail = ex.getMessage() != null ? ex.getMessage() : ex.getClass().getSimpleName();
+        if (ex.getCause() != null && ex.getCause().getMessage() != null) {
+            detail = detail + " | " + ex.getCause().getMessage();
+        }
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, detail);
         problem.setProperty("timestamp", Instant.now());
         return problem;
     }

@@ -174,7 +174,11 @@ public class ServiceAdminService {
         saveExperiences(profile, "PROJECT", req.projectExps());
         saveExperiences(profile, "CERTIFICATION", req.certifications());
 
-        gradeCalculationService.recalculate(profile.getId());
+        try {
+            gradeCalculationService.recalculate(profile.getId());
+        } catch (Exception e) {
+            log.warn("[SERVICE_ADMIN] 등급 재산정 실패 (등록은 계속) talentId={}: {}", profile.getId(), e.getMessage());
+        }
         log.info("[SERVICE_ADMIN] 전문가 등록 talentId={} name={}", profile.getId(), req.name());
         try {
             notificationService.create("TALENT_REGISTERED", "새 전문가 등록",

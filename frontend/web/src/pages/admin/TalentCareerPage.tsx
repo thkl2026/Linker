@@ -3315,8 +3315,13 @@ export function TalentCareerPage() {
       setShowCreate(false)
     },
     onError: (err: unknown) => {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
-      showToast(msg ?? '전문가 등록에 실패했습니다.', 'error')
+      const data = (err as { response?: { data?: Record<string, unknown> } })?.response?.data
+      const detail = data?.detail as string | undefined
+      const fieldErrors = data?.fieldErrors as Record<string, string> | undefined
+      const msg = fieldErrors
+        ? `입력값 오류: ${Object.entries(fieldErrors).map(([k, v]) => `${k}=${v}`).join(', ')}`
+        : (detail ?? '전문가 등록에 실패했습니다.')
+      showToast(msg, 'error')
     },
   })
 
