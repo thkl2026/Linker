@@ -12,12 +12,6 @@ const STATUS_LABELS: Record<ProjectStatus, string> = {
   CANCELLED: '취소',
 }
 
-const STATUS_BADGE: Record<ProjectStatus, string> = {
-  OPEN:      'bg-emerald-50 text-emerald-700 border border-emerald-100',
-  MATCHED:   'bg-blue-50 text-blue-700 border border-blue-100',
-  CLOSED:    'bg-slate-100 text-slate-600 border border-slate-200',
-  CANCELLED: 'bg-red-50 text-red-700 border border-red-100',
-}
 
 function formatDate(d: string | null): string {
   if (!d) return '-'
@@ -63,12 +57,6 @@ export function ProjectManagementPage() {
     setPage(0)
   }
 
-  function handleReset() {
-    setSearchInput('')
-    setKeyword('')
-    setStatusFilter('')
-    setPage(0)
-  }
 
   return (
     <div className="p-8 space-y-8 max-w-[1400px] mx-auto">
