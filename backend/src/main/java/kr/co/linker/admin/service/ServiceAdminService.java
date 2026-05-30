@@ -86,6 +86,8 @@ public class ServiceAdminService {
         Page<TalentProfile> page = (kw == null && category == null && field == null)
                 ? talentProfileRepository.findAllByDeletedAtIsNull(pageable)
                 : talentProfileRepository.search(kw, category, field, pageable);
+        log.info("[SERVICE_ADMIN] listTalents keyword={} category={} field={} -> {}건",
+                kw, category, field, page.getTotalElements());
         return page.map(p -> {
             String photoUrl  = p.getPhotoKey()  != null
                     ? fileStorageService.generateDownloadUrl(p.getPhotoKey(),  java.time.Duration.ofHours(1)) : null;
