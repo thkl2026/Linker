@@ -229,7 +229,7 @@ function AddMemberModal({ projectId, initialRole, techStack, headcount, position
               disabled={selected.size === 0 || assigning}
               className="px-5 py-2 bg-secondary text-white rounded-xl text-sm font-black shadow-lg shadow-secondary/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-40"
             >
-              추천 확정 ({selected.size}명)
+              추천 ({selected.size}명)
             </button>
           </div>
         </div>
@@ -239,7 +239,7 @@ function AddMemberModal({ projectId, initialRole, techStack, headcount, position
       {confirming && (
         <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <div className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-sm mx-4 space-y-4">
-            <h4 className="text-base font-black text-primary">추천 확정</h4>
+            <h4 className="text-base font-black text-primary">추천</h4>
             <p className="text-sm text-primary/70 leading-relaxed">
               <span className="font-bold text-secondary">{selected.size}명</span>을
               {role && <> <span className="font-bold text-primary">{role}</span> 역할로</>} 추천합니다.
@@ -276,7 +276,7 @@ function AddMemberModal({ projectId, initialRole, techStack, headcount, position
               </button>
               <button onClick={handleConfirm} disabled={assigning}
                 className="flex-1 py-2.5 bg-secondary text-white rounded-2xl text-sm font-black shadow-lg shadow-secondary/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-40">
-                {assigning ? '처리 중...' : '확정'}
+                {assigning ? '처리 중...' : '추천'}
               </button>
             </div>
           </div>
