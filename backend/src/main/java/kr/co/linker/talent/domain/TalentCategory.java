@@ -4,8 +4,8 @@ package kr.co.linker.talent.domain;
 public enum TalentCategory {
     DEVELOPER,   // 개발자
     ARCHITECT,   // 아키텍트
-    DBA,         // 데이터베이스 관리자
-    PM,          // 프로젝트 관리
-    ANALYST,     // 분석/품질
+    DATA,        // 데이터
+    SECURITY,    // 보안
+    PM,          // 사업관리
     DESIGNER     // UI/UX
 }

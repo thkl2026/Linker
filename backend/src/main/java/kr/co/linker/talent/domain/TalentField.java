@@ -2,37 +2,46 @@ package kr.co.linker.talent.domain;
 
 /** 전문가 직군 소분류 (category 에 종속) */
 public enum TalentField {
+
     // DEVELOPER
-    FRONTEND,           // 프론트엔드 개발자
-    BACKEND,            // 백엔드 개발자
-    FULLSTACK,          // 풀스택 개발자
-    MOBILE,             // 모바일 개발자
+    FRONTEND,           // 프론트엔드
+    BACKEND,            // 백엔드
+    FULLSTACK,          // 풀스택
+    MOBILE,             // 모바일
     EMBEDDED,           // 임베디드/펌웨어
-    DEVOPS,             // DevOps/인프라
 
     // ARCHITECT
-    SOLUTION_ARCHITECT,     // 솔루션 아키텍트
-    TECHNICAL_ARCHITECT,    // Technical Architect
-    APPLICATION_ARCHITECT,  // Application Architect
-    CLOUD_ARCHITECT,        // 클라우드 아키텍트
-    DATA_ARCHITECT,         // 데이터 아키텍트
+    EA,                 // Enterprise Architect
+    TA_SYSTEM,          // 시스템 TA
+    TA_NETWORK,         // 네트워크 TA
+    TA_CLOUD,           // 클라우드 TA
+    AA,                 // Application Architect
+    SA,                 // Solution Architect
+    DA,                 // Data Architect
 
-    // DBA
-    RDBMS,              // 관계형 DB 관리자
-    NOSQL,              // NoSQL 관리자
+    // DATA
+    DBA_RDBMS,          // DBA (RDBMS)
+    DBA_NOSQL,          // DBA (NoSQL)
     DATA_ENGINEER,      // 데이터 엔지니어
+    DATA_ANALYST,       // 데이터 분석가
+    ML_ENGINEER,        // AI/ML 엔지니어
+
+    // SECURITY
+    ISMS,               // 정보보안/ISMS
+    NETWORK_SEC,        // 네트워크 보안
+    APP_SEC,            // 애플리케이션 보안
+    CLOUD_SEC,          // 클라우드 보안
+    PENTEST,            // 모의해킹/취약점 진단
 
     // PM
-    PROJECT_MANAGER,    // PM
-    PRODUCT_OWNER,      // PO
-
-    // ANALYST
-    BUSINESS_ANALYST,   // BA
-    DATA_ANALYST,       // 데이터 분석가
-    QA,                 // QA 엔지니어
+    PROJECT_MGR,        // PM
+    PMO,                // PMO/사업관리
+    QA,                 // 품질관리
 
     // DESIGNER
-    UI_UX,              // UI/UX 디자이너
-    GRAPHIC,            // 그래픽 디자이너
+    UX_PLANNER,         // 기획자
+    UI_DESIGNER,        // 디자이너
 
+    // 공통
+    ETC                 // 기타
 }

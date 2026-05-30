@@ -207,10 +207,10 @@ public class ReportsService {
         if (c == null) return "기타";
         return switch (c) {
             case DEVELOPER  -> "개발자";
-            case ARCHITECT  -> "AA";
-            case DBA        -> "DBA";
-            case PM         -> "PM";
-            case ANALYST    -> "DA";
+            case ARCHITECT  -> "아키텍트";
+            case DATA       -> "데이터";
+            case SECURITY   -> "보안";
+            case PM         -> "사업관리";
             case DESIGNER   -> "UI/UX";
         };
     }
