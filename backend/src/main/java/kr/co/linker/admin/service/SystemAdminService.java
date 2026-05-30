@@ -1,6 +1,7 @@
 package kr.co.linker.admin.service;
 
 import kr.co.linker.admin.dto.CreateUserRequest;
+import kr.co.linker.admin.dto.UpdateUserRequest;
 import kr.co.linker.admin.dto.UserSummaryResponse;
 import kr.co.linker.auth.domain.User;
 import kr.co.linker.auth.domain.UserRole;
@@ -65,6 +66,16 @@ public class SystemAdminService {
     public void activateUser(UUID userId) {
         findUser(userId).activate();
         log.info("[SYSTEM_ADMIN] 사용자 활성화 userId={}", userId);
+    }
+
+    @Transactional
+    public void updateUser(UUID userId, UpdateUserRequest req) {
+        User user = findUser(userId);
+        user.updateProfile(req.name(), req.position(), req.department());
+        if (req.role() != null) {
+            user.changeRole(req.role());
+        }
+        log.info("[SYSTEM_ADMIN] 사용자 정보 수정 userId={} role={}", userId, req.role());
     }
 
     @Transactional

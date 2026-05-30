@@ -6,6 +6,9 @@ export interface UserSummary {
   id: string
   email: string
   role: ManagedUserRole
+  name: string | null
+  position: string | null
+  department: string | null
   isActive: boolean
   isLocked: boolean
   lastLoginAt: string | null
@@ -16,6 +19,13 @@ export interface CreateUserRequest {
   email: string
   password: string
   role: ManagedUserRole
+}
+
+export interface UpdateUserRequest {
+  name?: string
+  position?: string
+  department?: string
+  role?: ManagedUserRole
 }
 
 export interface SystemDashboardStats {
@@ -49,6 +59,9 @@ export const systemAdminApi = {
 
   activateUser: (id: string) =>
     axiosInstance.put(`/api/v1/system-admin/users/${id}/activate`),
+
+  updateUser: (id: string, req: UpdateUserRequest) =>
+    axiosInstance.put(`/api/v1/system-admin/users/${id}`, req),
 
   resetPassword: (id: string, password: string) =>
     axiosInstance.put(`/api/v1/system-admin/users/${id}/reset-password`, { password }),

@@ -193,6 +193,10 @@ public class User {
         if (department != null) this.department = department.isBlank() ? null : department.trim();
     }
 
+    public void changeRole(UserRole role) {
+        this.role = role;
+    }
+
     public void deactivate() {
         this.isActive = false;
     }

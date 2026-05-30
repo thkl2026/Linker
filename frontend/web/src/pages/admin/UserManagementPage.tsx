@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { systemAdminApi, ManagedUserRole, UserSummary } from '@/shared/api/systemAdminApi'
 import { useUiStore } from '@/store/uiStore'
+
 import { HelpPanel, HelpButton } from '@/shared/components/HelpPanel'
 import { helpUserManagement } from '@/shared/help/helpContent'
 
@@ -123,6 +124,78 @@ function ResetPasswordModal({ user, onClose }: { user: UserSummary; onClose: () 
   )
 }
 
+function EditUserModal({ user, onClose }: { user: UserSummary; onClose: () => void }) {
+  const queryClient = useQueryClient()
+  const showToast = useUiStore(s => s.addToast)
+  const [form, setForm] = useState({
+    name: user.name ?? '',
+    position: user.position ?? '',
+    department: user.department ?? '',
+    role: user.role,
+  })
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: () => systemAdminApi.updateUser(user.id, form),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['system-admin', 'users'] })
+      showToast('사용자 정보가 수정되었습니다.', 'success')
+      onClose()
+    },
+    onError: () => showToast('수정에 실패했습니다.', 'error'),
+  })
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
+        <h2 className="text-xl font-bold text-primary mb-1">사용자 정보 수정</h2>
+        <p className="text-sm text-primary/40 mb-6">{user.email}</p>
+        <div className="space-y-4">
+          <div>
+            <label className="text-sm font-medium text-primary/70 block mb-1">이름</label>
+            <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+              className="w-full border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50"
+              placeholder="홍길동" />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-sm font-medium text-primary/70 block mb-1">직책</label>
+              <input value={form.position} onChange={e => setForm(f => ({ ...f, position: e.target.value }))}
+                className="w-full border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50"
+                placeholder="팀장" />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-primary/70 block mb-1">소속</label>
+              <input value={form.department} onChange={e => setForm(f => ({ ...f, department: e.target.value }))}
+                className="w-full border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50"
+                placeholder="IT본부" />
+            </div>
+          </div>
+          <div>
+            <label className="text-sm font-medium text-primary/70 block mb-1">역할</label>
+            <select value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value as ManagedUserRole }))}
+              className="w-full border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50">
+              <option value="SYSTEM_ADMIN">시스템 관리자</option>
+              <option value="SERVICE_ADMIN">서비스 관리자</option>
+              <option value="PM">PM</option>
+              <option value="PROCUREMENT">구매담당</option>
+            </select>
+          </div>
+        </div>
+        <div className="flex gap-3 mt-8">
+          <button onClick={onClose}
+            className="flex-1 py-2.5 rounded-xl border border-border text-sm font-semibold text-primary/70 hover:bg-surface transition-colors">
+            취소
+          </button>
+          <button onClick={() => mutate()} disabled={isPending || !form.name.trim()}
+            className="flex-1 py-2.5 rounded-xl bg-secondary text-white text-sm font-semibold hover:bg-secondary/90 transition-colors disabled:opacity-50">
+            {isPending ? '저장 중...' : '저장'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 const ROLE_FILTERS: Array<ManagedUserRole | ''> = ['', 'SYSTEM_ADMIN', 'SERVICE_ADMIN', 'PM', 'PROCUREMENT']
 
 export function UserManagementPage() {
@@ -131,6 +204,7 @@ export function UserManagementPage() {
   const [roleFilter, setRoleFilter] = useState<ManagedUserRole | ''>('')
   const [page, setPage] = useState(0)
   const [showCreate, setShowCreate] = useState(false)
+  const [editTarget, setEditTarget] = useState<UserSummary | null>(null)
   const [resetTarget, setResetTarget] = useState<UserSummary | null>(null)
   const [showHelp, setShowHelp] = useState(false)
 
@@ -189,10 +263,11 @@ export function UserManagementPage() {
             <thead className="bg-surface border-b border-border/50">
               <tr>
                 <th className="text-left px-6 py-3 font-semibold text-primary/60">이메일</th>
+                <th className="text-left px-4 py-3 font-semibold text-primary/60">이름</th>
+                <th className="text-left px-4 py-3 font-semibold text-primary/60">소속</th>
                 <th className="text-left px-4 py-3 font-semibold text-primary/60">역할</th>
                 <th className="text-left px-4 py-3 font-semibold text-primary/60">상태</th>
                 <th className="text-left px-4 py-3 font-semibold text-primary/60">최근 로그인</th>
-                <th className="text-left px-4 py-3 font-semibold text-primary/60">가입일</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
@@ -200,6 +275,8 @@ export function UserManagementPage() {
               {users.map(u => (
                 <tr key={u.id} className="border-b border-border/30 last:border-0 hover:bg-surface/50 transition-colors">
                   <td className="px-6 py-4 font-medium text-primary">{u.email}</td>
+                  <td className="px-4 py-4 text-primary/80">{u.name ?? '—'}</td>
+                  <td className="px-4 py-4 text-primary/60 text-sm">{u.department ?? '—'}</td>
                   <td className="px-4 py-4">
                     <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${ROLE_COLORS[u.role]}`}>
                       {ROLE_LABELS[u.role]}
@@ -214,9 +291,12 @@ export function UserManagementPage() {
                     }
                   </td>
                   <td className="px-4 py-4 text-primary/50">{u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleDateString('ko-KR') : '—'}</td>
-                  <td className="px-4 py-4 text-primary/50">{new Date(u.createdAt).toLocaleDateString('ko-KR')}</td>
                   <td className="px-4 py-4">
                     <div className="flex items-center gap-2 justify-end">
+                      <button onClick={() => setEditTarget(u)}
+                        className="text-xs px-3 py-1 rounded-lg border border-secondary/30 text-secondary hover:bg-secondary/5 transition-colors font-medium">
+                        수정
+                      </button>
                       <button onClick={() => toggleActive.mutate(u)}
                         className="text-xs px-3 py-1 rounded-lg border border-border hover:bg-surface transition-colors text-primary/70">
                         {u.isActive ? '비활성화' : '활성화'}
@@ -245,6 +325,7 @@ export function UserManagementPage() {
       )}
 
       {showCreate && <CreateUserModal onClose={() => setShowCreate(false)} />}
+      {editTarget && <EditUserModal user={editTarget} onClose={() => setEditTarget(null)} />}
       {resetTarget && <ResetPasswordModal user={resetTarget} onClose={() => setResetTarget(null)} />}
       <HelpPanel open={showHelp} onClose={() => setShowHelp(false)} content={helpUserManagement} />
     </div>

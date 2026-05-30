@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import kr.co.linker.admin.dto.CreateUserRequest;
+import kr.co.linker.admin.dto.UpdateUserRequest;
 import kr.co.linker.admin.dto.UserSummaryResponse;
 import kr.co.linker.admin.service.SystemAdminService;
 import kr.co.linker.auth.domain.UserRole;
@@ -46,6 +47,14 @@ public class SystemAdminController {
     @PostMapping("/users")
     public ResponseEntity<UUID> createUser(@Valid @RequestBody CreateUserRequest req) {
         return ResponseEntity.status(HttpStatus.CREATED).body(systemAdminService.createUser(req));
+    }
+
+    @Operation(summary = "사용자 정보 수정 (이름·직책·소속·역할)")
+    @PutMapping("/users/{id}")
+    public ResponseEntity<Void> updateUser(@PathVariable UUID id,
+                                           @Valid @RequestBody UpdateUserRequest req) {
+        systemAdminService.updateUser(id, req);
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "사용자 비활성화")
