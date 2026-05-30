@@ -340,7 +340,7 @@ export function ServiceAdminDashboardPage() {
           </div>
         </div>
       </div>
+      <HelpPanel open={showHelp} onClose={() => setShowHelp(false)} content={helpServiceAdminDashboard} />
     </div>
-    <HelpPanel open={showHelp} onClose={() => setShowHelp(false)} content={helpServiceAdminDashboard} />
   )
 }

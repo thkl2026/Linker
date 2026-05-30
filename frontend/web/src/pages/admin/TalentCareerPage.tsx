@@ -3654,7 +3654,7 @@ export function TalentCareerPage() {
           </div>
         )
       })()}
+      <HelpPanel open={showHelp} onClose={() => setShowHelp(false)} content={helpTalentList} />
     </div>
-    <HelpPanel open={showHelp} onClose={() => setShowHelp(false)} content={helpTalentList} />
   )
 }
