@@ -45,142 +45,195 @@ function parseSkills(json: string | null): SkillRow[] {
   try { return JSON.parse(json) } catch { return [] }
 }
 
-// ── Add Member Modal ─────────────────────────────────────────────────────────
+// ── Add Member Modal (multi-select) ──────────────────────────────────────────
 
 interface AddMemberModalProps {
   projectId: string
   initialRole: string
+  headcount: number
+  positionMembers: ProjectMember[]
   assignedIds: Set<string>
   onClose: () => void
 }
 
-function AddMemberModal({ projectId, initialRole, assignedIds, onClose }: AddMemberModalProps) {
+function AddMemberModal({ projectId, initialRole, headcount, positionMembers, assignedIds, onClose }: AddMemberModalProps) {
   const [search, setSearch] = useState('')
   const [role, setRole] = useState(initialRole)
-  const [confirming, setConfirming] = useState<TalentAdmin | null>(null)
+  const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [confirming, setConfirming] = useState(false)
+  const [assigning, setAssigning] = useState(false)
   const qc = useQueryClient()
   const { addToast } = useUiStore()
 
   const { data: talentPage } = useQuery({
     queryKey: ['talent-picker', search],
-    queryFn: () =>
-      serviceAdminApi.listTalents({ keyword: search || undefined, size: 20 }).then(r => r.data),
+    queryFn: () => serviceAdminApi.listTalents({ keyword: search || undefined, size: 30 }).then(r => r.data),
   })
   const talents = talentPage?.content ?? []
+  const remaining = headcount - positionMembers.length
 
-  const assign = useMutation({
-    mutationFn: (t: TalentAdmin) => serviceAdminApi.assignMember(projectId, t.id, role || undefined),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['project-detail', projectId] })
-      qc.invalidateQueries({ queryKey: ['admin-talents'] })
-      addToast('전문가가 배정되었습니다.', 'success')
-      setConfirming(null)
-      onClose()
-    },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    onError: (err: any) => {
-      const msg = err?.response?.data?.message ?? '배정에 실패했습니다.'
-      addToast(msg, 'error')
-      setConfirming(null)
-    },
+  const toggle = (id: string) => setSelected(prev => {
+    const next = new Set(prev)
+    next.has(id) ? next.delete(id) : next.add(id)
+    return next
   })
+
+  const handleConfirm = async () => {
+    const list = talents.filter(t => selected.has(t.id))
+    if (!list.length) return
+    setAssigning(true)
+    const results = await Promise.allSettled(
+      list.map(t => serviceAdminApi.assignMember(projectId, t.id, role || undefined))
+    )
+    const ok = results.filter(r => r.status === 'fulfilled').length
+    const fail = results.length - ok
+    qc.invalidateQueries({ queryKey: ['project-detail', projectId] })
+    qc.invalidateQueries({ queryKey: ['admin-talents'] })
+    if (fail === 0) addToast(`${ok}명 배정 완료.`, 'success')
+    else addToast(`${ok}명 배정 완료 · ${fail}명 실패 (이미 배정됨)`, 'warning')
+    setAssigning(false)
+    onClose()
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-xl mx-4 overflow-hidden">
-        <div className="px-8 py-6 border-b border-border/30 flex items-center justify-between">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-xl mx-4 overflow-hidden flex flex-col max-h-[85vh]">
+
+        {/* Header */}
+        <div className="px-8 py-5 border-b border-border/30 flex items-center justify-between shrink-0">
           <div>
             <h3 className="text-base font-black text-primary">전문가 배정</h3>
-            {initialRole && <p className="text-xs text-primary/40 mt-0.5">역할: {initialRole}</p>}
+            <div className="flex items-center gap-2 mt-0.5">
+              {initialRole && <span className="text-xs text-primary/50 font-bold">{initialRole}</span>}
+              <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                remaining <= 0 ? 'bg-red-50 text-red-500' : 'bg-emerald-50 text-emerald-600'
+              }`}>
+                {positionMembers.length}/{headcount}명 배정 · {remaining > 0 ? `${remaining}자리 남음` : '마감'}
+              </span>
+            </div>
           </div>
           <button onClick={onClose} className="text-primary/30 hover:text-primary text-xl leading-none">✕</button>
         </div>
 
-        <div className="p-6 space-y-4">
+        {/* 이미 배정된 멤버 */}
+        {positionMembers.length > 0 && (
+          <div className="px-6 pt-4 pb-2 shrink-0">
+            <p className="text-[10px] font-black text-primary/30 uppercase mb-2">배정된 멤버</p>
+            <div className="flex flex-wrap gap-2">
+              {positionMembers.map(m => (
+                <span key={m.memberId} className="flex items-center gap-1.5 px-3 py-1 bg-secondary/10 text-secondary text-xs font-bold rounded-full">
+                  {m.talentName}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 검색 */}
+        <div className="px-6 pt-3 pb-2 shrink-0">
           <div className="flex gap-3">
-            <input
-              type="text"
-              placeholder="이름, 기술스택으로 검색..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="flex-1 border border-border/50 rounded-2xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary"
-            />
+            <div className="flex-1 flex items-center bg-gray-100 rounded-2xl px-4 py-2.5 gap-2">
+              <input
+                type="text"
+                placeholder="이름, 기술스택으로 검색..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="flex-1 bg-transparent text-sm placeholder:text-gray-400 focus:outline-none"
+              />
+              <span className="text-gray-400 text-sm">🔍</span>
+            </div>
             <input
               type="text"
               placeholder="역할"
               value={role}
               onChange={e => setRole(e.target.value)}
-              className="w-36 border border-border/50 rounded-2xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary"
+              className="w-28 border border-border/50 rounded-2xl px-3 py-2.5 text-sm focus:outline-none focus:border-secondary"
             />
           </div>
+        </div>
 
-          <div className="max-h-72 overflow-y-auto space-y-2 pr-1">
-            {talents.length === 0 ? (
-              <p className="text-sm text-primary/40 text-center py-8">검색 결과가 없습니다.</p>
-            ) : talents.map(t => {
-              const isAssigned = assignedIds.has(t.id)
-              const isBusy = t.availabilityStatus === 'BUSY'
-              return (
-                <div
-                  key={t.id}
-                  className={`flex items-center gap-4 px-4 py-3 rounded-2xl border transition-all
-                    ${isAssigned ? 'border-border/20 bg-surface/30 opacity-50' :
-                      isBusy ? 'border-amber-100 bg-amber-50/30' :
-                      'border-border/30 hover:border-secondary/50 hover:bg-secondary/5'}`}
-                >
-                  <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-sm font-black text-primary shrink-0">
-                    {displayName(t.name).slice(0, 1)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-primary">{displayName(t.name)}</p>
-                    <p className="text-xs text-primary/50 truncate">
-                      {t.category ? CAT_LABELS[t.category] ?? t.category : '-'} · {t.skills.slice(0, 3).join(', ') || '-'}
-                    </p>
-                  </div>
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
-                    isAssigned ? 'bg-slate-100 text-slate-400' : AVAIL_BADGE[t.availabilityStatus] ?? 'bg-slate-100 text-slate-500'
-                  }`}>
-                    {isAssigned ? '배정됨' : AVAIL_LABELS[t.availabilityStatus] ?? t.availabilityStatus}
-                  </span>
-                  {!isAssigned && (
-                    <button
-                      onClick={() => setConfirming(t)}
-                      disabled={assign.isPending}
-                      className="px-3 py-1.5 bg-secondary text-white text-xs font-black rounded-xl shrink-0 hover:scale-105 active:scale-95 transition-all disabled:opacity-40"
-                    >
-                      배정
-                    </button>
-                  )}
+        {/* 후보자 목록 */}
+        <div className="flex-1 overflow-y-auto px-6 pb-2 space-y-2">
+          {talents.length === 0 ? (
+            <p className="text-sm text-primary/40 text-center py-8">검색 결과가 없습니다.</p>
+          ) : talents.map(t => {
+            const isProjectMember = assignedIds.has(t.id)
+            const isSelected = selected.has(t.id)
+            return (
+              <label
+                key={t.id}
+                className={`flex items-center gap-3 px-4 py-3 rounded-2xl border cursor-pointer transition-all
+                  ${isProjectMember ? 'border-border/20 bg-surface/30 opacity-50 cursor-not-allowed' :
+                    isSelected ? 'border-secondary bg-secondary/5' :
+                    'border-border/30 hover:border-secondary/40 hover:bg-secondary/[0.03]'}`}
+              >
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 accent-secondary shrink-0"
+                  checked={isSelected}
+                  disabled={isProjectMember}
+                  onChange={() => !isProjectMember && toggle(t.id)}
+                />
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-black text-primary shrink-0">
+                  {displayName(t.name).slice(0, 1)}
                 </div>
-              )
-            })}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold text-primary">{displayName(t.name)}</p>
+                  <p className="text-xs text-primary/50 truncate">
+                    {t.category ? CAT_LABELS[t.category] ?? t.category : '-'} · {t.skills.slice(0, 3).join(', ') || '-'}
+                  </p>
+                </div>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
+                  isProjectMember ? 'bg-slate-100 text-slate-400' : AVAIL_BADGE[t.availabilityStatus] ?? 'bg-slate-100 text-slate-500'
+                }`}>
+                  {isProjectMember ? '배정됨' : AVAIL_LABELS[t.availabilityStatus] ?? t.availabilityStatus}
+                </span>
+              </label>
+            )
+          })}
+        </div>
+
+        {/* 푸터 */}
+        <div className="px-6 py-4 border-t border-border/20 flex items-center justify-between shrink-0 bg-gray-50">
+          <span className="text-xs text-primary/50 font-bold">
+            {selected.size > 0 ? `${selected.size}명 선택됨` : '후보자를 선택하세요'}
+          </span>
+          <div className="flex gap-2">
+            <button onClick={onClose}
+              className="px-4 py-2 border border-border/50 rounded-xl text-sm font-bold text-primary/50 hover:bg-white transition-all">
+              취소
+            </button>
+            <button
+              onClick={() => setConfirming(true)}
+              disabled={selected.size === 0 || assigning}
+              className="px-5 py-2 bg-secondary text-white rounded-xl text-sm font-black shadow-lg shadow-secondary/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-40"
+            >
+              배정 확정 ({selected.size}명)
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Confirm dialog */}
+      {/* 확인 다이얼로그 */}
       {confirming && (
         <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-sm mx-4 space-y-5">
+          <div className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-sm mx-4 space-y-4">
             <h4 className="text-base font-black text-primary">배정 확정</h4>
             <p className="text-sm text-primary/70 leading-relaxed">
-              <span className="font-bold text-primary">{displayName(confirming.name)}</span> 전문가를
-              {role && <> <span className="font-bold text-secondary">{role}</span> 역할로</>} 배정합니다.<br />
-              <span className="text-amber-600 font-bold text-xs mt-1 block">배정 후 해당 전문가의 가용 상태가 '진행중'으로 변경됩니다.</span>
+              <span className="font-bold text-secondary">{selected.size}명</span>을
+              {role && <> <span className="font-bold text-primary">{role}</span> 역할로</>} 배정합니다.
             </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setConfirming(null)}
-                className="flex-1 py-2.5 border border-border/50 rounded-2xl text-sm font-bold text-primary/50 hover:bg-surface transition-all"
-              >
+            <p className="text-xs text-amber-600 font-bold bg-amber-50 px-3 py-2 rounded-xl">
+              배정된 전문가의 가용 상태가 '진행중'으로 변경됩니다.
+            </p>
+            <div className="flex gap-3 pt-1">
+              <button onClick={() => setConfirming(false)}
+                className="flex-1 py-2.5 border border-border/50 rounded-2xl text-sm font-bold text-primary/50 hover:bg-surface transition-all">
                 취소
               </button>
-              <button
-                onClick={() => assign.mutate(confirming)}
-                disabled={assign.isPending}
-                className="flex-1 py-2.5 bg-secondary text-white rounded-2xl text-sm font-black shadow-lg shadow-secondary/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-40"
-              >
-                {assign.isPending ? '처리 중...' : '확정'}
+              <button onClick={handleConfirm} disabled={assigning}
+                className="flex-1 py-2.5 bg-secondary text-white rounded-2xl text-sm font-black shadow-lg shadow-secondary/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-40">
+                {assigning ? '처리 중...' : '확정'}
               </button>
             </div>
           </div>
@@ -438,18 +491,30 @@ function SkillEditModal({ initial, onSave, onClose }: {
 
 // ── Skill Row with Assign/Edit/Delete ─────────────────────────────────────────
 
-function SkillRowItem({ skill, onAssign, onEdit, onDelete }: {
+function SkillRowItem({ skill, positionMembers, onAssign, onEdit, onDelete }: {
   skill: SkillRow
+  positionMembers: ProjectMember[]
   onAssign: (role: string) => void
   onEdit: () => void
   onDelete: () => void
 }) {
+  const filled = positionMembers.length
+  const total = skill.headcount
+  const isFull = filled >= total
+
   return (
     <div className="flex items-start gap-4 p-4 rounded-2xl bg-surface/50 border border-border/20 hover:border-border/40 transition-all group">
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-3 flex-wrap">
           <span className="text-sm font-bold text-primary">{skill.role}</span>
-          <span className="text-xs text-primary/50">{skill.headcount}명</span>
+          {/* 배정 현황 뱃지 */}
+          <span className={`text-xs font-black px-2 py-0.5 rounded-full ${
+            isFull ? 'bg-emerald-50 text-emerald-600' :
+            filled > 0 ? 'bg-amber-50 text-amber-600' :
+            'bg-gray-100 text-gray-400'
+          }`}>
+            {filled}/{total}명
+          </span>
           {skill.mm != null && skill.mm > 0 && <span className="text-xs text-primary/40">{skill.mm} MM</span>}
           {skill.roleStart && (
             <span className="text-xs text-primary/30">{fmt(skill.roleStart)} ~ {fmt(skill.roleEnd ?? null)}</span>
@@ -457,6 +522,17 @@ function SkillRowItem({ skill, onAssign, onEdit, onDelete }: {
         </div>
         {skill.techStack && (
           <p className="text-xs text-primary/40 mt-1">{skill.techStack}</p>
+        )}
+        {/* 배정된 멤버 미니 목록 */}
+        {positionMembers.length > 0 && (
+          <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+            {positionMembers.map(m => (
+              <span key={m.memberId}
+                className="flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 bg-secondary/10 text-secondary rounded-full">
+                {m.talentName}
+              </span>
+            ))}
+          </div>
         )}
       </div>
       <div className="flex items-center gap-1.5 shrink-0">
@@ -472,9 +548,13 @@ function SkillRowItem({ skill, onAssign, onEdit, onDelete }: {
         </button>
         <button
           onClick={() => onAssign(skill.role)}
-          className="px-3 py-1.5 bg-primary/5 hover:bg-secondary hover:text-white text-primary text-xs font-black rounded-xl border border-border/30 hover:border-secondary transition-all"
+          className={`px-3 py-1.5 text-xs font-black rounded-xl border transition-all ${
+            isFull
+              ? 'bg-emerald-50 text-emerald-600 border-emerald-100 hover:bg-secondary hover:text-white hover:border-secondary'
+              : 'bg-primary/5 hover:bg-secondary hover:text-white text-primary border-border/30 hover:border-secondary'
+          }`}
         >
-          배정
+          {isFull ? '배정 완료' : '+ 배정'}
         </button>
       </div>
     </div>
@@ -546,6 +626,11 @@ export function ProjectDetailPage() {
 
   const skills = parseSkills(project.requiredSkills)
   const assignedIds = new Set(project.members.map(m => m.talentId))
+  const membersByRole = project.members.reduce<Record<string, ProjectMember[]>>((acc, m) => {
+    const key = m.role ?? ''
+    ;(acc[key] ??= []).push(m)
+    return acc
+  }, {})
 
   return (
     <div className="p-8 space-y-6 max-w-[1200px] mx-auto">
@@ -660,6 +745,7 @@ export function ProjectDetailPage() {
                   <SkillRowItem
                     key={i}
                     skill={s}
+                    positionMembers={membersByRole[s.role] ?? []}
                     onAssign={setModalRole}
                     onEdit={() => setSkillEditIndex(i)}
                     onDelete={() => {
@@ -725,6 +811,8 @@ export function ProjectDetailPage() {
         <AddMemberModal
           projectId={id!}
           initialRole={modalRole}
+          headcount={skills.find(s => s.role === modalRole)?.headcount ?? 1}
+          positionMembers={membersByRole[modalRole] ?? []}
           assignedIds={assignedIds}
           onClose={() => setModalRole(null)}
         />
