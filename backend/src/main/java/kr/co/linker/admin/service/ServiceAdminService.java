@@ -85,7 +85,10 @@ public class ServiceAdminService {
         String kw = (keyword == null || keyword.isBlank()) ? null : keyword;
         Page<TalentProfile> page = (kw == null && category == null && field == null)
                 ? talentProfileRepository.findAllByDeletedAtIsNull(pageable)
-                : talentProfileRepository.search(kw, category, field, pageable);
+                : talentProfileRepository.search(kw,
+                        category != null ? category.name() : null,
+                        field != null ? field.name() : null,
+                        pageable);
         log.info("[SERVICE_ADMIN] listTalents keyword={} category={} field={} -> {}건",
                 kw, category, field, page.getTotalElements());
         return page.map(p -> {
@@ -535,7 +538,7 @@ public class ServiceAdminService {
         String kw = (keyword == null || keyword.isBlank()) ? null : keyword;
         Page<TalentProfile> talents = (kw == null && category == null)
                 ? talentProfileRepository.findAllByDeletedAtIsNull(pageable)
-                : talentProfileRepository.search(kw, category, null, pageable);
+                : talentProfileRepository.search(kw, category != null ? category.name() : null, null, pageable);
 
         java.util.Map<UUID, Object[]> statsMap = new java.util.HashMap<>();
         peerReviewRepository.findAvgScoreAndCountGroupedByTalent()

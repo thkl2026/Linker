@@ -1,8 +1,6 @@
 package kr.co.linker.talent.repository;
 
 import kr.co.linker.talent.domain.AvailabilityStatus;
-import kr.co.linker.talent.domain.TalentCategory;
-import kr.co.linker.talent.domain.TalentField;
 import kr.co.linker.talent.domain.TalentProfile;
 import kr.co.linker.talent.domain.WorkType;
 import org.springframework.data.domain.Page;
@@ -41,20 +39,35 @@ public interface TalentProfileRepository extends JpaRepository<TalentProfile, UU
     /**
      * 통합 검색: 이름 또는 기술스택명 포함, category/field 필터 (null 이면 전체)
      */
-    @Query("""
-            SELECT DISTINCT t FROM TalentProfile t
-            LEFT JOIN t.skills s
-            WHERE t.deletedAt IS NULL
+    /**
+     * 통합 검색 — 네이티브 쿼리(문자열 컬럼 직접 비교)로 category/field 필터를 처리한다.
+     * AttributeConverter 파라미터 바인딩 이슈를 우회하고, 결과 엔티티는 컨버터로 안전하게 하이드레이션된다.
+     */
+    @Query(value = """
+            SELECT DISTINCT t.* FROM talent_profiles t
+            LEFT JOIN talent_skills s ON s.talent_id = t.id
+            WHERE t.deleted_at IS NULL
               AND (:keyword IS NULL OR
-                   LOWER(t.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
-                   LOWER(s.skillName) LIKE LOWER(CONCAT('%', :keyword, '%')))
-              AND (:category IS NULL OR t.category = :category)
-              AND (:field IS NULL OR t.field = :field)
-            """)
+                   LOWER(t.name) LIKE LOWER(CONCAT('%', CAST(:keyword AS text), '%')) OR
+                   LOWER(s.skill_name) LIKE LOWER(CONCAT('%', CAST(:keyword AS text), '%')))
+              AND (CAST(:category AS text) IS NULL OR t.category = CAST(:category AS text))
+              AND (CAST(:field AS text) IS NULL OR t.field = CAST(:field AS text))
+            """,
+            countQuery = """
+            SELECT COUNT(DISTINCT t.id) FROM talent_profiles t
+            LEFT JOIN talent_skills s ON s.talent_id = t.id
+            WHERE t.deleted_at IS NULL
+              AND (:keyword IS NULL OR
+                   LOWER(t.name) LIKE LOWER(CONCAT('%', CAST(:keyword AS text), '%')) OR
+                   LOWER(s.skill_name) LIKE LOWER(CONCAT('%', CAST(:keyword AS text), '%')))
+              AND (CAST(:category AS text) IS NULL OR t.category = CAST(:category AS text))
+              AND (CAST(:field AS text) IS NULL OR t.field = CAST(:field AS text))
+            """,
+            nativeQuery = true)
     Page<TalentProfile> search(
             @Param("keyword") String keyword,
-            @Param("category") TalentCategory category,
-            @Param("field") TalentField field,
+            @Param("category") String category,
+            @Param("field") String field,
             Pageable pageable
     );
 
