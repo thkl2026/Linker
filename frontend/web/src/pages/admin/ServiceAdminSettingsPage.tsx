@@ -287,60 +287,10 @@ function ActivityLogModal({ inv, onClose }: { inv: InvitedUser; onClose: () => v
   )
 }
 
-const ROLE_LABEL_KO: Record<string, string> = {
-  TALENT: '전문가', PM: 'PM', PROCUREMENT: '기업 담당자', SERVICE_ADMIN: '서비스 관리자',
-}
-
 function UserDetailModal({ inv, onClose }: { inv: InvitedUser; onClose: () => void }) {
-  const fmt = (s: string | null) => s ? s.slice(0, 16).replace('T', ' ') : '—'
-  const rows: { label: string; value: string }[] = [
-    { label: '이메일',      value: inv.email },
-    { label: '이름',        value: inv.name || '—' },
-    { label: '전화번호',     value: inv.phone || '—' },
-    { label: '소속',        value: inv.company || '—' },
-    { label: '유형',        value: ROLE_LABEL_KO[inv.role] ?? inv.role },
-    { label: '가입 상태',    value: STATUS_LABEL[inv.status] ?? inv.status },
-    { label: '초대일',      value: fmt(inv.invitedAt) },
-    { label: '가입 완료일',   value: fmt(inv.acceptedAt) },
-    { label: '계정 생성일',   value: fmt(inv.accountCreatedAt) },
-    { label: '마지막 로그인', value: fmt(inv.lastLoginAt) },
-    { label: '마지막 접속 IP', value: inv.lastLoginIp ?? '—' },
-  ]
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm" onClick={onClose}>
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 border border-border/30" onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-black tracking-tight">사용자 상세 정보</h3>
-          <button onClick={onClose} className="text-xl text-primary/30 hover:text-primary">&times;</button>
-        </div>
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white font-black text-base shrink-0">
-            {inv.email.slice(0, 2).toUpperCase()}
-          </div>
-          <div>
-            <p className="text-sm font-black text-primary">{inv.name || inv.email.split('@')[0]}</p>
-            <p className="text-xs text-primary/40">{inv.email}</p>
-          </div>
-        </div>
-        <div className="border-t border-border/10 pt-4 space-y-3">
-          {rows.map(({ label, value }) => (
-            <div key={label} className="flex justify-between items-center gap-4">
-              <span className="text-xs text-primary/40 font-medium shrink-0">{label}</span>
-              <span className="text-xs text-primary/80 font-bold text-right break-all">{value}</span>
-            </div>
-          ))}
-        </div>
-        <button onClick={onClose} className="mt-6 w-full py-2.5 rounded-2xl border border-border/50 text-sm font-bold text-primary/60 hover:bg-primary/5 transition-all">
-          닫기
-        </button>
-      </div>
-    </div>
-  )
-}
-
-function EditUserModal({ inv, onClose }: { inv: InvitedUser; onClose: () => void }) {
   const { addToast } = useUiStore()
   const qc = useQueryClient()
+  const fmt = (s: string | null) => s ? s.slice(0, 16).replace('T', ' ') : '—'
   const [form, setForm] = useState({
     name: inv.name ?? '',
     company: inv.company ?? '',
@@ -357,11 +307,35 @@ function EditUserModal({ inv, onClose }: { inv: InvitedUser; onClose: () => void
     onError: () => addToast('수정에 실패했습니다.', 'error'),
   })
 
+  // 읽기 전용 항목
+  const readonlyRows: { label: string; value: string }[] = [
+    { label: '가입 상태',     value: STATUS_LABEL[inv.status] ?? inv.status },
+    { label: '전화번호',      value: inv.phone || '—' },
+    { label: '초대일',       value: fmt(inv.invitedAt) },
+    { label: '가입 완료일',    value: fmt(inv.acceptedAt) },
+    { label: '계정 생성일',    value: fmt(inv.accountCreatedAt) },
+    { label: '마지막 로그인',  value: fmt(inv.lastLoginAt) },
+    { label: '마지막 접속 IP', value: inv.lastLoginIp ?? '—' },
+  ]
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm" onClick={onClose}>
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 border border-border/30" onClick={e => e.stopPropagation()}>
-        <h3 className="text-lg font-black tracking-tight mb-1">사용자 정보 수정</h3>
-        <p className="text-xs text-primary/40 mb-6">{inv.email}</p>
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 border border-border/30 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg font-black tracking-tight">사용자 상세 정보</h3>
+          <button onClick={onClose} className="text-xl text-primary/30 hover:text-primary">&times;</button>
+        </div>
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white font-black text-base shrink-0">
+            {inv.email.slice(0, 2).toUpperCase()}
+          </div>
+          <div className="min-w-0">
+            <p className="text-sm font-black text-primary truncate">{form.name || inv.email.split('@')[0]}</p>
+            <p className="text-xs text-primary/40 truncate">{inv.email}</p>
+          </div>
+        </div>
+
+        {/* 편집 가능 필드 */}
         <div className="space-y-4">
           <div>
             <label className="text-xs font-bold text-primary/50 block mb-1">이름</label>
@@ -386,10 +360,21 @@ function EditUserModal({ inv, onClose }: { inv: InvitedUser; onClose: () => void
             </select>
           </div>
         </div>
+
+        {/* 읽기 전용 정보 */}
+        <div className="border-t border-border/10 mt-6 pt-4 space-y-3">
+          {readonlyRows.map(({ label, value }) => (
+            <div key={label} className="flex justify-between items-center gap-4">
+              <span className="text-xs text-primary/40 font-medium shrink-0">{label}</span>
+              <span className="text-xs text-primary/80 font-bold text-right break-all">{value}</span>
+            </div>
+          ))}
+        </div>
+
         <div className="flex gap-3 mt-8">
           <button onClick={onClose}
             className="flex-1 py-2.5 rounded-2xl border border-border/50 text-sm font-bold text-primary/60 hover:bg-primary/5 transition-all">
-            취소
+            닫기
           </button>
           <button onClick={() => mutate()} disabled={isPending}
             className="flex-1 py-2.5 rounded-2xl bg-secondary text-white text-sm font-bold hover:bg-secondary/90 transition-all disabled:opacity-50">
@@ -406,7 +391,6 @@ function UsersTab() {
   const [company, setCompany] = useState('')
   const [role,    setRole]    = useState('TALENT')
   const [activityTarget, setActivityTarget] = useState<InvitedUser | null>(null)
-  const [editTarget, setEditTarget] = useState<InvitedUser | null>(null)
   const [detailTarget, setDetailTarget] = useState<InvitedUser | null>(null)
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const { addToast } = useUiStore()
@@ -467,7 +451,7 @@ function UsersTab() {
           onClick={() => selectedUser && setDetailTarget(selectedUser)}
           disabled={selectedIds.length !== 1}
           className="px-5 py-2.5 rounded-xl border border-border text-sm font-semibold text-primary/70 hover:bg-surface disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
-          상세조회
+          상세정보
         </button>
       }
     >
@@ -571,7 +555,7 @@ function UsersTab() {
                     </div>
                   ) : (
                     <div className="flex items-center justify-end gap-3">
-                      <button onClick={() => setEditTarget(inv)} className="text-xs font-bold text-secondary hover:underline transition-all">
+                      <button onClick={() => setDetailTarget(inv)} className="text-xs font-bold text-secondary hover:underline transition-all">
                         수정
                       </button>
                       <button onClick={() => setActivityTarget(inv)} className="text-xs font-bold text-primary/30 hover:text-primary transition-all">
@@ -639,9 +623,6 @@ function UsersTab() {
 
     {activityTarget && (
       <ActivityLogModal inv={activityTarget} onClose={() => setActivityTarget(null)} />
-    )}
-    {editTarget && (
-      <EditUserModal inv={editTarget} onClose={() => setEditTarget(null)} />
     )}
     {detailTarget && (
       <UserDetailModal inv={detailTarget} onClose={() => setDetailTarget(null)} />
