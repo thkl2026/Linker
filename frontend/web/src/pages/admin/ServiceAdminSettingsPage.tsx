@@ -554,14 +554,9 @@ function UsersTab() {
                       </button>
                     </div>
                   ) : (
-                    <div className="flex items-center justify-end gap-3">
-                      <button onClick={() => setDetailTarget(inv)} className="text-xs font-bold text-secondary hover:underline transition-all">
-                        수정
-                      </button>
-                      <button onClick={() => setActivityTarget(inv)} className="text-xs font-bold text-primary/30 hover:text-primary transition-all">
-                        활동 로그
-                      </button>
-                    </div>
+                    <button onClick={() => setActivityTarget(inv)} className="text-xs font-bold text-primary/30 hover:text-primary transition-all">
+                      활동 로그
+                    </button>
                   )}
                 </td>
               </tr>
