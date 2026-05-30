@@ -363,7 +363,7 @@ function categorizeTechStack(stack: string[]) {
 function envRow(label: string, items: string[]) {
   if (!items.length) return ''
   return `<div style="display:flex;gap:10px;margin-bottom:3px;font-size:12px;">
-    <span style="width:58px;flex-shrink:0;color:#b45309;font-weight:700;padding-top:1px;">${label}</span>
+    <span style="width:58px;flex-shrink:0;padding-top:1px;">${label}</span>
     <span style="color:#1e293b;">${items.join(', ')}</span>
   </div>`
 }

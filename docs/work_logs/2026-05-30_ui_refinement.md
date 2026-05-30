@@ -115,7 +115,21 @@ Linker 시스템의 UI를 개선하기 위한 종합 작업.
 
 ---
 
-## 5. Git 커밋
+## 6. TalentCareerPage - 개발환경 구분 색상 제거
+
+**변경 파일**: `frontend/web/src/pages/admin/TalentCareerPage.tsx`
+
+**변경 사항**:
+- `envRow` 함수에서 `label`에 적용되던 `color:#b45309;` 및 `font-weight:700;` 스타일 제거.
+- "개발언어", "DBMS", "WEB/WAS", "개발도구" 등의 레이블 색상 및 볼드 스타일 제거.
+
+**변경 라인**: 390 근처
+
+**타입 검증**: ✅ TypeScript 컴파일 에러 없음
+
+---
+
+## 7. Git 커밋
 
 ### Commit 1: 초기 UI 개선
 ```
@@ -142,6 +156,12 @@ commit: Change modal title to '후보 추천' and add requirement-based filterin
 - Updated all related labels and UI text
 ```
 
+### Commit 4: 개발환경 구분 색상 제거 (최신)
+```
+commit: style: remove color from development environment categories
+- Removed color and bold styling from '개발언어', 'DBMS', 'WEB/WAS', '개발도구' labels in TalentCareerPage's envRow function.
+```
+
 ---
 
 ## 변경 요약 테이블
@@ -155,6 +175,7 @@ commit: Change modal title to '후보 추천' and add requirement-based filterin
 | 5 | ProjectDetailPage.tsx | 개발자 필터링 로직 추가 | ✅ 완료 |
 | 6 | TalentCareerPage.tsx | 가용 상태 컬럼 제거 | ✅ 완료 |
 | 7 | ServiceAdminDashboardPage.tsx | 도넛 차트 시각화 개선 | ✅ 완료 |
+| 8 | TalentCareerPage.tsx | 개발환경 구분 색상 제거 | ✅ 완료 |
 
 ---
 
@@ -164,6 +185,7 @@ commit: Change modal title to '후보 추천' and add requirement-based filterin
 - ✅ 컴포넌트 무결성: 기존 컴포넌트 계약 위반 없음
 - ✅ UI/UX 일관성: 용어 통일, 레이아웃 개선
 - ✅ 기능 추가: 개발자 역할 필터링 구현 완료
+- ✅ 스타일 변경: 개발환경 구분 색상 제거 확인
 
 ---
 
