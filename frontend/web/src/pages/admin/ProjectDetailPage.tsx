@@ -6,7 +6,6 @@ import { useUiStore } from '@/store/uiStore'
 import {
   serviceAdminApi,
   type ProjectStatus,
-  type TalentAdmin,
   type ProjectMember,
   type ProjectDetail,
   type UpdateProjectRequest,
