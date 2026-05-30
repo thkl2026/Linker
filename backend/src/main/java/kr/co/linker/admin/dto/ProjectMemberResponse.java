@@ -13,5 +13,6 @@ public record ProjectMemberResponse(
         TalentCategory category,
         AvailabilityStatus availabilityStatus,
         String skills,
-        String assignedAt
+        String assignedAt,
+        boolean confirmed
 ) {}

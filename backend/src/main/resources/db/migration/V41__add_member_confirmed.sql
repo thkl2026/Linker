@@ -1,0 +1,3 @@
+ALTER TABLE project_members
+    ADD COLUMN IF NOT EXISTS confirmed      BOOLEAN      NOT NULL DEFAULT FALSE,
+    ADD COLUMN IF NOT EXISTS confirmed_at   TIMESTAMPTZ;

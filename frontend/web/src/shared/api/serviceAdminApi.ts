@@ -29,6 +29,7 @@ export interface ProjectMember {
   availabilityStatus: AvailabilityStatus | null
   skills: string
   assignedAt: string | null
+  confirmed: boolean
 }
 
 export interface ProjectDetail extends ProjectAdmin {
@@ -480,6 +481,9 @@ export const serviceAdminApi = {
 
   removeMember: (projectId: string, memberId: string) =>
     axiosInstance.delete(`/api/v1/service-admin/projects/${projectId}/members/${memberId}`),
+
+  confirmMember: (projectId: string, memberId: string) =>
+    axiosInstance.patch(`/api/v1/service-admin/projects/${projectId}/members/${memberId}/confirm`),
 
   updateProjectSkills: (projectId: string, requiredSkills: string) =>
     axiosInstance.patch(`/api/v1/service-admin/projects/${projectId}/skills`, { requiredSkills }),

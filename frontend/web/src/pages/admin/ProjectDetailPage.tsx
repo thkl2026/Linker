@@ -264,19 +264,41 @@ function AddMemberModal({ projectId, initialRole, techStack, headcount, position
 
 function MemberRow({ member, projectId }: { member: ProjectMember; projectId: string }) {
   const qc = useQueryClient()
+  const { addToast } = useUiStore()
+
   const remove = useMutation({
     mutationFn: () => serviceAdminApi.removeMember(projectId, member.memberId),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['project-detail', projectId] }),
   })
 
+  const confirm = useMutation({
+    mutationFn: () => serviceAdminApi.confirmMember(projectId, member.memberId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['project-detail', projectId] })
+      addToast(`${member.talentName} 투입 확정되었습니다.`, 'success')
+    },
+    onError: () => addToast('확정 처리에 실패했습니다.', 'error'),
+  })
+
   return (
-    <div className="flex h-full flex-col justify-between gap-4 rounded-2xl border border-border/20 bg-surface/30 p-5 shadow-sm transition-all hover:border-border/50">
+    <div className={`flex h-full flex-col justify-between gap-4 rounded-2xl border p-5 shadow-sm transition-all ${
+      member.confirmed
+        ? 'border-emerald-200 bg-emerald-50/40 hover:border-emerald-300'
+        : 'border-border/20 bg-surface/30 hover:border-border/50'
+    }`}>
       <div className="flex items-start gap-4">
-        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-black text-primary shrink-0">
+        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-black shrink-0 ${
+          member.confirmed ? 'bg-emerald-100 text-emerald-700' : 'bg-primary/10 text-primary'
+        }`}>
           {member.talentName.slice(0, 1)}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold text-primary">{member.talentName}</p>
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-bold text-primary">{member.talentName}</p>
+            {member.confirmed && (
+              <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700">확정</span>
+            )}
+          </div>
           <p className="text-xs text-primary/50 truncate">
             {member.role || (member.category ? CAT_LABELS[member.category] ?? member.category : '-')}
           </p>
@@ -286,20 +308,32 @@ function MemberRow({ member, projectId }: { member: ProjectMember; projectId: st
         </div>
       </div>
 
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-2">
         {member.availabilityStatus ? (
           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${AVAIL_BADGE[member.availabilityStatus] ?? 'bg-slate-100 text-slate-500'}`}>
             {AVAIL_LABELS[member.availabilityStatus] ?? member.availabilityStatus}
           </span>
         ) : <div />}
-        <button
-          onClick={() => remove.mutate()}
-          disabled={remove.isPending}
-          className="text-primary/20 hover:text-red-500 transition-colors shrink-0 disabled:opacity-40"
-          title="추천 취소"
-        >
-          ✕
-        </button>
+        <div className="flex items-center gap-1.5">
+          {!member.confirmed && (
+            <button
+              onClick={() => confirm.mutate()}
+              disabled={confirm.isPending}
+              className="px-2.5 py-1 text-[10px] font-black rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 disabled:opacity-40 transition-all"
+              title="투입 확정"
+            >
+              확정
+            </button>
+          )}
+          <button
+            onClick={() => remove.mutate()}
+            disabled={remove.isPending}
+            className="text-primary/20 hover:text-red-500 transition-colors shrink-0 disabled:opacity-40"
+            title="추천 취소"
+          >
+            ✕
+          </button>
+        </div>
       </div>
     </div>
   )

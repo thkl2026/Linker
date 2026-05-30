@@ -31,11 +31,21 @@ public class ProjectMember {
     @CreationTimestamp
     private OffsetDateTime assignedAt;
 
+    @Column(nullable = false)
+    private boolean confirmed = false;
+
+    private OffsetDateTime confirmedAt;
+
     public static ProjectMember assign(UUID projectId, UUID talentId, String role) {
         ProjectMember m = new ProjectMember();
         m.projectId = projectId;
         m.talentId = talentId;
         m.role = role;
         return m;
+    }
+
+    public void confirm() {
+        this.confirmed = true;
+        this.confirmedAt = OffsetDateTime.now();
     }
 }

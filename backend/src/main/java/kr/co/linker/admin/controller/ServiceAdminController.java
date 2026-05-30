@@ -203,6 +203,13 @@ public class ServiceAdminController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "추천 멤버 투입 확정")
+    @PatchMapping("/projects/{id}/members/{memberId}/confirm")
+    public ResponseEntity<Void> confirmMember(@PathVariable UUID id, @PathVariable UUID memberId) {
+        serviceAdminService.confirmMember(id, memberId);
+        return ResponseEntity.noContent().build();
+    }
+
     @Operation(summary = "프로젝트 텍스트 AI 분석 — 메일·메신저 내용으로 폼 자동 입력")
     @PostMapping("/projects/analyze")
     public ResponseEntity<ProjectAnalysisResult> analyzeProjectText(
