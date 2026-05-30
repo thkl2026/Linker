@@ -70,6 +70,8 @@ function AddMemberModal({ projectId, initialRole, techStack, headcount, position
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [confirming, setConfirming] = useState(false)
   const [assigning, setAssigning] = useState(false)
+  const [proposedPrice, setProposedPrice] = useState<string>('')
+  const [talentSalary, setTalentSalary] = useState<string>('')
   const qc = useQueryClient()
   const { addToast } = useUiStore()
 
@@ -99,8 +101,10 @@ function AddMemberModal({ projectId, initialRole, techStack, headcount, position
     const list = talents.filter(t => selected.has(t.id))
     if (!list.length) return
     setAssigning(true)
+    const pp = proposedPrice ? Number(proposedPrice) : null
+    const ts = talentSalary ? Number(talentSalary) : null
     const results = await Promise.allSettled(
-      list.map(t => serviceAdminApi.assignMember(projectId, t.id, role || undefined))
+      list.map(t => serviceAdminApi.assignMember(projectId, t.id, role || undefined, pp, ts))
     )
     const ok = results.filter(r => r.status === 'fulfilled').length
     const fail = results.length - ok
@@ -240,6 +244,28 @@ function AddMemberModal({ projectId, initialRole, techStack, headcount, position
               <span className="font-bold text-secondary">{selected.size}명</span>을
               {role && <> <span className="font-bold text-primary">{role}</span> 역할로</>} 추천합니다.
             </p>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-[11px] font-black text-primary/40 uppercase mb-1">주사업자 제안 가격 (원/월)</label>
+                <input
+                  type="number"
+                  value={proposedPrice}
+                  onChange={e => setProposedPrice(e.target.value)}
+                  placeholder="예: 6000000"
+                  className="w-full border border-border/50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-black text-primary/40 uppercase mb-1">후보자 월 급여 (원/월)</label>
+                <input
+                  type="number"
+                  value={talentSalary}
+                  onChange={e => setTalentSalary(e.target.value)}
+                  placeholder="예: 5000000"
+                  className="w-full border border-border/50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary"
+                />
+              </div>
+            </div>
             <p className="text-xs text-amber-600 font-bold bg-amber-50 px-3 py-2 rounded-xl">
               배정된 전문가의 가용 상태가 '진행중'으로 변경됩니다.
             </p>
@@ -302,9 +328,23 @@ function MemberRow({ member, projectId }: { member: ProjectMember; projectId: st
           <p className="text-xs text-primary/50 truncate">
             {member.role || (member.category ? CAT_LABELS[member.category] ?? member.category : '-')}
           </p>
-          <p className="text-[11px] text-primary/40 mt-2 line-clamp-2">
+          <p className="text-[11px] text-primary/40 mt-1 line-clamp-2">
             {member.skills ? member.skills.split(', ').slice(0, 3).join(', ') : '기술 정보 없음'}
           </p>
+          {(member.proposedPrice || member.talentSalary) && (
+            <div className="flex gap-2 mt-1.5 flex-wrap">
+              {member.proposedPrice && (
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-50 text-blue-600">
+                  제안 {member.proposedPrice.toLocaleString()}원
+                </span>
+              )}
+              {member.talentSalary && (
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-50 text-amber-600">
+                  급여 {member.talentSalary.toLocaleString()}원
+                </span>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -704,6 +744,7 @@ function SkillRowItem({ skill, positionMembers, onAssign, onEdit, onDelete }: {
         {skill.workLocation && (
           <p className="text-xs text-primary/40 mt-0.5">📍 {skill.workLocation}</p>
         )}
+
         {/* 배정된 멤버 미니 목록 */}
         {positionMembers.length > 0 && (
           <div className="flex items-center gap-1.5 mt-2 flex-wrap">

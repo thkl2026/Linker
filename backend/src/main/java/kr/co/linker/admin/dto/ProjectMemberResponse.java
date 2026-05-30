@@ -3,6 +3,7 @@ package kr.co.linker.admin.dto;
 import kr.co.linker.talent.domain.AvailabilityStatus;
 import kr.co.linker.talent.domain.TalentCategory;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 public record ProjectMemberResponse(
@@ -14,5 +15,7 @@ public record ProjectMemberResponse(
         AvailabilityStatus availabilityStatus,
         String skills,
         String assignedAt,
-        boolean confirmed
+        boolean confirmed,
+        BigDecimal proposedPrice,
+        BigDecimal talentSalary
 ) {}

@@ -36,11 +36,20 @@ public class ProjectMember {
 
     private OffsetDateTime confirmedAt;
 
-    public static ProjectMember assign(UUID projectId, UUID talentId, String role) {
+    /** 주사업자 제안 가격 (원/월) */
+    private java.math.BigDecimal proposedPrice;
+
+    /** 후보자 월 급여 (원/월) */
+    private java.math.BigDecimal talentSalary;
+
+    public static ProjectMember assign(UUID projectId, UUID talentId, String role,
+                                       java.math.BigDecimal proposedPrice, java.math.BigDecimal talentSalary) {
         ProjectMember m = new ProjectMember();
         m.projectId = projectId;
         m.talentId = talentId;
         m.role = role;
+        m.proposedPrice = proposedPrice;
+        m.talentSalary = talentSalary;
         return m;
     }
 

@@ -685,7 +685,8 @@ public class ServiceAdminService {
         if (projectMemberRepository.existsByProjectIdAndTalentId(projectId, req.talentId())) {
             throw new LinkerException(HttpStatus.CONFLICT, "ALREADY_ASSIGNED", "이미 배정된 전문가입니다.");
         }
-        ProjectMember member = ProjectMember.assign(projectId, req.talentId(), req.role());
+        ProjectMember member = ProjectMember.assign(projectId, req.talentId(), req.role(),
+                req.proposedPrice(), req.talentSalary());
         projectMemberRepository.save(member);
         talent.updateAvailability(AvailabilityStatus.BUSY, project.getEndDate());
         log.info("[SERVICE_ADMIN] 멤버 배정 projectId={} talentId={} → BUSY until {}",
@@ -738,7 +739,9 @@ public class ServiceAdminService {
                             t != null ? t.getAvailabilityStatus() : null,
                             skills,
                             m.getAssignedAt() != null ? m.getAssignedAt().toString() : null,
-                            m.isConfirmed()
+                            m.isConfirmed(),
+                            m.getProposedPrice(),
+                            m.getTalentSalary()
                     );
                 }).toList();
     }

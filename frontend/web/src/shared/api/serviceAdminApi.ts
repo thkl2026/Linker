@@ -30,6 +30,8 @@ export interface ProjectMember {
   skills: string
   assignedAt: string | null
   confirmed: boolean
+  proposedPrice: number | null
+  talentSalary: number | null
 }
 
 export interface ProjectDetail extends ProjectAdmin {
@@ -476,8 +478,8 @@ export const serviceAdminApi = {
   updateProject: (id: string, req: UpdateProjectRequest) =>
     axiosInstance.put<void>(`/api/v1/service-admin/projects/${id}`, req),
 
-  assignMember: (projectId: string, talentId: string, role?: string) =>
-    axiosInstance.post<string>(`/api/v1/service-admin/projects/${projectId}/members`, { talentId, role }),
+  assignMember: (projectId: string, talentId: string, role?: string, proposedPrice?: number | null, talentSalary?: number | null) =>
+    axiosInstance.post<string>(`/api/v1/service-admin/projects/${projectId}/members`, { talentId, role, proposedPrice: proposedPrice ?? null, talentSalary: talentSalary ?? null }),
 
   removeMember: (projectId: string, memberId: string) =>
     axiosInstance.delete(`/api/v1/service-admin/projects/${projectId}/members/${memberId}`),
