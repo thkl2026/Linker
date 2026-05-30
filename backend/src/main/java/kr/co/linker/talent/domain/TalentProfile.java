@@ -52,11 +52,11 @@ public class TalentProfile {
     /** 연락처 — AES-256-GCM 암호화 */
     private String phone;
 
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = TalentCategoryConverter.class)
     @Column(length = 20)
     private TalentCategory category;
 
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = TalentFieldConverter.class)
     @Column(length = 30)
     private TalentField field;
 
@@ -144,8 +144,8 @@ public class TalentProfile {
 
     @ElementCollection
     @CollectionTable(name = "talent_secondary_fields", joinColumns = @JoinColumn(name = "talent_id"))
+    @Convert(converter = TalentFieldConverter.class)
     @Column(name = "field", length = 30)
-    @Enumerated(EnumType.STRING)
     private List<TalentField> secondaryFields = new ArrayList<>();
 
     @OneToMany(mappedBy = "talentProfile", cascade = CascadeType.ALL, orphanRemoval = true)
