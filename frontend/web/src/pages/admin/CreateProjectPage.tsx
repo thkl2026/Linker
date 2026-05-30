@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { serviceAdminApi, type AdminCreateProjectRequest, type PmUser, type ProjectAnalysisResult } from '@/shared/api/serviceAdminApi'
+import { serviceAdminApi, type AdminCreateProjectRequest, type PmUser } from '@/shared/api/serviceAdminApi'
 import { settingsApi } from '@/shared/api/settingsApi'
 import { useUiStore } from '@/store/uiStore'
 
