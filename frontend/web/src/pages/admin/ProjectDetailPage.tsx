@@ -57,13 +57,14 @@ function parseSkills(json: string | null): SkillRow[] {
 interface AddMemberModalProps {
   projectId: string
   initialRole: string
+  techStack?: string
   headcount: number
   positionMembers: ProjectMember[]
   assignedIds: Set<string>
   onClose: () => void
 }
 
-function AddMemberModal({ projectId, initialRole, headcount, positionMembers, assignedIds, onClose }: AddMemberModalProps) {
+function AddMemberModal({ projectId, initialRole, techStack, headcount, positionMembers, assignedIds, onClose }: AddMemberModalProps) {
   const [search, setSearch] = useState('')
   const [role, setRole] = useState(initialRole)
   const [selected, setSelected] = useState<Set<string>>(new Set())
@@ -76,8 +77,17 @@ function AddMemberModal({ projectId, initialRole, headcount, positionMembers, as
     queryKey: ['talent-picker', search],
     queryFn: () => serviceAdminApi.listTalents({ keyword: search || undefined, size: 30 }).then(r => r.data),
   })
-  const talents = talentPage?.content ?? []
+  const allTalents = talentPage?.content ?? []
   const remaining = headcount - positionMembers.length
+
+  // 필터링: 역할이 "개발자"이고 techStack이 있으면 기술 매칭만 표시
+  const talents = role && role.includes('개발자') && techStack
+    ? allTalents.filter(t => {
+        const requiredTechs = techStack.split(',').map(s => s.trim().toLowerCase())
+        const talentTechs = t.skills.map(s => s.toLowerCase())
+        return requiredTechs.some(req => talentTechs.some(tal => tal.includes(req) || req.includes(tal)))
+      })
+    : allTalents
 
   const toggle = (id: string) => setSelected(prev => {
     const next = new Set(prev)
@@ -109,23 +119,23 @@ function AddMemberModal({ projectId, initialRole, headcount, positionMembers, as
         {/* Header */}
         <div className="px-8 py-5 border-b border-border/30 flex items-center justify-between shrink-0">
           <div>
-            <h3 className="text-base font-black text-primary">전문가 배정</h3>
+            <h3 className="text-base font-black text-primary">후보 추천</h3>
             <div className="flex items-center gap-2 mt-0.5">
               {initialRole && <span className="text-xs text-primary/50 font-bold">{initialRole}</span>}
               <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
                 remaining <= 0 ? 'bg-red-50 text-red-500' : 'bg-emerald-50 text-emerald-600'
               }`}>
-                {positionMembers.length}/{headcount}명 배정 · {remaining > 0 ? `${remaining}자리 남음` : '마감'}
+                {positionMembers.length}/{headcount}명 추천 · {remaining > 0 ? `${remaining}자리 남음` : '마감'}
               </span>
             </div>
           </div>
           <button onClick={onClose} className="text-primary/30 hover:text-primary text-xl leading-none">✕</button>
         </div>
 
-        {/* 이미 배정된 멤버 */}
+        {/* 이미 추천된 멤버 */}
         {positionMembers.length > 0 && (
           <div className="px-6 pt-4 pb-2 shrink-0">
-            <p className="text-[10px] font-black text-primary/30 uppercase mb-2">배정된 멤버</p>
+            <p className="text-[10px] font-black text-primary/30 uppercase mb-2">추천된 멤버</p>
             <div className="flex flex-wrap gap-2">
               {positionMembers.map(m => (
                 <span key={m.memberId} className="flex items-center gap-1.5 px-3 py-1 bg-secondary/10 text-secondary text-xs font-bold rounded-full">
@@ -193,7 +203,7 @@ function AddMemberModal({ projectId, initialRole, headcount, positionMembers, as
                 <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
                   isProjectMember ? 'bg-slate-100 text-slate-400' : AVAIL_BADGE[t.availabilityStatus] ?? 'bg-slate-100 text-slate-500'
                 }`}>
-                  {isProjectMember ? '배정됨' : AVAIL_LABELS[t.availabilityStatus] ?? t.availabilityStatus}
+                  {isProjectMember ? '이미추천' : AVAIL_LABELS[t.availabilityStatus] ?? t.availabilityStatus}
                 </span>
               </label>
             )
@@ -215,7 +225,7 @@ function AddMemberModal({ projectId, initialRole, headcount, positionMembers, as
               disabled={selected.size === 0 || assigning}
               className="px-5 py-2 bg-secondary text-white rounded-xl text-sm font-black shadow-lg shadow-secondary/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-40"
             >
-              배정 확정 ({selected.size}명)
+              추천 확정 ({selected.size}명)
             </button>
           </div>
         </div>
@@ -225,10 +235,10 @@ function AddMemberModal({ projectId, initialRole, headcount, positionMembers, as
       {confirming && (
         <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <div className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-sm mx-4 space-y-4">
-            <h4 className="text-base font-black text-primary">배정 확정</h4>
+            <h4 className="text-base font-black text-primary">추천 확정</h4>
             <p className="text-sm text-primary/70 leading-relaxed">
               <span className="font-bold text-secondary">{selected.size}명</span>을
-              {role && <> <span className="font-bold text-primary">{role}</span> 역할로</>} 배정합니다.
+              {role && <> <span className="font-bold text-primary">{role}</span> 역할로</>} 추천합니다.
             </p>
             <p className="text-xs text-amber-600 font-bold bg-amber-50 px-3 py-2 rounded-xl">
               배정된 전문가의 가용 상태가 '진행중'으로 변경됩니다.
@@ -560,7 +570,7 @@ function SkillEditModal({ initial, onSave, onClose }: {
 function SkillRowItem({ skill, positionMembers, onAssign, onEdit, onDelete }: {
   skill: SkillRow
   positionMembers: ProjectMember[]
-  onAssign: (role: string) => void
+  onAssign: (role: string, techStack: string) => void
   onEdit: () => void
   onDelete: () => void
 }) {
@@ -613,7 +623,7 @@ function SkillRowItem({ skill, positionMembers, onAssign, onEdit, onDelete }: {
           ✕
         </button>
         <button
-          onClick={() => onAssign(skill.role)}
+          onClick={() => onAssign(skill.role, skill.techStack || '')}
           className={`px-3 py-1.5 text-xs font-black rounded-xl border transition-all ${
             isFull
               ? 'bg-emerald-50 text-emerald-600 border-emerald-100 hover:bg-secondary hover:text-white hover:border-secondary'
@@ -642,6 +652,7 @@ export function ProjectDetailPage() {
   const qc = useQueryClient()
   const { addToast } = useUiStore()
   const [modalRole, setModalRole] = useState<string | null>(null)
+  const [modalTechStack, setModalTechStack] = useState<string>('')
   const [statusMenuOpen, setStatusMenuOpen] = useState(false)
   const statusMenuRef = useRef<HTMLDivElement>(null)
   // null = 닫힘, -1 = 신규 추가, 0+ = 편집 대상 인덱스
@@ -843,7 +854,10 @@ export function ProjectDetailPage() {
                   key={i}
                   skill={s}
                   positionMembers={membersByRole[s.role] ?? []}
-                  onAssign={setModalRole}
+                  onAssign={(role, techStack) => {
+                    setModalRole(role)
+                    setModalTechStack(techStack)
+                  }}
                   onEdit={() => setSkillEditIndex(i)}
                   onDelete={() => {
                     const next = skills.filter((_, idx) => idx !== i)
@@ -906,10 +920,14 @@ export function ProjectDetailPage() {
         <AddMemberModal
           projectId={id!}
           initialRole={modalRole}
+          techStack={modalTechStack}
           headcount={skills.find(s => s.role === modalRole)?.headcount ?? 1}
           positionMembers={membersByRole[modalRole] ?? []}
           assignedIds={assignedIds}
-          onClose={() => setModalRole(null)}
+          onClose={() => {
+            setModalRole(null)
+            setModalTechStack('')
+          }}
         />
       )}
 

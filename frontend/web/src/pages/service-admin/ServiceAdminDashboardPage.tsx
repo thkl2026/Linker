@@ -63,7 +63,7 @@ function Doughnut({ segs, centerValue, centerLabel }: {
   centerLabel?: string
 }) {
   const r = 72
-  const sw = 28
+  const sw = 30
   const circ = 2 * Math.PI * r
 
   const arcs = segs.reduce<(DoughnutSeg & { dash: number; cumOffset: number })[]>((acc, s) => {
@@ -101,13 +101,13 @@ function Doughnut({ segs, centerValue, centerLabel }: {
         )
       })}
       {centerValue != null && <>
-        <text x="100" y="95" textAnchor="middle" fontSize="9" fontWeight="700" fill="#a0855a" letterSpacing="0.5">
+        <text x="100" y="82" textAnchor="middle" fontSize="9" fontWeight="700" fill="#a0855a" letterSpacing="0.5">
           {centerLabel ?? '전체'}
         </text>
-        <text x="100" y="118" textAnchor="middle" fontSize="26" fontWeight="900" fill="#451A03">
+        <text x="100" y="100" textAnchor="middle" dominantBaseline="middle" fontSize="26" fontWeight="900" fill="#451A03">
           {centerValue.toLocaleString()}
         </text>
-        <text x="100" y="131" textAnchor="middle" fontSize="11" fontWeight="700" fill="#B45309">명</text>
+        <text x="100" y="118" textAnchor="middle" fontSize="11" fontWeight="700" fill="#B45309">명</text>
       </>}
     </svg>
   )

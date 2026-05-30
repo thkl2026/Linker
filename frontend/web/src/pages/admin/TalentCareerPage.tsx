@@ -3192,7 +3192,6 @@ export function TalentCareerPage() {
   const [assignTarget, setAssignTarget] = useState<TalentAdmin | null>(null)
 
   // 그리드 인라인 편집
-  const [inlineAvailId, setInlineAvailId] = useState<string | null>(null)
   const [inlineRateId, setInlineRateId] = useState<string | null>(null)
   const [inlineRateVal, setInlineRateVal] = useState('')
 
@@ -3207,22 +3206,11 @@ export function TalentCareerPage() {
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null)
   const [dropdownPos, setDropdownPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 })
   const dropdownRef = useRef<HTMLDivElement>(null)
-  const availDropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setOpenDropdownId(null)
-      }
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [])
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (availDropdownRef.current && !availDropdownRef.current.contains(e.target as Node)) {
-        setInlineAvailId(null)
       }
     }
     document.addEventListener('mousedown', handler)
@@ -3262,17 +3250,6 @@ export function TalentCareerPage() {
       page, size: 20,
       sort: `${sortBy},${sortDir}`,
     }).then(r => r.data),
-  })
-
-  const inlineAvailMutation = useMutation({
-    mutationFn: ({ id, status }: { id: string; status: AvailabilityStatus }) =>
-      serviceAdminApi.updateAvailability(id, status),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['admin', 'talents'] })
-      showToast('가용 상태가 변경되었습니다.', 'success')
-      setInlineAvailId(null)
-    },
-    onError: () => showToast('상태 변경에 실패했습니다.', 'error'),
   })
 
   const inlineRateMutation = useMutation({
@@ -3467,10 +3444,6 @@ export function TalentCareerPage() {
                   className="text-left px-4 py-3 font-semibold text-primary/60 cursor-pointer hover:text-primary select-none">
                   분류 / 분야<SortIcon col="category" />
                 </th>
-                <th onClick={() => handleSort('availabilityStatus')}
-                  className="text-left px-4 py-3 font-semibold text-primary/60 cursor-pointer hover:text-primary select-none">
-                  가용 상태<SortIcon col="availabilityStatus" />
-                </th>
                 <th onClick={() => handleSort('desiredRate')}
                   className="text-left px-4 py-3 font-semibold text-primary/60 cursor-pointer hover:text-primary select-none">
                   월단가(원)<SortIcon col="desiredRate" />
@@ -3507,50 +3480,6 @@ export function TalentCareerPage() {
                         <option value="">—</option>
                         {referralSources.map(s => <option key={s.name} value={s.name}>{s.name}</option>)}
                       </select>
-                    </td>
-                    <td className="px-2 py-[0.55rem]" onClick={e => e.stopPropagation()}>
-                      <div className="flex items-center gap-1">
-                        <select
-                          value={t.category || ''}
-                          onChange={e => inlineProfileMutation.mutate({ talent: t, patch: { category: (e.target.value as TalentCategory) || undefined } })}
-                          className="text-xs font-semibold text-primary/70 bg-transparent hover:bg-surface/50 focus:bg-blue-50 focus:ring-1 focus:ring-blue-300 outline-none rounded px-1 py-0.5 cursor-pointer transition-all">
-                          <option value="">분류</option>
-                          {(Object.keys(TALENT_CATEGORY_LABELS) as TalentCategory[]).map(c => (
-                            <option key={c} value={c}>{TALENT_CATEGORY_LABELS[c]}</option>
-                          ))}
-                        </select>
-                        <span className="text-primary/20 text-xs">/</span>
-                        <select
-                          value={t.field || ''}
-                          onChange={e => inlineProfileMutation.mutate({ talent: t, patch: { field: (e.target.value as TalentField) || undefined } })}
-                          disabled={!t.category}
-                          className="text-xs text-primary/50 bg-transparent hover:bg-surface/50 focus:bg-blue-50 focus:ring-1 focus:ring-blue-300 outline-none rounded px-1 py-0.5 cursor-pointer disabled:cursor-default transition-all">
-                          <option value="">분야</option>
-                          {(t.category ? TALENT_FIELDS_BY_CATEGORY[t.category] : []).map(f => (
-                            <option key={f} value={f}>{TALENT_FIELD_LABELS[f]}</option>
-                          ))}
-                        </select>
-                      </div>
-                    </td>
-                    <td className="px-4 py-[0.55rem]" onClick={e => e.stopPropagation()}>
-                      <div className="relative inline-block" ref={inlineAvailId === t.id ? availDropdownRef : undefined}>
-                        <button
-                          onClick={() => setInlineAvailId(inlineAvailId === t.id ? null : t.id)}
-                          className="text-sm text-primary/60 hover:text-primary transition-colors">
-                          {AVAILABILITY_LABELS[t.availabilityStatus]}
-                        </button>
-                        {inlineAvailId === t.id && (
-                          <div className="absolute top-full left-0 mt-1 z-30 bg-white rounded-xl shadow-xl border border-border/50 p-2 min-w-[130px]">
-                            {(['AVAILABLE', 'BUSY', 'REST'] as AvailabilityStatus[]).map(s => (
-                              <button key={s} disabled={inlineAvailMutation.isPending}
-                                onClick={() => inlineAvailMutation.mutate({ id: t.id, status: s })}
-                                className={`w-full text-left px-2 py-1.5 rounded-lg text-xs font-semibold transition-colors hover:bg-surface ${t.availabilityStatus === s ? 'opacity-40 cursor-default' : ''}`}>
-                                <span className={`px-2 py-0.5 rounded-full ${AVAILABILITY_COLORS[s]}`}>{AVAILABILITY_LABELS[s]}</span>
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
                     </td>
                     <td className="px-4 py-[0.55rem] text-primary/60" onClick={e => { e.stopPropagation(); if (inlineRateId !== t.id) { setInlineRateId(t.id); setInlineRateVal(t.desiredRate ? String(t.desiredRate) : '') } }}>
                       {inlineRateId === t.id ? (
