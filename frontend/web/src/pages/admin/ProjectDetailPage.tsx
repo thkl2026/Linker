@@ -316,6 +316,9 @@ const WORK_TYPE_OPTIONS = [
 function ProjectEditModal({ project, onClose }: { project: ProjectDetail; onClose: () => void }) {
   const qc = useQueryClient()
   const { addToast } = useUiStore()
+  const [aiText, setAiText] = useState('')
+  const [aiOpen, setAiOpen] = useState(false)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [form, setForm] = useState<UpdateProjectRequest>({
     title: project.title,
     clientCompany: project.clientCompany ?? '',
@@ -336,6 +339,26 @@ function ProjectEditModal({ project, onClose }: { project: ProjectDetail; onClos
 
   const set = <K extends keyof UpdateProjectRequest>(k: K, v: UpdateProjectRequest[K]) =>
     setForm(f => ({ ...f, [k]: v }))
+
+  const handleAiAnalyze = async () => {
+    if (!aiText.trim()) return
+    setIsAnalyzing(true)
+    try {
+      const { data } = await serviceAdminApi.analyzeProjectText(aiText)
+      if (data.title)          set('title',          data.title)
+      if (data.clientCompany)  set('clientCompany',  data.clientCompany)
+      if (data.mainContractor) set('mainContractor', data.mainContractor)
+      if (data.startDate)      set('startDate',      data.startDate)
+      if (data.endDate)        set('endDate',        data.endDate)
+      setAiText('')
+      setAiOpen(false)
+      addToast('AI 분석 완료. 내용을 확인 후 저장하세요.', 'success')
+    } catch {
+      addToast('AI 분석에 실패했습니다.', 'error')
+    } finally {
+      setIsAnalyzing(false)
+    }
+  }
 
   const save = useMutation({
     mutationFn: () => serviceAdminApi.updateProject(project.id, {
@@ -367,6 +390,42 @@ function ProjectEditModal({ project, onClose }: { project: ProjectDetail; onClos
           <button onClick={onClose} className="text-primary/30 hover:text-primary text-xl leading-none">✕</button>
         </div>
         <div className="p-8 overflow-y-auto space-y-4">
+
+          {/* AI 추가 분석 */}
+          <div className="rounded-2xl border border-secondary/20 bg-secondary/5 overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setAiOpen(v => !v)}
+              className="w-full flex items-center justify-between px-4 py-3 text-left"
+            >
+              <span className="text-xs font-black text-secondary flex items-center gap-2">
+                ✨ AI 추가 분석 — 텍스트 붙여넣기로 자동 입력
+              </span>
+              <span className="text-secondary text-xs">{aiOpen ? '▲' : '▼'}</span>
+            </button>
+            {aiOpen && (
+              <div className="px-4 pb-4 space-y-2">
+                <textarea
+                  value={aiText}
+                  onChange={e => setAiText(e.target.value)}
+                  rows={4}
+                  placeholder="메일이나 메신저로 받은 프로젝트 내역을 붙여넣으세요."
+                  className="w-full border border-border/50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary resize-none bg-white"
+                />
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={handleAiAnalyze}
+                    disabled={isAnalyzing || !aiText.trim()}
+                    className="px-5 py-2 bg-secondary text-white rounded-xl text-xs font-black hover:opacity-90 disabled:opacity-40 transition-all"
+                  >
+                    {isAnalyzing ? 'AI 분석 중...' : 'AI로 정리하기'}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
           <div>
             <label className="block text-[11px] font-black text-primary/40 uppercase mb-1">프로젝트명 *</label>
             <input value={form.title} onChange={e => set('title', e.target.value)}
