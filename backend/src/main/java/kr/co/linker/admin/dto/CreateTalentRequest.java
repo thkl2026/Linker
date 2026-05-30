@@ -15,6 +15,7 @@ public record CreateTalentRequest(
         @Size(max = 50) String phone,
         TalentCategory category,
         TalentField field,
+        List<TalentField> secondaryFields,
         WorkType workType,
         BigDecimal desiredRate,
         List<String> skills,

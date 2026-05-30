@@ -142,6 +142,12 @@ public class TalentProfile {
     @Column(insertable = false, updatable = false)
     private Boolean isNewTalent;
 
+    @ElementCollection
+    @CollectionTable(name = "talent_secondary_fields", joinColumns = @JoinColumn(name = "talent_id"))
+    @Column(name = "field", length = 30)
+    @Enumerated(EnumType.STRING)
+    private List<TalentField> secondaryFields = new ArrayList<>();
+
     @OneToMany(mappedBy = "talentProfile", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TalentSkill> skills = new ArrayList<>();
 
@@ -265,6 +271,17 @@ public class TalentProfile {
 
     public void updateResumeKey(String resumeKey) {
         this.resumeKey = resumeKey;
+    }
+
+    /** 추가 역할 업데이트 — 주 역할 제외, 중복 제거, 최대 3개 */
+    public void updateSecondaryFields(List<TalentField> fields) {
+        this.secondaryFields.clear();
+        if (fields == null) return;
+        fields.stream()
+                .filter(f -> f != null && f != this.field)
+                .distinct()
+                .limit(3)
+                .forEach(this.secondaryFields::add);
     }
 
     /** Soft Delete */

@@ -86,6 +86,7 @@ export interface TalentAdmin {
   phone: string | null
   category: TalentCategory | null
   field: TalentField | null
+  secondaryFields?: TalentField[]
   availabilityStatus: AvailabilityStatus
   workType: WorkType
   desiredRate: number | null
@@ -111,6 +112,7 @@ export interface CreateTalentRequest {
   phone?: string
   category?: TalentCategory
   field?: TalentField
+  secondaryFields?: TalentField[]
   workType?: WorkType
   desiredRate?: number
   skills?: string[]

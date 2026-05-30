@@ -157,6 +157,7 @@ public class ServiceAdminService {
             profile.updateResumeKey(req.resumeKey());
         }
 
+        profile.updateSecondaryFields(req.secondaryFields());
         talentProfileRepository.save(profile);
 
         // 경험치 일괄 저장 로직
@@ -253,6 +254,9 @@ public class ServiceAdminService {
         }
         if (req.resumeKey() != null && !req.resumeKey().isBlank()) {
             profile.updateResumeKey(req.resumeKey());
+        }
+        if (req.secondaryFields() != null) {
+            profile.updateSecondaryFields(req.secondaryFields());
         }
         gradeCalculationService.recalculate(talentId);
         log.info("[SERVICE_ADMIN] 전문가 수정 talentId={}", talentId);

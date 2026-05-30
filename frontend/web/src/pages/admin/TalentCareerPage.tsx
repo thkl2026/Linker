@@ -768,6 +768,7 @@ function TalentDetailModal({
     phone: talent.phone ?? '',
     category: talent.category ?? undefined,
     field: talent.field ?? undefined,
+    secondaryFields: talent.secondaryFields ?? [],
     workType: talent.workType,
     desiredRate: talent.desiredRate ?? undefined,
     skills: talent.skills,
@@ -790,6 +791,7 @@ function TalentDetailModal({
       phone: talent.phone ?? '',
       category: talent.category ?? undefined,
       field: talent.field ?? undefined,
+      secondaryFields: talent.secondaryFields ?? [],
       workType: talent.workType,
       desiredRate: talent.desiredRate ?? undefined,
       skills: talent.skills,
@@ -2119,6 +2121,37 @@ function TalentDetailModal({
                     {availableFields.map(f => <option key={f} value={f}>{TALENT_FIELD_LABELS[f]}</option>)}
                   </select>
                 </div>
+              </div>
+              {/* 추가 역할 — 최대 3개 */}
+              <div>
+                <label className="text-sm font-medium text-primary/70 block mb-1">
+                  추가 역할 <span className="text-xs text-primary/40 font-normal">({(form.secondaryFields ?? []).length}/3)</span>
+                </label>
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {(form.secondaryFields ?? []).map(sf => (
+                    <span key={sf} className="flex items-center gap-1 px-3 py-1 bg-secondary/10 text-secondary text-xs font-semibold rounded-full">
+                      {TALENT_FIELD_LABELS[sf]}
+                      <button type="button" onClick={() => { setForm(f => ({ ...f, secondaryFields: (f.secondaryFields ?? []).filter(x => x !== sf) })); setHasChanges(true) }}
+                        className="text-secondary/50 hover:text-danger transition-colors ml-1">✕</button>
+                    </span>
+                  ))}
+                </div>
+                <select
+                  disabled={!form.category || (form.secondaryFields ?? []).length >= 3}
+                  value=""
+                  onChange={e => {
+                    const val = e.target.value as TalentField
+                    if (!val) return
+                    if ((form.secondaryFields ?? []).includes(val) || val === form.field) return
+                    setForm(f => ({ ...f, secondaryFields: [...(f.secondaryFields ?? []), val] }))
+                    setHasChanges(true)
+                  }}
+                  className="w-full border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50 disabled:opacity-50">
+                  <option value="">추가 역할 선택</option>
+                  {availableFields
+                    .filter(f => f !== form.field && !(form.secondaryFields ?? []).includes(f))
+                    .map(f => <option key={f} value={f}>{TALENT_FIELD_LABELS[f]}</option>)}
+                </select>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
