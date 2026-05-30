@@ -3,6 +3,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { projectApi, ProjectResponse } from '@/shared/api/projectApi'
 import { matchingApi, MatchProposal } from '@/shared/api/matchingApi'
 import { useUiStore } from '@/store/uiStore'
+import { HelpPanel, HelpButton } from '@/shared/components/HelpPanel'
+import { helpMatching } from '@/shared/help/helpContent'
 
 const PROPOSAL_STATUS_LABEL: Record<string, string> = {
   PENDING: '검토 중', ACCEPTED: '수락됨', REJECTED: '거절됨',
@@ -90,6 +92,7 @@ export function MatchingPage() {
   const addToast = useUiStore(s => s.addToast)
   const [selectedProject, setSelectedProject] = useState<ProjectResponse | null>(null)
   const [proposalPage, setProposalPage] = useState(0)
+  const [showHelp, setShowHelp] = useState(false)
 
   const { data: projectsData, isLoading: loadingProjects } = useQuery({
     queryKey: ['pm', 'projects', 0],
@@ -127,9 +130,12 @@ export function MatchingPage() {
 
   return (
     <div className="p-8">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-primary">AI 매칭</h1>
-        <p className="text-sm text-primary/50 mt-0.5">프로젝트 요건에 맞는 전문가를 AI가 추천합니다.</p>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-primary">AI 매칭</h1>
+          <p className="text-sm text-primary/50 mt-0.5">프로젝트 요건에 맞는 전문가를 AI가 추천합니다.</p>
+        </div>
+        <HelpButton onClick={() => setShowHelp(true)} />
       </div>
 
       <div className="flex gap-6">
@@ -201,6 +207,7 @@ export function MatchingPage() {
           )}
         </div>
       </div>
+      <HelpPanel open={showHelp} onClose={() => setShowHelp(false)} content={helpMatching} />
     </div>
   )
 }

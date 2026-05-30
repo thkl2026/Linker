@@ -1,6 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
 import { contractApi } from '@/shared/api/contractApi'
 import { useState } from 'react'
+import { HelpPanel, HelpButton } from '@/shared/components/HelpPanel'
+import { helpSettlementList } from '@/shared/help/helpContent'
 
 /**
  * 정산 현황 목록 — contractId를 입력받아 정산 내역 표시 (Phase 5)
@@ -8,6 +10,7 @@ import { useState } from 'react'
 export function SettlementListPage() {
   const [contractId, setContractId] = useState('')
   const [activeId, setActiveId] = useState<string | null>(null)
+  const [showHelp, setShowHelp] = useState(false)
 
   const { data: settlements, isLoading } = useQuery({
     queryKey: ['settlements', activeId],
@@ -23,7 +26,10 @@ export function SettlementListPage() {
 
   return (
     <div className="p-8 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold text-primary mb-6">정산 현황</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold text-primary">정산 현황</h1>
+        <HelpButton onClick={() => setShowHelp(true)} />
+      </div>
 
       <div className="flex gap-2 mb-6">
         <input
@@ -66,6 +72,7 @@ export function SettlementListPage() {
           ))}
         </div>
       )}
+      <HelpPanel open={showHelp} onClose={() => setShowHelp(false)} content={helpSettlementList} />
     </div>
   )
 }

@@ -7,6 +7,8 @@ import {
   type Notice,
   type CreateNoticeRequest,
 } from '@/shared/api/noticeApi'
+import { HelpPanel, HelpButton } from '@/shared/components/HelpPanel'
+import { helpNoticeManagement } from '@/shared/help/helpContent'
 
 // ── 카테고리 배지 ────────────────────────────────────────────────────────────
 const CAT_STYLE: Record<string, string> = {
@@ -195,6 +197,7 @@ export function NoticeManagementPage() {
   const [page, setPage]             = useState(0)
   const [selected, setSelected]     = useState<Notice | null>(null)
   const [editTarget, setEditTarget] = useState<Partial<Notice> | null | false>(false)
+  const [showHelp, setShowHelp]     = useState(false)
 
   const { data: statsData } = useQuery({
     queryKey: ['notices', 'stats'],
@@ -267,10 +270,13 @@ export function NoticeManagementPage() {
           <h2 className="text-xl font-black tracking-tight">공지사항 관리</h2>
           <p className="text-xs text-primary/40 mt-0.5">Linker 플랫폼의 주요 공지 및 안내 사항을 체계적으로 관리합니다.</p>
         </div>
-        <button onClick={() => setEditTarget({})}
-          className="px-6 py-3 bg-primary text-white rounded-2xl text-sm font-bold shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
-          + 신규 공지 작성
-        </button>
+        <div className="flex items-center gap-2">
+          <HelpButton onClick={() => setShowHelp(true)} />
+          <button onClick={() => setEditTarget({})}
+            className="px-6 py-3 bg-primary text-white rounded-2xl text-sm font-bold shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
+            + 신규 공지 작성
+          </button>
+        </div>
       </div>
 
       {/* 통계 카드 */}
@@ -425,6 +431,7 @@ export function NoticeManagementPage() {
           }}
         />
       )}
+      <HelpPanel open={showHelp} onClose={() => setShowHelp(false)} content={helpNoticeManagement} />
     </div>
   )
 }

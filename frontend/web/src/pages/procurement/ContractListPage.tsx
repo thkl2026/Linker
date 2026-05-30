@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { ContractDashboardPage } from './ContractDashboardPage'
+import { HelpPanel, HelpButton } from '@/shared/components/HelpPanel'
+import { helpContractList } from '@/shared/help/helpContent'
 
 /**
  * 계약 목록 라우트 페이지 — ProjectSelector를 통해 ContractDashboardPage로 진입
@@ -7,12 +9,16 @@ import { ContractDashboardPage } from './ContractDashboardPage'
 export function ContractListPage() {
   const [projectId, setProjectId] = useState<string | null>(null)
   const [input, setInput] = useState('')
+  const [showHelp, setShowHelp] = useState(false)
 
   if (projectId) return <ContractDashboardPage projectId={projectId} />
 
   return (
     <main className="p-8 max-w-md">
-      <h2 className="text-xl font-semibold text-primary mb-4">프로젝트 선택</h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-semibold text-primary">프로젝트 선택</h2>
+        <HelpButton onClick={() => setShowHelp(true)} />
+      </div>
       <div className="flex gap-2">
         <input
           type="text"
@@ -28,6 +34,7 @@ export function ContractListPage() {
           이동
         </button>
       </div>
+      <HelpPanel open={showHelp} onClose={() => setShowHelp(false)} content={helpContractList} />
     </main>
   )
 }

@@ -1,8 +1,11 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { serviceAdminApi, type TalentAdmin, type AvailabilityStatus, type LabelCount } from '@/shared/api/serviceAdminApi'
 import { notificationApi } from '@/shared/api/notificationApi'
 import { displayName } from '@/shared/utils/nameUtils'
+import { HelpPanel, HelpButton } from '@/shared/components/HelpPanel'
+import { helpServiceAdminDashboard } from '@/shared/help/helpContent'
 
 const EVAL_COLORS: Record<string, string> = {
   '우수':    '#10b981',
@@ -164,6 +167,7 @@ function formatNotifTime(iso: string): string {
 
 // ─── Main page ───────────────────────────────────────────────────────────────
 export function ServiceAdminDashboardPage() {
+  const [showHelp, setShowHelp] = useState(false)
   const { data: talentsPage } = useQuery({
     queryKey: ['service-admin', 'dashboard', 'recent'],
     queryFn: () => serviceAdminApi.listTalents({ page: 0, size: 5 }).then(r => r.data),
@@ -218,6 +222,7 @@ export function ServiceAdminDashboardPage() {
           </p>
         </div>
         <div className="flex items-center gap-4">
+          <HelpButton onClick={() => setShowHelp(true)} />
           <button className="relative w-10 h-10 rounded-xl bg-white border border-border/50 flex items-center justify-center hover:bg-surface transition-all text-lg">
             🔔
             <span className="absolute top-2 right-2 w-2 h-2 bg-danger rounded-full border-2 border-white" />
@@ -336,5 +341,6 @@ export function ServiceAdminDashboardPage() {
         </div>
       </div>
     </div>
+    <HelpPanel open={showHelp} onClose={() => setShowHelp(false)} content={helpServiceAdminDashboard} />
   )
 }

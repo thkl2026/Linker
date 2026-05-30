@@ -4,6 +4,8 @@ import { useMutation } from '@tanstack/react-query'
 import { projectApi, CreateProjectRequest, WorkType } from '@/shared/api/projectApi'
 import { useUiStore } from '@/store/uiStore'
 import { getApiErrorDetail } from '@/shared/utils/apiError'
+import { HelpPanel, HelpButton } from '@/shared/components/HelpPanel'
+import { helpProjectRegister } from '@/shared/help/helpContent'
 
 interface SkillEntry { skill: string; level: 'JUNIOR' | 'MID' | 'SENIOR' | 'EXPERT' }
 
@@ -45,6 +47,7 @@ export function ProjectRegisterPage() {
   const [form, setForm] = useState<FormState>(EMPTY)
   const [skillInput, setSkillInput] = useState('')
   const [skillLevel, setSkillLevel] = useState<SkillEntry['level']>('MID')
+  const [showHelp, setShowHelp] = useState(false)
 
   const mutation = useMutation({
     mutationFn: () => {
@@ -81,7 +84,10 @@ export function ProjectRegisterPage() {
   return (
     <div className="p-8 max-w-2xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-primary">프로젝트 등록</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-primary">프로젝트 등록</h1>
+          <HelpButton onClick={() => setShowHelp(true)} />
+        </div>
         <p className="text-sm text-primary/50 mt-1">새로운 프로젝트 기회를 등록합니다.</p>
       </div>
 
@@ -253,6 +259,7 @@ export function ProjectRegisterPage() {
           </button>
         )}
       </div>
+      <HelpPanel open={showHelp} onClose={() => setShowHelp(false)} content={helpProjectRegister} />
     </div>
   )
 }

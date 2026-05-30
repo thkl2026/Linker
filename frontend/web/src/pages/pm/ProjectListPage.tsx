@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { projectApi, ProjectResponse, ProjectStatus } from '@/shared/api/projectApi'
 import { useUiStore } from '@/store/uiStore'
+import { HelpPanel, HelpButton } from '@/shared/components/HelpPanel'
+import { helpProjectList } from '@/shared/help/helpContent'
 
 const STATUS_LABEL: Record<ProjectStatus, string> = {
   OPEN:        '모집 중',
@@ -31,6 +33,7 @@ export function ProjectListPage() {
   const queryClient = useQueryClient()
   const addToast = useUiStore(s => s.addToast)
   const [page, setPage] = useState(0)
+  const [showHelp, setShowHelp] = useState(false)
 
   const { data, isLoading } = useQuery({
     queryKey: ['pm', 'projects', page],
@@ -62,10 +65,13 @@ export function ProjectListPage() {
           <h1 className="text-2xl font-bold text-primary">내 프로젝트</h1>
           <p className="text-sm text-primary/50 mt-0.5">총 {data?.totalElements ?? 0}건</p>
         </div>
-        <Link to="/app/projects/register"
-          className="px-5 py-2.5 bg-secondary text-white rounded-xl text-sm font-semibold hover:bg-secondary/90 transition-colors">
-          + 프로젝트 등록
-        </Link>
+        <div className="flex items-center gap-2">
+          <HelpButton onClick={() => setShowHelp(true)} />
+          <Link to="/app/projects/register"
+            className="px-5 py-2.5 bg-secondary text-white rounded-xl text-sm font-semibold hover:bg-secondary/90 transition-colors">
+            + 프로젝트 등록
+          </Link>
+        </div>
       </div>
 
       <div className="bg-white rounded-2xl border border-border/50 overflow-hidden">
@@ -136,6 +142,7 @@ export function ProjectListPage() {
             className="px-4 py-2 rounded-xl border border-border text-sm text-primary/60 hover:bg-surface disabled:opacity-40 transition-colors">다음</button>
         </div>
       )}
+      <HelpPanel open={showHelp} onClose={() => setShowHelp(false)} content={helpProjectList} />
     </div>
   )
 }

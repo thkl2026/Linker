@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { serviceAdminApi, type TalentReport, type ProjectReport, type RevenueReport, type EvalReport } from '@/shared/api/serviceAdminApi'
+import { HelpPanel, HelpButton } from '@/shared/components/HelpPanel'
+import { helpReports } from '@/shared/help/helpContent'
 
 // ── 색상 팔레트 ────────────────────────────────────────────────────────────────
 
@@ -496,6 +498,7 @@ function LoadingState() {
 export function ReportsPage() {
   const [tab, setTab] = useState<ReportTab>('talent')
   const [period, setPeriod] = useState('6m')
+  const [showHelp, setShowHelp] = useState(false)
 
   const { data: talentData, isLoading: talentLoading } = useQuery({
     queryKey: ['reports', 'talent', period],
@@ -528,6 +531,7 @@ export function ReportsPage() {
           <p className="text-sm text-primary/40 mt-0.5">인력·프로젝트·매출·평가 현황을 한눈에 확인합니다.</p>
         </div>
         <div className="flex items-center gap-3">
+          <HelpButton onClick={() => setShowHelp(true)} />
           <div className="flex bg-surface rounded-xl border border-border/30 overflow-hidden">
             {[
               { id: '1m', label: '1개월' },
@@ -567,6 +571,7 @@ export function ReportsPage() {
         {!currentLoading && tab === 'revenue'    && revenueData && <RevenueStatsTab data={revenueData} />}
         {!currentLoading && tab === 'evaluation' && evalData    && <EvalStatsTab    data={evalData} />}
       </div>
+      <HelpPanel open={showHelp} onClose={() => setShowHelp(false)} content={helpReports} />
     </div>
   )
 }

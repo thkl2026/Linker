@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { serviceAdminApi, ProjectAdmin, ProjectStatus } from '@/shared/api/serviceAdminApi'
+import { HelpPanel, HelpButton } from '@/shared/components/HelpPanel'
+import { helpProjectManagement } from '@/shared/help/helpContent'
 
 const STATUS_LABELS: Record<ProjectStatus, string> = {
   OPEN: '인력모집중',
@@ -33,6 +35,7 @@ export function ProjectManagementPage() {
   const [statusFilter, setStatusFilter] = useState<ProjectStatus | ''>('')
   const navigate = useNavigate()
   const [page, setPage] = useState(0)
+  const [showHelp, setShowHelp] = useState(false)
   const PAGE_SIZE = 10
 
   const { data: stats } = useQuery({
@@ -78,12 +81,15 @@ export function ProjectManagementPage() {
             플랫폼 내의 모든 프로젝트 진행 현황을 통합 관리합니다.
           </p>
         </div>
-        <button
-          onClick={() => navigate('/app/service-admin/projects/create')}
-          className="px-6 py-2.5 bg-primary text-white rounded-xl text-sm font-black shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
-        >
-          + 신규 프로젝트 등록
-        </button>
+        <div className="flex items-center gap-2">
+          <HelpButton onClick={() => setShowHelp(true)} />
+          <button
+            onClick={() => navigate('/app/service-admin/projects/create')}
+            className="px-6 py-2.5 bg-primary text-white rounded-xl text-sm font-black shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
+          >
+            + 신규 프로젝트 등록
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
@@ -306,6 +312,7 @@ export function ProjectManagementPage() {
         <div className="absolute top-0 right-0 w-64 h-64 bg-secondary/20 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2" />
         <div className="absolute bottom-0 left-0 w-32 h-32 bg-accent/10 rounded-full blur-[60px] translate-y-1/2 -translate-x-1/2" />
       </div>
+      <HelpPanel open={showHelp} onClose={() => setShowHelp(false)} content={helpProjectManagement} />
     </div>
   )
 }

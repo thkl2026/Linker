@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { HelpPanel, HelpButton } from '@/shared/components/HelpPanel'
+import { helpEvaluationManagement } from '@/shared/help/helpContent'
 import { displayName } from '@/shared/utils/nameUtils'
 import {
   serviceAdminApi,
@@ -208,6 +210,7 @@ export function EvaluationManagementPage() {
   const [catFilter,  setCatFilter]  = useState('')
   const [page,       setPage]       = useState(0)
   const [selected,   setSelected]   = useState<TalentEvalSummary | null>(null)
+  const [showHelp,   setShowHelp]   = useState(false)
   const SIZE = 15
 
   const { data: stats } = useQuery({
@@ -234,11 +237,14 @@ export function EvaluationManagementPage() {
     <div className="p-8 space-y-8 max-w-[1400px] mx-auto">
 
       {/* Header */}
-      <div>
-        <h2 className="text-xl font-black tracking-tight text-primary">평가 / 리뷰 관리</h2>
-        <p className="text-xs text-primary/40 font-medium mt-0.5">
-          전문가를 선택하여 협업·기술·신뢰도를 평가합니다.
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-black tracking-tight text-primary">평가 / 리뷰 관리</h2>
+          <p className="text-xs text-primary/40 font-medium mt-0.5">
+            전문가를 선택하여 협업·기술·신뢰도를 평가합니다.
+          </p>
+        </div>
+        <HelpButton onClick={() => setShowHelp(true)} />
       </div>
 
       {/* Stats */}
@@ -391,6 +397,7 @@ export function EvaluationManagementPage() {
       </div>
 
       {selected && <EvaluationModal talent={selected} onClose={() => setSelected(null)} />}
+      <HelpPanel open={showHelp} onClose={() => setShowHelp(false)} content={helpEvaluationManagement} />
     </div>
   )
 }

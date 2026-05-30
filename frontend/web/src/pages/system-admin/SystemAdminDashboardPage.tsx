@@ -1,6 +1,9 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { systemAdminApi } from '@/shared/api/systemAdminApi'
+import { HelpPanel, HelpButton } from '@/shared/components/HelpPanel'
+import { helpSystemAdminDashboard } from '@/shared/help/helpContent'
 
 const QUICK_LINKS = [
   { label: '사용자 관리',   to: '/app/system-admin/users',    icon: '👥' },
@@ -9,6 +12,7 @@ const QUICK_LINKS = [
 ]
 
 export function SystemAdminDashboardPage() {
+  const [showHelp, setShowHelp] = useState(false)
   const { data: stats } = useQuery({
     queryKey: ['system-admin', 'stats'],
     queryFn: () => systemAdminApi.getStats().then(r => r.data),
@@ -24,9 +28,12 @@ export function SystemAdminDashboardPage() {
 
   return (
     <div className="p-8 space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-primary">시스템 관리자 대시보드</h1>
-        <p className="text-sm text-primary/50 mt-1">계정·권한·시스템 설정을 관리합니다.</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-primary">시스템 관리자 대시보드</h1>
+          <p className="text-sm text-primary/50 mt-1">계정·권한·시스템 설정을 관리합니다.</p>
+        </div>
+        <HelpButton onClick={() => setShowHelp(true)} />
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
@@ -52,6 +59,7 @@ export function SystemAdminDashboardPage() {
           ))}
         </div>
       </div>
+      <HelpPanel open={showHelp} onClose={() => setShowHelp(false)} content={helpSystemAdminDashboard} />
     </div>
   )
 }

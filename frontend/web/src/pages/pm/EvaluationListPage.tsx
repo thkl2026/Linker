@@ -2,6 +2,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import axiosInstance from '@/shared/api/axiosInstance'
 import { useUiStore } from '@/store/uiStore'
+import { HelpPanel, HelpButton } from '@/shared/components/HelpPanel'
+import { helpPmEvaluation } from '@/shared/help/helpContent'
 
 interface Evaluation {
   id: string
@@ -41,6 +43,7 @@ export function EvaluationListPage() {
   const [contractId, setContractId] = useState('')
   const [activeId, setActiveId] = useState<string | null>(null)
   const [form, setForm] = useState({ talentId: '', feedbackText: '' })
+  const [showHelp, setShowHelp] = useState(false)
 
   const { data: evaluations, isLoading } = useQuery({
     queryKey: ['evaluations', activeId],
@@ -66,7 +69,10 @@ export function EvaluationListPage() {
 
   return (
     <div className="p-8 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold text-primary mb-6">평가 관리</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold text-primary">평가 관리</h1>
+        <HelpButton onClick={() => setShowHelp(true)} />
+      </div>
 
       <div className="flex gap-2 mb-6">
         <input
@@ -149,6 +155,7 @@ export function EvaluationListPage() {
           </div>
         ))}
       </div>
+      <HelpPanel open={showHelp} onClose={() => setShowHelp(false)} content={helpPmEvaluation} />
     </div>
   )
 }

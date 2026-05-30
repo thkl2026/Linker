@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { talentApi, WorkType, AvailabilityStatus, TalentProfileResponse } from '@/shared/api/talentApi'
+import { HelpPanel, HelpButton } from '@/shared/components/HelpPanel'
+import { helpExpertSearch } from '@/shared/help/helpContent'
 
 const AVAILABILITY_LABEL: Record<AvailabilityStatus, string> = {
   AVAILABLE: '투입 가능',
@@ -86,6 +88,7 @@ export function ExpertSearchPage() {
   const [maxRate, setMaxRate] = useState('')
   const [page, setPage] = useState(0)
   const [filters, setFilters] = useState<{ workType?: WorkType; maxRate?: number; page: number }>({ page: 0 })
+  const [showHelp, setShowHelp] = useState(false)
 
   const { data, isLoading } = useQuery({
     queryKey: ['procurement', 'talents', filters],
@@ -116,9 +119,12 @@ export function ExpertSearchPage() {
 
   return (
     <div className="p-8">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-primary">전문가 검색</h1>
-        <p className="text-sm text-primary/50 mt-0.5">기술·가용 상태·단가 조건으로 전문가를 검색합니다.</p>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-primary">전문가 검색</h1>
+          <p className="text-sm text-primary/50 mt-0.5">기술·가용 상태·단가 조건으로 전문가를 검색합니다.</p>
+        </div>
+        <HelpButton onClick={() => setShowHelp(true)} />
       </div>
 
       <div className="bg-white rounded-2xl border border-border/50 p-5 mb-6 flex flex-wrap items-end gap-4">
@@ -178,6 +184,7 @@ export function ExpertSearchPage() {
             className="px-4 py-2 rounded-xl border border-border text-sm text-primary/60 hover:bg-surface disabled:opacity-40 transition-colors">다음</button>
         </div>
       )}
+      <HelpPanel open={showHelp} onClose={() => setShowHelp(false)} content={helpExpertSearch} />
     </div>
   )
 }

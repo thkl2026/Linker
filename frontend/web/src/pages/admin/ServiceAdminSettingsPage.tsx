@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useUiStore } from '@/store/uiStore'
+import { HelpPanel, HelpButton } from '@/shared/components/HelpPanel'
+import { helpServiceAdminSettings } from '@/shared/help/helpContent'
 import {
   settingsApi,
   type GeneralSettings,
@@ -1424,6 +1426,7 @@ function SmtpTab({ initial }: { initial: SmtpSettings }) {
 // ─── Main page ────────────────────────────────────────────────────────────────
 export function ServiceAdminSettingsPage() {
   const [activeTab, setActiveTab] = useState<Tab>('general')
+  const [showHelp, setShowHelp] = useState(false)
 
   const { data: settings, isLoading } = useQuery({
     queryKey: ['settings'],
@@ -1434,11 +1437,12 @@ export function ServiceAdminSettingsPage() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="bg-surface/80 backdrop-blur-md border-b border-border/30 sticky top-0 z-40">
-        <div className="max-w-[1400px] mx-auto px-10 h-20 flex items-center">
+        <div className="max-w-[1400px] mx-auto px-10 h-20 flex items-center justify-between">
           <div>
             <h2 className="text-xl font-black tracking-tight">시스템 설정</h2>
             <p className="text-xs text-primary/40 font-medium">플랫폼 운영 규칙 및 데이터를 관리합니다.</p>
           </div>
+          <HelpButton onClick={() => setShowHelp(true)} />
         </div>
       </header>
 
@@ -1478,6 +1482,7 @@ export function ServiceAdminSettingsPage() {
           </div>
         ) : null}
       </div>
+      <HelpPanel open={showHelp} onClose={() => setShowHelp(false)} content={helpServiceAdminSettings} />
     </div>
   )
 }

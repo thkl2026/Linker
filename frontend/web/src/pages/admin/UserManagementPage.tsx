@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { systemAdminApi, ManagedUserRole, UserSummary } from '@/shared/api/systemAdminApi'
 import { useUiStore } from '@/store/uiStore'
+import { HelpPanel, HelpButton } from '@/shared/components/HelpPanel'
+import { helpUserManagement } from '@/shared/help/helpContent'
 
 const ROLE_LABELS: Record<ManagedUserRole, string> = {
   SYSTEM_ADMIN: '시스템관리자',
@@ -130,6 +132,7 @@ export function UserManagementPage() {
   const [page, setPage] = useState(0)
   const [showCreate, setShowCreate] = useState(false)
   const [resetTarget, setResetTarget] = useState<UserSummary | null>(null)
+  const [showHelp, setShowHelp] = useState(false)
 
   const { data, isLoading } = useQuery({
     queryKey: ['system-admin', 'users', roleFilter, page],
@@ -156,10 +159,13 @@ export function UserManagementPage() {
           <h1 className="text-2xl font-bold text-primary">사용자 관리</h1>
           <p className="text-sm text-primary/50 mt-0.5">총 {data?.totalElements ?? 0}명</p>
         </div>
-        <button onClick={() => setShowCreate(true)}
-          className="px-5 py-2.5 bg-secondary text-white rounded-xl text-sm font-semibold hover:bg-secondary/90 transition-colors">
-          + 사용자 생성
-        </button>
+        <div className="flex items-center gap-2">
+          <HelpButton onClick={() => setShowHelp(true)} />
+          <button onClick={() => setShowCreate(true)}
+            className="px-5 py-2.5 bg-secondary text-white rounded-xl text-sm font-semibold hover:bg-secondary/90 transition-colors">
+            + 사용자 생성
+          </button>
+        </div>
       </div>
 
       <div className="flex gap-2 mb-6 flex-wrap">
@@ -240,6 +246,7 @@ export function UserManagementPage() {
 
       {showCreate && <CreateUserModal onClose={() => setShowCreate(false)} />}
       {resetTarget && <ResetPasswordModal user={resetTarget} onClose={() => setResetTarget(null)} />}
+      <HelpPanel open={showHelp} onClose={() => setShowHelp(false)} content={helpUserManagement} />
     </div>
   )
 }

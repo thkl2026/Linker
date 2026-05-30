@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { HelpPanel, HelpButton } from '@/shared/components/HelpPanel'
+import { helpTalentList } from '@/shared/help/helpContent'
 import { displayName } from '@/shared/utils/nameUtils'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
@@ -3179,6 +3181,8 @@ export function TalentCareerPage() {
   // 선택 상태
   const [selectedIds, setSelectedIds] = useState<string[]>([])
 
+  const [showHelp, setShowHelp] = useState(false)
+
   // 모달
   const [showCreate, setShowCreate] = useState(false)
   const [detailTarget, setDetailTarget] = useState<TalentAdmin | null>(null)
@@ -3377,6 +3381,7 @@ export function TalentCareerPage() {
           <p className="text-sm text-primary/50 mt-0.5">총 {data?.totalElements ?? 0}명</p>
         </div>
         <div className="flex gap-2">
+          <HelpButton onClick={() => setShowHelp(true)} />
           <button onClick={() => selectedTalent && setDetailTarget(selectedTalent)}
             disabled={selectedIds.length !== 1}
             className="w-28 py-2.5 rounded-xl border border-border text-sm font-semibold text-primary/70 hover:bg-surface disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
@@ -3650,5 +3655,6 @@ export function TalentCareerPage() {
         )
       })()}
     </div>
+    <HelpPanel open={showHelp} onClose={() => setShowHelp(false)} content={helpTalentList} />
   )
 }

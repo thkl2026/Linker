@@ -1,6 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import axiosInstance from '@/shared/api/axiosInstance'
+import { HelpPanel, HelpButton } from '@/shared/components/HelpPanel'
+import { helpWorkReport } from '@/shared/help/helpContent'
 
 interface WorkReport {
   id: string
@@ -31,6 +33,7 @@ const RISK_COLOR: Record<string, string> = {
 export function WorkReportListPage() {
   const [contractId, setContractId] = useState('')
   const [activeId, setActiveId] = useState<string | null>(null)
+  const [showHelp, setShowHelp] = useState(false)
 
   const { data: reports, isLoading } = useQuery({
     queryKey: ['work-reports', activeId],
@@ -40,7 +43,10 @@ export function WorkReportListPage() {
 
   return (
     <div className="p-8 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold text-primary mb-6">업무 보고</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold text-primary">업무 보고</h1>
+        <HelpButton onClick={() => setShowHelp(true)} />
+      </div>
 
       <div className="flex gap-2 mb-6">
         <input
@@ -94,6 +100,7 @@ export function WorkReportListPage() {
           <p className="text-sm text-gray-400">업무 보고가 없습니다.</p>
         )}
       </div>
+      <HelpPanel open={showHelp} onClose={() => setShowHelp(false)} content={helpWorkReport} />
     </div>
   )
 }
