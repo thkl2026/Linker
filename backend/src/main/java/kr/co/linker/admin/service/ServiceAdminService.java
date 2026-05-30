@@ -418,6 +418,8 @@ public class ServiceAdminService {
         int headcount = req.requiredHeadcount() != null ? req.requiredHeadcount() : project.getRequiredHeadcount();
         project.update(req.title(), req.description(), req.budgetMin(), req.budgetMax(), wt);
         project.updateAdminInfo(req.clientCompany(), req.mainContractor(), headcount, req.startDate(), req.endDate());
+        project.updateAwardInfo(req.awardStatus(), req.awardAmount(), req.contractDate(),
+                req.awardNote(), req.contractorContact());
         log.info("[SERVICE_ADMIN] 프로젝트 수정 projectId={}", projectId);
     }
 

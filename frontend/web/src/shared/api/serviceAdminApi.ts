@@ -39,6 +39,11 @@ export interface ProjectDetail extends ProjectAdmin {
   evaluationScore: number | null
   evaluationNote: string | null
   evaluatedAt: string | null
+  awardStatus: string | null
+  awardAmount: number | null
+  contractDate: string | null
+  awardNote: string | null
+  contractorContact: string | null
   members: ProjectMember[]
 }
 
@@ -76,6 +81,11 @@ export interface UpdateProjectRequest {
   description?: string | null
   budgetMin?: number | null
   budgetMax?: number | null
+  awardStatus?: string | null
+  awardAmount?: number | null
+  contractDate?: string | null
+  awardNote?: string | null
+  contractorContact?: string | null
 }
 
 export interface TalentAdmin {

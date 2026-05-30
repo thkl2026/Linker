@@ -25,6 +25,11 @@ public record ProjectDetailResponse(
         BigDecimal evaluationScore,
         String evaluationNote,
         String evaluatedAt,
+        String awardStatus,
+        BigDecimal awardAmount,
+        String contractDate,
+        String awardNote,
+        String contractorContact,
         String createdAt,
         List<ProjectMemberResponse> members
 ) {
@@ -48,6 +53,11 @@ public record ProjectDetailResponse(
                 p.getEvaluationScore(),
                 p.getEvaluationNote(),
                 p.getEvaluatedAt() != null ? p.getEvaluatedAt().toString() : null,
+                p.getAwardStatus(),
+                p.getAwardAmount(),
+                p.getContractDate() != null ? p.getContractDate().toString() : null,
+                p.getAwardNote(),
+                p.getContractorContact(),
                 p.getCreatedAt() != null ? p.getCreatedAt().toString() : null,
                 members
         );

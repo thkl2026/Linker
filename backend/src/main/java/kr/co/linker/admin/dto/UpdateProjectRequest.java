@@ -16,5 +16,10 @@ public record UpdateProjectRequest(
         String workType,
         String description,
         BigDecimal budgetMin,
-        BigDecimal budgetMax
+        BigDecimal budgetMax,
+        String awardStatus,
+        BigDecimal awardAmount,
+        LocalDate contractDate,
+        String awardNote,
+        @Size(max = 500) String contractorContact
 ) {}

@@ -32,6 +32,14 @@ const CAT_LABELS: Record<string, string> = {
   DEVELOPER: '개발자', ARCHITECT: 'AA', DBA: 'DBA',
   PM: 'PM/PL', ANALYST: 'DA', DESIGNER: '디자이너',
 }
+const AWARD_STATUS_LABELS: Record<string, string> = {
+  REVIEWING: '검토중', WON: '수주확정', LOST: '실주',
+}
+const AWARD_BADGE: Record<string, string> = {
+  REVIEWING: 'bg-amber-50 text-amber-700',
+  WON:       'bg-emerald-50 text-emerald-700',
+  LOST:      'bg-red-50 text-red-600',
+}
 
 type SkillRow = { role: string; headcount: number; mm?: number; techStack?: string; roleStart?: string; roleEnd?: string }
 
@@ -302,6 +310,11 @@ function ProjectEditModal({ project, onClose }: { project: ProjectDetail; onClos
     description: project.description ?? '',
     budgetMin: project.budgetMin ?? null,
     budgetMax: project.budgetMax ?? null,
+    awardStatus: project.awardStatus ?? '',
+    awardAmount: project.awardAmount ?? null,
+    contractDate: project.contractDate ?? '',
+    awardNote: project.awardNote ?? '',
+    contractorContact: project.contractorContact ?? '',
   })
 
   const set = <K extends keyof UpdateProjectRequest>(k: K, v: UpdateProjectRequest[K]) =>
@@ -315,6 +328,10 @@ function ProjectEditModal({ project, onClose }: { project: ProjectDetail; onClos
       startDate: form.startDate || null,
       endDate: form.endDate || null,
       description: form.description || null,
+      awardStatus: form.awardStatus || null,
+      contractDate: form.contractDate || null,
+      awardNote: form.awardNote || null,
+      contractorContact: form.contractorContact || null,
     }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['project-detail', project.id] })
@@ -401,6 +418,49 @@ function ProjectEditModal({ project, onClose }: { project: ProjectDetail; onClos
             <textarea value={form.description ?? ''} onChange={e => set('description', e.target.value)}
               rows={3} className="w-full border border-border/50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary resize-none"
               placeholder="프로젝트 상세 설명" />
+          </div>
+
+          {/* 수주 결과 정보 */}
+          <div className="pt-4 mt-2 border-t border-border/20">
+            <p className="text-xs font-black text-secondary mb-3">수주 결과 정보</p>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-[11px] font-black text-primary/40 uppercase mb-1">수주 상태</label>
+                <select value={form.awardStatus ?? ''} onChange={e => set('awardStatus', e.target.value)}
+                  className="w-full border border-border/50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary bg-white">
+                  <option value="">미정</option>
+                  <option value="REVIEWING">검토중</option>
+                  <option value="WON">수주확정</option>
+                  <option value="LOST">실주</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-[11px] font-black text-primary/40 uppercase mb-1">수주 금액 (원)</label>
+                <input type="number" min={0} value={form.awardAmount ?? ''}
+                  onChange={e => set('awardAmount', e.target.value ? Number(e.target.value) : null)}
+                  className="w-full border border-border/50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary"
+                  placeholder="0" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              <div>
+                <label className="block text-[11px] font-black text-primary/40 uppercase mb-1">계약일</label>
+                <input type="date" value={form.contractDate ?? ''} onChange={e => set('contractDate', e.target.value)}
+                  className="w-full border border-border/50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary" />
+              </div>
+              <div>
+                <label className="block text-[11px] font-black text-primary/40 uppercase mb-1">주사업자 담당자</label>
+                <input value={form.contractorContact ?? ''} onChange={e => set('contractorContact', e.target.value)}
+                  className="w-full border border-border/50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary"
+                  placeholder="이름 / 연락처 / 이메일" />
+              </div>
+            </div>
+            <div className="mt-4">
+              <label className="block text-[11px] font-black text-primary/40 uppercase mb-1">비고</label>
+              <textarea value={form.awardNote ?? ''} onChange={e => set('awardNote', e.target.value)}
+                rows={2} className="w-full border border-border/50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary resize-none"
+                placeholder="수주 관련 메모" />
+            </div>
           </div>
         </div>
         <div className="px-8 py-5 border-t border-border/30 bg-gray-50 rounded-b-3xl flex gap-3 justify-end">
@@ -691,120 +751,148 @@ export function ProjectDetailPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
+      {/* ── 전체 가로 밴드 섹션 ── */}
+      <div className="space-y-6">
 
-        {/* Left: project info (2/3) */}
-        <div className="col-span-2 space-y-5">
-
-          {/* Basic info */}
-          <div className="bg-white rounded-3xl border border-border/30 shadow-sm p-7 space-y-5">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xs font-black text-primary/40 uppercase tracking-wider">기본 정보</h3>
-              <button
-                onClick={() => setShowEditModal(true)}
-                className="px-3 py-1.5 bg-secondary text-white text-xs font-black rounded-xl shadow-md shadow-secondary/20 hover:scale-105 active:scale-95 transition-all"
-              >
-                수정
-              </button>
-            </div>
-            <div className="grid grid-cols-2 gap-x-8 gap-y-4">
-              <InfoRow label="고객사" value={project.clientCompany} />
-              <InfoRow label="주사업자" value={project.mainContractor} />
-              <InfoRow label="시작일" value={fmt(project.startDate)} />
-              <InfoRow label="종료일" value={fmt(project.endDate)} />
-              <InfoRow label="필요 인원" value={`${project.requiredHeadcount}명`} />
-              <InfoRow label="근무 형태" value={project.workType ?? '-'} />
-              {project.budgetMin != null && (
-                <InfoRow label="예산" value={`${project.budgetMin?.toLocaleString()}원/월 ~ ${project.budgetMax?.toLocaleString()}원/월`} />
-              )}
-            </div>
-            {project.description && (
-              <div className="pt-2 border-t border-border/20">
-                <p className="text-[11px] font-bold text-primary/30 uppercase mb-1">설명</p>
-                <p className="text-sm text-primary/70 whitespace-pre-wrap">{project.description}</p>
-              </div>
+        {/* 기본 정보 */}
+        <div className="bg-white rounded-3xl border border-border/30 shadow-sm p-7 space-y-5">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs font-black text-primary/40 uppercase tracking-wider">기본 정보</h3>
+            <button
+              onClick={() => setShowEditModal(true)}
+              className="px-3 py-1.5 bg-secondary text-white text-xs font-black rounded-xl shadow-md shadow-secondary/20 hover:scale-105 active:scale-95 transition-all"
+            >
+              수정
+            </button>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-4">
+            <InfoRow label="고객사" value={project.clientCompany} />
+            <InfoRow label="주사업자" value={project.mainContractor} />
+            <InfoRow label="시작일" value={fmt(project.startDate)} />
+            <InfoRow label="종료일" value={fmt(project.endDate)} />
+            <InfoRow label="필요 인원" value={`${project.requiredHeadcount}명`} />
+            <InfoRow label="근무 형태" value={project.workType ?? '-'} />
+            {project.budgetMin != null && (
+              <InfoRow label="예산" value={`${project.budgetMin?.toLocaleString()}원/월 ~ ${project.budgetMax?.toLocaleString()}원/월`} />
             )}
           </div>
-
-          {/* Required roles */}
-          <div className="bg-white rounded-3xl border border-border/30 shadow-sm p-7 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xs font-black text-primary/40 uppercase tracking-wider">필요 역할</h3>
-              <button
-                onClick={() => setSkillEditIndex(-1)}
-                className="px-3 py-1.5 bg-secondary text-white text-xs font-black rounded-xl shadow-md shadow-secondary/20 hover:scale-105 active:scale-95 transition-all"
-              >
-                + 역할 추가
-              </button>
-            </div>
-            {skills.length === 0 ? (
-              <p className="text-xs text-primary/30 text-center py-4">등록된 역할이 없습니다.</p>
-            ) : (
-              <div className="space-y-3">
-                {skills.map((s, i) => (
-                  <SkillRowItem
-                    key={i}
-                    skill={s}
-                    positionMembers={membersByRole[s.role] ?? []}
-                    onAssign={setModalRole}
-                    onEdit={() => setSkillEditIndex(i)}
-                    onDelete={() => {
-                      const next = skills.filter((_, idx) => idx !== i)
-                      saveSkills.mutate(next)
-                    }}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Right: members (1/3) */}
-        <div className="space-y-5">
-          <div className="bg-white rounded-3xl border border-border/30 shadow-sm p-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xs font-black text-primary/40 uppercase tracking-wider">
-                배정 멤버 <span className="text-secondary">{project.members.length}</span>
-              </h3>
-              <button
-                onClick={() => setModalRole('')}
-                className="px-3 py-1.5 bg-secondary text-white text-xs font-black rounded-xl shadow-md shadow-secondary/20 hover:scale-105 active:scale-95 transition-all"
-              >
-                + 추가
-              </button>
-            </div>
-
-            {project.members.length === 0 ? (
-              <div className="py-10 text-center">
-                <p className="text-3xl mb-2">👤</p>
-                <p className="text-xs text-primary/30 font-bold">배정된 멤버가 없습니다</p>
-                <p className="text-[11px] text-primary/20 mt-1">역할 행의 배정 버튼을 이용하세요</p>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {project.members.map(m => (
-                  <MemberRow key={m.memberId} member={m} projectId={id!} />
-                ))}
-              </div>
-            )}
-          </div>
-
-          {project.evaluationScore != null && (
-            <div className="bg-white rounded-3xl border border-border/30 shadow-sm p-6 space-y-3">
-              <h3 className="text-xs font-black text-primary/40 uppercase tracking-wider">평가</h3>
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-black text-primary">{project.evaluationScore}</span>
-                <span className="text-xs text-primary/40 font-bold">/ 10</span>
-              </div>
-              {project.evaluationNote && (
-                <p className="text-xs text-primary/60 whitespace-pre-wrap">{project.evaluationNote}</p>
-              )}
-              {project.evaluatedAt && (
-                <p className="text-[11px] text-primary/30">평가일 {fmt(project.evaluatedAt)}</p>
-              )}
+          {project.description && (
+            <div className="pt-2 border-t border-border/20">
+              <p className="text-[11px] font-bold text-primary/30 uppercase mb-1">설명</p>
+              <p className="text-sm text-primary/70 whitespace-pre-wrap">{project.description}</p>
             </div>
           )}
         </div>
+
+        {/* 수주 결과 정보 */}
+        <div className="bg-white rounded-3xl border border-border/30 shadow-sm p-7 space-y-5">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs font-black text-primary/40 uppercase tracking-wider">수주 결과 정보</h3>
+            <button
+              onClick={() => setShowEditModal(true)}
+              className="px-3 py-1.5 bg-secondary text-white text-xs font-black rounded-xl shadow-md shadow-secondary/20 hover:scale-105 active:scale-95 transition-all"
+            >
+              수정
+            </button>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-4">
+            <div>
+              <p className="text-[11px] font-bold text-primary/30 uppercase mb-0.5">수주 상태</p>
+              {project.awardStatus ? (
+                <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold ${AWARD_BADGE[project.awardStatus] ?? 'bg-slate-100 text-slate-600'}`}>
+                  {AWARD_STATUS_LABELS[project.awardStatus] ?? project.awardStatus}
+                </span>
+              ) : <p className="text-sm font-semibold text-primary">-</p>}
+            </div>
+            <InfoRow label="수주 금액" value={project.awardAmount != null ? `${project.awardAmount.toLocaleString()}원` : '-'} />
+            <InfoRow label="계약일" value={fmt(project.contractDate)} />
+            <InfoRow label="주사업자 담당자" value={project.contractorContact} />
+          </div>
+          {project.awardNote && (
+            <div className="pt-2 border-t border-border/20">
+              <p className="text-[11px] font-bold text-primary/30 uppercase mb-1">비고</p>
+              <p className="text-sm text-primary/70 whitespace-pre-wrap">{project.awardNote}</p>
+            </div>
+          )}
+        </div>
+
+        {/* 필요 역할 */}
+        <div className="bg-white rounded-3xl border border-border/30 shadow-sm p-7 space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs font-black text-primary/40 uppercase tracking-wider">필요 역할</h3>
+            <button
+              onClick={() => setSkillEditIndex(-1)}
+              className="px-3 py-1.5 bg-secondary text-white text-xs font-black rounded-xl shadow-md shadow-secondary/20 hover:scale-105 active:scale-95 transition-all"
+            >
+              + 역할 추가
+            </button>
+          </div>
+          {skills.length === 0 ? (
+            <p className="text-xs text-primary/30 text-center py-4">등록된 역할이 없습니다.</p>
+          ) : (
+            <div className="space-y-3">
+              {skills.map((s, i) => (
+                <SkillRowItem
+                  key={i}
+                  skill={s}
+                  positionMembers={membersByRole[s.role] ?? []}
+                  onAssign={setModalRole}
+                  onEdit={() => setSkillEditIndex(i)}
+                  onDelete={() => {
+                    const next = skills.filter((_, idx) => idx !== i)
+                    saveSkills.mutate(next)
+                  }}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* 배정 멤버 */}
+        <div className="bg-white rounded-3xl border border-border/30 shadow-sm p-7 space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs font-black text-primary/40 uppercase tracking-wider">
+              배정 멤버 <span className="text-secondary">{project.members.length}</span>
+            </h3>
+            <button
+              onClick={() => setModalRole('')}
+              className="px-3 py-1.5 bg-secondary text-white text-xs font-black rounded-xl shadow-md shadow-secondary/20 hover:scale-105 active:scale-95 transition-all"
+            >
+              + 추가
+            </button>
+          </div>
+
+          {project.members.length === 0 ? (
+            <div className="py-10 text-center">
+              <p className="text-3xl mb-2">👤</p>
+              <p className="text-xs text-primary/30 font-bold">배정된 멤버가 없습니다</p>
+              <p className="text-[11px] text-primary/20 mt-1">역할 행의 배정 버튼을 이용하세요</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {project.members.map(m => (
+                <MemberRow key={m.memberId} member={m} projectId={id!} />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* 평가 */}
+        {project.evaluationScore != null && (
+          <div className="bg-white rounded-3xl border border-border/30 shadow-sm p-7 space-y-3">
+            <h3 className="text-xs font-black text-primary/40 uppercase tracking-wider">평가</h3>
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-black text-primary">{project.evaluationScore}</span>
+              <span className="text-xs text-primary/40 font-bold">/ 10</span>
+            </div>
+            {project.evaluationNote && (
+              <p className="text-xs text-primary/60 whitespace-pre-wrap">{project.evaluationNote}</p>
+            )}
+            {project.evaluatedAt && (
+              <p className="text-[11px] text-primary/30">평가일 {fmt(project.evaluatedAt)}</p>
+            )}
+          </div>
+        )}
       </div>
 
       {modalRole !== null && (

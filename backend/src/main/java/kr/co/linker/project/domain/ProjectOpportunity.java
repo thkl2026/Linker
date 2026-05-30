@@ -76,6 +76,25 @@ public class ProjectOpportunity {
     @Column(columnDefinition = "TEXT")
     private String evaluationNote;
 
+    // ── 수주 결과 정보 ──────────────────────────────────────────────────────────
+    /** 수주 상태 — REVIEWING(검토중) / WON(수주확정) / LOST(실주) */
+    @Column(length = 20)
+    private String awardStatus;
+
+    /** 수주(계약) 금액 */
+    private BigDecimal awardAmount;
+
+    /** 계약 체결일 */
+    private LocalDate contractDate;
+
+    /** 수주 비고 */
+    @Column(columnDefinition = "TEXT")
+    private String awardNote;
+
+    /** 주사업자 담당자 정보 (이름/연락처/이메일 등 자유 입력) */
+    @Column(length = 500)
+    private String contractorContact;
+
     @CreationTimestamp
     private OffsetDateTime createdAt;
 
@@ -147,6 +166,16 @@ public class ProjectOpportunity {
         this.requiredHeadcount = requiredHeadcount;
         this.startDate = startDate;
         this.endDate = endDate;
+    }
+
+    /** 수주 결과 정보 수정 */
+    public void updateAwardInfo(String awardStatus, BigDecimal awardAmount, LocalDate contractDate,
+                                String awardNote, String contractorContact) {
+        this.awardStatus = awardStatus;
+        this.awardAmount = awardAmount;
+        this.contractDate = contractDate;
+        this.awardNote = awardNote;
+        this.contractorContact = contractorContact;
     }
 
     /** 평가 등록 */
