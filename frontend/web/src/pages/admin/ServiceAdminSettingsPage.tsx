@@ -1249,6 +1249,7 @@ function ReferralTab({ initial }: { initial: MasterData }) {
   const [newContact, setNewContact]     = useState<Contact>(EMPTY_CONTACT)
   const [editingContactKey, setEditingContactKey] = useState<string | null>(null)
   const [editContactForm, setEditContactForm] = useState<Contact>(EMPTY_CONTACT)
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
   const [uploadingIdx, setUploadingIdx] = useState<number | null>(null)
   const { addToast } = useUiStore()
   const qc = useQueryClient()
@@ -1268,10 +1269,20 @@ function ReferralTab({ initial }: { initial: MasterData }) {
     setSources(s => s.map((r, i) => i === idx ? { ...r, ...patch } : r))
   }
 
-  function remove(idx: number) {
-    setSources(s => s.filter((_, i) => i !== idx))
-    if (expandedIdx === idx) setExpandedIdx(null)
-    else if (expandedIdx !== null && expandedIdx > idx) setExpandedIdx(expandedIdx - 1)
+  function removeSelected() {
+    const toDelete = selectedIds
+    setSources(s => s.filter((_, i) => !toDelete.has(i)))
+    if (expandedIdx !== null && toDelete.has(expandedIdx)) setExpandedIdx(null)
+    if (editingIdx !== null && toDelete.has(editingIdx)) setEditingIdx(null)
+    setSelectedIds(new Set())
+  }
+
+  function toggleSelect(idx: number) {
+    setSelectedIds(prev => { const n = new Set(prev); n.has(idx) ? n.delete(idx) : n.add(idx); return n })
+  }
+
+  function toggleAll() {
+    setSelectedIds(selectedIds.size === sources.length ? new Set() : new Set(sources.map((_, i) => i)))
   }
 
   function addSource() {
@@ -1307,22 +1318,64 @@ function ReferralTab({ initial }: { initial: MasterData }) {
 
   return (
     <Section title="추천기관 관리" sub="인력 추천을 받는 기관의 정보 및 담당자를 관리합니다.">
+
+      {/* 상단 우측 액션 버튼 */}
+      <div className="flex justify-end gap-2 mb-3">
+        {editingIdx !== null ? (
+          <button onClick={() => setEditingIdx(null)}
+            className="px-3 py-1.5 text-xs font-black bg-secondary text-white rounded-xl hover:bg-secondary/90 transition-all">
+            완료
+          </button>
+        ) : (
+          <>
+            <button onClick={() => { const idx = [...selectedIds][0]; setEditingIdx(idx) }}
+              disabled={selectedIds.size !== 1}
+              className="px-3 py-1.5 text-xs font-black border border-border/50 rounded-xl text-primary/60 hover:border-secondary hover:text-secondary transition-all disabled:opacity-30">
+              수정
+            </button>
+            <button onClick={removeSelected}
+              disabled={selectedIds.size === 0}
+              className="px-3 py-1.5 text-xs font-black border border-border/50 rounded-xl text-primary/60 hover:border-danger hover:text-danger transition-all disabled:opacity-30">
+              삭제
+            </button>
+          </>
+        )}
+        <button onClick={() => mutate()} disabled={isPending}
+          className="px-4 py-1.5 text-xs font-black bg-primary text-white rounded-xl hover:opacity-90 transition-all disabled:opacity-50">
+          {isPending ? '저장 중...' : '저장'}
+        </button>
+      </div>
+
       <div className="border border-border/30 rounded-2xl overflow-hidden mb-6">
         <table className="w-full text-sm">
           <thead className="bg-surface text-[11px] font-black text-primary/40 uppercase tracking-wider">
             <tr>
+              <th className="px-3 py-3 border-b border-border/20 w-10">
+                <input type="checkbox"
+                  className="w-4 h-4 accent-secondary cursor-pointer"
+                  checked={sources.length > 0 && selectedIds.size === sources.length}
+                  ref={el => { if (el) el.indeterminate = selectedIds.size > 0 && selectedIds.size < sources.length }}
+                  onChange={toggleAll} />
+              </th>
               <th className="px-4 py-3 text-left border-b border-border/20 w-[18%]">기관명</th>
               <th className="px-4 py-3 text-left border-b border-border/20 w-[13%]">사업자등록번호</th>
               <th className="px-4 py-3 text-left border-b border-border/20 w-[13%]">전화번호</th>
               <th className="px-4 py-3 text-left border-b border-border/20 w-[15%]">통장번호</th>
               <th className="px-4 py-3 text-left border-b border-border/20 w-[14%]">첨부파일</th>
-              <th className="px-4 py-3 text-center border-b border-border/20 w-[12%]">담당자</th>
-              <th className="px-4 py-3 text-center border-b border-border/20 w-[15%]">액션</th>
+              <th className="px-4 py-3 text-center border-b border-border/20 w-[10%]">담당자</th>
             </tr>
           </thead>
           <tbody>
             {sources.map((r, idx) => (
-              <tr key={idx} className={`border-b border-border/10 transition-colors ${expandedIdx === idx ? 'bg-primary/5' : 'hover:bg-surface/50'}`}>
+              <tr key={idx} className={`border-b border-border/10 transition-colors ${
+                selectedIds.has(idx) ? 'bg-secondary/5' : expandedIdx === idx ? 'bg-primary/5' : 'hover:bg-surface/50'
+              }`}>
+                <td className="px-3 py-2 text-center" onClick={e => e.stopPropagation()}>
+                  <input type="checkbox"
+                    className="w-4 h-4 accent-secondary cursor-pointer"
+                    checked={selectedIds.has(idx)}
+                    onChange={() => toggleSelect(idx)} />
+                </td>
                 {editingIdx === idx ? (
                   <>
                     <td className="px-2 py-1.5"><input className={refInputCls} value={r.name} onChange={e => update(idx, { name: e.target.value })} /></td>
@@ -1359,11 +1412,8 @@ function ReferralTab({ initial }: { initial: MasterData }) {
                         onDownload={async att => { const res = await settingsApi.getAttachmentDownloadUrl(att.key); window.open(res.data.url, '_blank') }}
                       />
                     </td>
-                    <td className="px-2 py-1.5 text-center">
-                      <span className="text-xs text-primary/40">{(r.contacts ?? []).length}명</span>
-                    </td>
-                    <td className="px-2 py-1.5 text-center">
-                      <button onClick={() => setEditingIdx(null)} className="text-[11px] font-black text-secondary hover:underline">완료</button>
+                    <td className="px-2 py-1.5 text-center text-xs text-primary/40">
+                      {(r.contacts ?? []).length}명
                     </td>
                   </>
                 ) : (
@@ -1387,27 +1437,19 @@ function ReferralTab({ initial }: { initial: MasterData }) {
                     </td>
                     <td className="px-2 py-2.5 text-center">
                       <button
-                        onClick={() => { setExpandedIdx(expandedIdx === idx ? null : idx); setNewContact(EMPTY_CONTACT) }}
-                        className={`px-3 py-1 rounded-xl text-[11px] font-black transition-all ${
-                          expandedIdx === idx
-                            ? 'bg-primary text-white'
-                            : 'bg-secondary/5 border border-secondary/20 text-secondary hover:bg-secondary hover:text-white'
-                        }`}
-                      >
-                        담당자 {(r.contacts ?? []).length}명
+                        onClick={e => { e.stopPropagation(); setExpandedIdx(expandedIdx === idx ? null : idx); setNewContact(EMPTY_CONTACT) }}
+                        className={`text-xs font-bold transition-colors ${
+                          expandedIdx === idx ? 'text-primary font-black' : 'text-primary/50 hover:text-secondary'
+                        }`}>
+                        {(r.contacts ?? []).length}명
                       </button>
-                    </td>
-                    <td className="px-2 py-2.5 text-center">
-                      <div className="flex items-center justify-center gap-2">
-                        <button onClick={() => setEditingIdx(idx)} className="text-[11px] font-black text-primary/40 hover:text-secondary transition-colors">수정</button>
-                        <button onClick={() => remove(idx)} className="text-[11px] font-black text-primary/40 hover:text-danger transition-colors">삭제</button>
-                      </div>
                     </td>
                   </>
                 )}
               </tr>
             ))}
             <tr className="bg-surface/30">
+              <td className="px-3 py-2"></td>
               <td className="px-2 py-2"><input className={refInputCls} value={newRef.name} onChange={e => setNewRef(r => ({ ...r, name: e.target.value }))} onKeyDown={e => e.key === 'Enter' && addSource()} placeholder="기관명 *" /></td>
               <td className="px-2 py-2"><input className={refInputCls} value={newRef.registrationNo} onChange={e => setNewRef(r => ({ ...r, registrationNo: formatBizNo(e.target.value) }))} placeholder="000-00-00000" /></td>
               <td className="px-2 py-2"><input className={refInputCls} value={newRef.phone} onChange={e => setNewRef(r => ({ ...r, phone: e.target.value }))} placeholder="021-555-1234" /></td>
@@ -1428,7 +1470,6 @@ function ReferralTab({ initial }: { initial: MasterData }) {
                 </div>
               </td>
               <td className="px-2 py-2"><span className="text-xs text-primary/30">추가 후 수정에서 첨부</span></td>
-              <td className="px-2 py-2"></td>
               <td className="px-2 py-2 text-center">
                 <button onClick={addSource} disabled={!newRef.name.trim()}
                   className="px-3 py-1.5 bg-secondary/5 border border-secondary/20 text-secondary text-xs font-black rounded-xl hover:bg-secondary hover:text-white transition-all disabled:opacity-30">
@@ -1529,12 +1570,6 @@ function ReferralTab({ initial }: { initial: MasterData }) {
         </div>
       )}
 
-      <div className="pt-6 border-t border-border/10 flex justify-end">
-        <button onClick={() => mutate()} disabled={isPending}
-          className="px-10 py-4 bg-primary text-white rounded-2xl text-sm font-black shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50">
-          {isPending ? '저장 중...' : '변경 사항 저장'}
-        </button>
-      </div>
     </Section>
   )
 }
