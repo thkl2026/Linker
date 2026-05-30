@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { HelpPanel } from '@/shared/components/HelpPanel'
+import { HelpPanel, HelpButton } from '@/shared/components/HelpPanel'
 import { helpTalentList } from '@/shared/help/helpContent'
 import { displayName } from '@/shared/utils/nameUtils'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -3382,10 +3382,7 @@ export function TalentCareerPage() {
           <h1 className="text-2xl font-bold text-primary">전문가 목록</h1>
           <span className="text-sm text-primary/50">총 {data?.totalElements ?? 0}명</span>
         </div>
-        <button onClick={() => setShowHelp(true)} title="도움말"
-          className="w-[1.6rem] h-[1.6rem] rounded-full border border-border text-primary/50 hover:text-primary hover:bg-surface flex items-center justify-center text-xs font-bold transition-colors">
-          ?
-        </button>
+        <HelpButton onClick={() => setShowHelp(true)} />
       </div>
 
       {/* 검색 + 버튼 */}

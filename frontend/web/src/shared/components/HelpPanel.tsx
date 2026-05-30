@@ -120,14 +120,15 @@ export function HelpPanel({ open, onClose, content }: HelpPanelProps) {
   )
 }
 
-/** 페이지 헤더에 붙이는 도움말 버튼 */
+/** 페이지 헤더에 붙이는 도움말 버튼 — 원형 물음표 아이콘 */
 export function HelpButton({ onClick }: { onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="w-28 py-2.5 rounded-xl border border-border text-sm font-semibold text-primary/70 hover:bg-surface transition-colors"
+      title="도움말"
+      className="w-[1.6rem] h-[1.6rem] rounded-full border border-border text-primary/50 hover:text-primary hover:bg-surface flex items-center justify-center text-xs font-bold transition-colors shrink-0"
     >
-      ? 도움말
+      ?
     </button>
   )
 }

@@ -224,11 +224,15 @@ export function ServiceAdminDashboardPage() {
             {today} · <span className="text-secondary font-bold">운영 중인 서버: 정상</span>
           </p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <HelpButton onClick={() => setShowHelp(true)} />
           <Link to="/app/service-admin/talents"
             className="px-5 py-2.5 bg-primary text-white rounded-xl text-sm font-bold shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
-            + 전문가 신규 등록
+            + 전문가 등록
+          </Link>
+          <Link to="/app/service-admin/projects/create"
+            className="px-5 py-2.5 bg-secondary text-white rounded-xl text-sm font-bold shadow-lg shadow-secondary/20 hover:scale-105 active:scale-95 transition-all">
+            + 프로젝트 등록
           </Link>
         </div>
       </div>
