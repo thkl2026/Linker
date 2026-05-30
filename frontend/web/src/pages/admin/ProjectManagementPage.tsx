@@ -13,6 +13,29 @@ const STATUS_LABELS: Record<ProjectStatus, string> = {
 }
 
 
+function StatCard({ icon, label, value, unit, onClick, valueColor, iconBg }: {
+  icon: string; label: string; value: string | number; unit: string
+  onClick?: () => void; valueColor?: string; iconBg?: string
+}) {
+  return (
+    <div className="bg-white p-6 rounded-3xl border border-border/30 shadow-[0_4px_20px_-4px_rgba(69,26,3,0.05)] hover:shadow-[0_8px_30px_-4px_rgba(69,26,3,0.1)] transition-all duration-300 group">
+      <div className="flex items-center gap-4 mb-4">
+        <div className={`w-12 h-12 ${iconBg ?? 'bg-secondary/10'} rounded-2xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform shrink-0`}>
+          {icon}
+        </div>
+        <p className="text-sm font-bold text-primary/50">{label}</p>
+      </div>
+      <button
+        onClick={onClick}
+        className={`text-3xl font-black tracking-tight ${valueColor ?? 'text-primary'} ${onClick ? 'hover:text-secondary transition-colors cursor-pointer' : ''}`}
+      >
+        {typeof value === 'number' ? value.toLocaleString() : value}
+        <span className="text-sm font-normal text-primary/30 ml-1">{unit}</span>
+      </button>
+    </div>
+  )
+}
+
 function formatDate(d: string | null): string {
   if (!d) return '-'
   return d.slice(0, 10).replace(/-/g, '.')
@@ -81,39 +104,16 @@ export function ProjectManagementPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-6">
-        <div className="bg-white p-8 rounded-3xl border border-border/30 shadow-sm hover:-translate-y-1 transition-all">
-          <div className="flex justify-between items-start mb-4">
-            <div className="w-14 h-14 bg-primary/5 rounded-2xl flex items-center justify-center text-3xl">📁</div>
-            <span className="text-[10px] font-bold text-primary/30 px-3 py-1 bg-background rounded-full border border-border/20">TOTAL</span>
-          </div>
-          <p className="text-xs font-bold text-primary/40 mb-1">전체 프로젝트</p>
-          <p className="text-4xl font-black text-primary">
-            {stats?.total ?? '-'} <span className="text-sm font-normal text-primary/30 ml-1">건</span>
-          </p>
-        </div>
-
-        <div className="bg-white p-8 rounded-3xl border border-border/30 shadow-sm border-l-4 border-l-emerald-500 hover:-translate-y-1 transition-all">
-          <div className="flex justify-between items-start mb-4">
-            <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-3xl">📢</div>
-            <span className="text-[10px] font-bold text-emerald-600 px-3 py-1 bg-emerald-50 rounded-full border border-emerald-100 uppercase">Recruiting</span>
-          </div>
-          <p className="text-xs font-bold text-primary/40 mb-1">인력모집중</p>
-          <p className="text-4xl font-black text-emerald-700">
-            {stats?.open ?? '-'} <span className="text-sm font-normal text-primary/30 ml-1">건</span>
-          </p>
-        </div>
-
-        <div className="bg-white p-8 rounded-3xl border border-border/30 shadow-sm border-l-4 border-l-blue-500 hover:-translate-y-1 transition-all">
-          <div className="flex justify-between items-start mb-4">
-            <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center text-3xl">✅</div>
-            <span className="text-[10px] font-bold text-blue-600 px-3 py-1 bg-blue-50 rounded-full border border-blue-100 uppercase">Completed</span>
-          </div>
-          <p className="text-xs font-bold text-primary/40 mb-1">모집 완료</p>
-          <p className="text-4xl font-black text-blue-700">
-            {stats?.matched ?? '-'} <span className="text-sm font-normal text-primary/30 ml-1">건</span>
-          </p>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <StatCard icon="📁" iconBg="bg-primary/5" label="전체 프로젝트" value={stats?.total ?? '-'} unit="건"
+          valueColor="text-primary"
+          onClick={() => { setStatusFilter(''); setPage(0) }} />
+        <StatCard icon="📢" iconBg="bg-emerald-50" label="인력모집중" value={stats?.open ?? '-'} unit="건"
+          valueColor="text-emerald-700"
+          onClick={() => { setStatusFilter('OPEN'); setPage(0) }} />
+        <StatCard icon="✅" iconBg="bg-blue-50" label="모집 완료" value={stats?.matched ?? '-'} unit="건"
+          valueColor="text-blue-700"
+          onClick={() => { setStatusFilter('MATCHED'); setPage(0) }} />
       </div>
 
       {/* Filter */}
