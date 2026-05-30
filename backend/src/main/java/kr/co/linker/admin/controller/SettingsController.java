@@ -92,12 +92,20 @@ public class SettingsController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "사용자 정보 수정 (이름·소속·역할)")
+    @Operation(summary = "사용자 정보 수정 (이름·전화번호·소속·역할)")
     @PutMapping("/invitations/{id}")
     public ResponseEntity<Void> updateInvitedUser(@PathVariable UUID id,
             @Valid @RequestBody kr.co.linker.admin.dto.UpdateInvitedUserRequest req) {
         settingsService.updateInvitedUser(id, req);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "사용자 프로필 사진 업로드")
+    @PostMapping(value = "/invitations/{id}/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<java.util.Map<String, String>> uploadUserPhoto(@PathVariable UUID id,
+            @RequestPart("file") MultipartFile file) throws java.io.IOException {
+        String url = settingsService.uploadUserPhoto(id, file.getBytes(), file.getContentType(), file.getOriginalFilename());
+        return ResponseEntity.ok(java.util.Map.of("url", url));
     }
 
     @Operation(summary = "초대 취소")

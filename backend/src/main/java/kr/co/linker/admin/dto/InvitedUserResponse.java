@@ -17,14 +17,16 @@ public record InvitedUserResponse(
         String inviteUrl,
         String lastLoginAt,
         String lastLoginIp,
-        String accountCreatedAt
+        String accountCreatedAt,
+        String photoUrl
 ) {
     public static InvitedUserResponse from(UserInvitation inv, String baseUrl) {
-        return from(inv, baseUrl, null, null, null, null, null);
+        return from(inv, baseUrl, null, null, null, null, null, null);
     }
 
     public static InvitedUserResponse from(UserInvitation inv, String baseUrl,
-            String name, String phone, String lastLoginAt, String lastLoginIp, String accountCreatedAt) {
+            String name, String phone, String lastLoginAt, String lastLoginIp, String accountCreatedAt,
+            String photoUrl) {
         return new InvitedUserResponse(
                 inv.getId(),
                 inv.getEmail(),
@@ -38,7 +40,8 @@ public record InvitedUserResponse(
                 inv.getToken() != null ? baseUrl + "/invite/" + inv.getToken() : null,
                 lastLoginAt,
                 lastLoginIp,
-                accountCreatedAt
+                accountCreatedAt,
+                photoUrl
         );
     }
 }

@@ -99,6 +99,7 @@ export interface InvitedUser {
   lastLoginAt: string | null
   lastLoginIp: string | null
   accountCreatedAt: string | null
+  photoUrl?: string | null
 }
 
 export const settingsApi = {
@@ -126,8 +127,16 @@ export const settingsApi = {
   resendInvitation: (id: string) =>
     axiosInstance.post(`/api/v1/service-admin/settings/invitations/${id}/resend`),
 
-  updateInvitedUser: (id: string, req: { name?: string; company?: string; role?: string }) =>
+  updateInvitedUser: (id: string, req: { name?: string; phone?: string; company?: string; role?: string }) =>
     axiosInstance.put(`/api/v1/service-admin/settings/invitations/${id}`, req),
+
+  uploadUserPhoto: (id: string, file: File) => {
+    const fd = new FormData()
+    fd.append('file', file)
+    return axiosInstance.post<{ url: string }>(`/api/v1/service-admin/settings/invitations/${id}/photo`, fd, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+  },
 
   revokeInvitation: (id: string) =>
     axiosInstance.delete(`/api/v1/service-admin/settings/invitations/${id}`),

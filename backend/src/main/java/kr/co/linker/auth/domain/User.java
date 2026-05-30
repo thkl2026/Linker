@@ -89,6 +89,10 @@ public class User {
     @Column(length = 100)
     private String department;
 
+    /** 프로필 사진 MinIO 키 */
+    @Column(length = 500)
+    private String photoKey;
+
     private boolean isActive = true;
 
     /** 로그인 연속 실패 횟수 — 5회 초과 시 30분 잠금 */
@@ -195,6 +199,17 @@ public class User {
 
     public void changeRole(UserRole role) {
         this.role = role;
+    }
+
+    /** 연락처 갱신 — 암호화된 전화번호와 SHA-256 해시를 함께 저장 */
+    public void updatePhone(String encryptedPhone, String phoneHash) {
+        this.phone = encryptedPhone;
+        this.phoneHash = phoneHash;
+    }
+
+    /** 프로필 사진 MinIO 키 갱신 */
+    public void updatePhotoKey(String photoKey) {
+        this.photoKey = photoKey;
     }
 
     public void deactivate() {

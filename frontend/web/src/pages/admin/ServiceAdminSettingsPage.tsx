@@ -291,8 +291,12 @@ function UserDetailModal({ inv, onClose }: { inv: InvitedUser; onClose: () => vo
   const { addToast } = useUiStore()
   const qc = useQueryClient()
   const fmt = (s: string | null) => s ? s.slice(0, 16).replace('T', ' ') : '—'
+  const fileRef = useRef<HTMLInputElement>(null)
+  const [photoUrl, setPhotoUrl] = useState<string | null>(inv.photoUrl ?? null)
+  const [uploading, setUploading] = useState(false)
   const [form, setForm] = useState({
     name: inv.name ?? '',
+    phone: inv.phone ?? '',
     company: inv.company ?? '',
     role: inv.role,
   })
@@ -307,10 +311,23 @@ function UserDetailModal({ inv, onClose }: { inv: InvitedUser; onClose: () => vo
     onError: () => addToast('수정에 실패했습니다.', 'error'),
   })
 
+  const handlePhoto = async (file: File) => {
+    setUploading(true)
+    try {
+      const res = await settingsApi.uploadUserPhoto(inv.id, file)
+      setPhotoUrl(res.data.url)
+      qc.invalidateQueries({ queryKey: ['settings', 'invitations'] })
+      addToast('사진이 업로드되었습니다.', 'success')
+    } catch {
+      addToast('사진 업로드에 실패했습니다.', 'error')
+    } finally {
+      setUploading(false)
+    }
+  }
+
   // 읽기 전용 항목
   const readonlyRows: { label: string; value: string }[] = [
     { label: '가입 상태',     value: STATUS_LABEL[inv.status] ?? inv.status },
-    { label: '전화번호',      value: inv.phone || '—' },
     { label: '초대일',       value: fmt(inv.invitedAt) },
     { label: '가입 완료일',    value: fmt(inv.acceptedAt) },
     { label: '계정 생성일',    value: fmt(inv.accountCreatedAt) },
@@ -326,9 +343,22 @@ function UserDetailModal({ inv, onClose }: { inv: InvitedUser; onClose: () => vo
           <button onClick={onClose} className="text-xl text-primary/30 hover:text-primary">&times;</button>
         </div>
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white font-black text-base shrink-0">
-            {inv.email.slice(0, 2).toUpperCase()}
-          </div>
+          {/* 프로필 사진 — 클릭 시 업로드 */}
+          <button type="button" onClick={() => fileRef.current?.click()} disabled={uploading}
+            className="relative w-14 h-14 rounded-full overflow-hidden shrink-0 group/photo border border-border/30">
+            {photoUrl ? (
+              <img src={photoUrl} alt="" className="w-full h-full object-cover" />
+            ) : (
+              <span className="w-full h-full bg-primary flex items-center justify-center text-white font-black text-base">
+                {inv.email.slice(0, 2).toUpperCase()}
+              </span>
+            )}
+            <span className="absolute inset-0 bg-black/40 opacity-0 group-hover/photo:opacity-100 flex items-center justify-center text-white text-[10px] font-bold transition-opacity">
+              {uploading ? '...' : '변경'}
+            </span>
+          </button>
+          <input ref={fileRef} type="file" accept="image/*" className="hidden"
+            onChange={e => { const f = e.target.files?.[0]; if (f) handlePhoto(f) }} />
           <div className="min-w-0">
             <p className="text-sm font-black text-primary truncate">{form.name || inv.email.split('@')[0]}</p>
             <p className="text-xs text-primary/40 truncate">{inv.email}</p>
@@ -342,6 +372,12 @@ function UserDetailModal({ inv, onClose }: { inv: InvitedUser; onClose: () => vo
             <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
               className="w-full bg-white border border-border/50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary transition-all"
               placeholder="이름" />
+          </div>
+          <div>
+            <label className="text-xs font-bold text-primary/50 block mb-1">전화번호</label>
+            <input value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
+              className="w-full bg-white border border-border/50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary transition-all"
+              placeholder="010-0000-0000" />
           </div>
           <div>
             <label className="text-xs font-bold text-primary/50 block mb-1">소속</label>
@@ -492,10 +528,14 @@ function UsersTab() {
                 </td>
                 <td className="py-5 px-2">
                   <button onClick={() => setDetailTarget(inv)} className="flex items-center gap-3 text-left hover:opacity-80 transition-opacity">
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xs font-black
-                      ${inv.status === 'ACCEPTED' ? 'bg-primary text-white' : 'bg-white border border-border/30 text-sm'}`}>
-                      {initials(inv)}
-                    </div>
+                    {inv.photoUrl ? (
+                      <img src={inv.photoUrl} alt="" className="w-10 h-10 rounded-xl object-cover shrink-0" />
+                    ) : (
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xs font-black
+                        ${inv.status === 'ACCEPTED' ? 'bg-primary text-white' : 'bg-white border border-border/30 text-sm'}`}>
+                        {initials(inv)}
+                      </div>
+                    )}
                     <div>
                       <p className="text-sm font-bold text-primary/80">{inv.email}</p>
                       <p className="text-[10px] text-primary/30 uppercase">

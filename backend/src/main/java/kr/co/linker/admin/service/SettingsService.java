@@ -190,7 +190,9 @@ public class SettingsService {
                                 String phone = decryptSafe(user.getPhone());
                                 String lastLoginAt = user.getLastLoginAt() != null ? user.getLastLoginAt().toString() : null;
                                 String accountCreatedAt = user.getCreatedAt() != null ? user.getCreatedAt().toString() : null;
-                                return InvitedUserResponse.from(inv, baseUrl, name, phone, lastLoginAt, user.getLastLoginIp(), accountCreatedAt);
+                                String photoUrl = user.getPhotoKey() != null
+                                        ? fileStorageService.generateDownloadUrl(user.getPhotoKey(), java.time.Duration.ofHours(1)) : null;
+                                return InvitedUserResponse.from(inv, baseUrl, name, phone, lastLoginAt, user.getLastLoginIp(), accountCreatedAt, photoUrl);
                             })
                             .orElseGet(() -> InvitedUserResponse.from(inv, baseUrl));
                 }).toList();
@@ -255,6 +257,14 @@ public class SettingsService {
             String emailHash = encryptionService.hash(inv.getEmail());
             userRepository.findByEmailHash(emailHash).ifPresent(user -> {
                 user.updateProfile(req.name(), null, req.company());
+                if (req.phone() != null) {
+                    String trimmed = req.phone().trim();
+                    if (trimmed.isBlank()) {
+                        user.updatePhone(null, null);
+                    } else {
+                        user.updatePhone(encryptionService.encrypt(trimmed), encryptionService.hash(trimmed));
+                    }
+                }
                 if (req.role() != null && !req.role().isBlank()) {
                     try {
                         user.changeRole(kr.co.linker.auth.domain.UserRole.valueOf(req.role().trim()));
@@ -265,6 +275,24 @@ public class SettingsService {
             });
         }
         log.info("[SETTINGS] 사용자 정보 수정 id={} role={}", id, req.role());
+    }
+
+    @Transactional
+    public String uploadUserPhoto(UUID id, byte[] data, String contentType, String originalFilename) {
+        UserInvitation inv = requireInvitation(id);
+        if (!"ACCEPTED".equals(inv.getStatus())) {
+            throw new kr.co.linker.common.exception.LinkerException(
+                    org.springframework.http.HttpStatus.BAD_REQUEST, "NOT_ACCEPTED", "가입 완료된 사용자만 사진을 등록할 수 있습니다.");
+        }
+        String ext = originalFilename != null && originalFilename.contains(".")
+                ? originalFilename.substring(originalFilename.lastIndexOf('.')) : "";
+        String key = "user-photos/" + id + "/" + UUID.randomUUID() + ext;
+        fileStorageService.uploadBytes(key, data, contentType != null ? contentType : "image/jpeg");
+
+        String emailHash = encryptionService.hash(inv.getEmail());
+        userRepository.findByEmailHash(emailHash).ifPresent(user -> user.updatePhotoKey(key));
+        log.info("[SETTINGS] 사용자 사진 업로드 id={} key={}", id, key);
+        return fileStorageService.generateDownloadUrl(key, java.time.Duration.ofHours(1));
     }
 
     // ── 내부 유틸 ─────────────────────────────────────────────────────────────
