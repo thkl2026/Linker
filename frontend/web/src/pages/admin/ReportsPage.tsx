@@ -90,9 +90,9 @@ function LineSparkline({ data, color = '#6366f1' }: { data: { month: string; cou
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="bg-white rounded-2xl border border-border/30 shadow-sm p-5">
+    <div className="bg-white rounded-2xl border border-border/30 shadow-sm p-5 h-full flex flex-col">
       <h3 className="text-sm font-bold text-primary mb-4 border-l-4 border-secondary pl-3">{title}</h3>
-      {children}
+      <div className="flex-1 flex flex-col justify-center">{children}</div>
     </div>
   )
 }
@@ -121,7 +121,7 @@ function TalentStatsTab({ data }: { data: TalentReport }) {
         </Section>
         <Section title="기술 등급별 분포">
           <HBarChart data={coloredGrade} />
-          <div className="flex gap-3 mt-4 flex-wrap">
+          <div className="flex gap-3 mt-4 flex-wrap justify-center">
             {coloredGrade.map(g => (
               <div key={g.label} className="flex items-center gap-1.5">
                 <div className={`w-2.5 h-2.5 rounded-full ${g.color}`} />
