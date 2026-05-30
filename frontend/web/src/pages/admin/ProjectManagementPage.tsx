@@ -216,7 +216,7 @@ export function ProjectManagementPage() {
                     <p className="text-sm text-primary/60">{p.mainContractor ?? '-'}</p>
                   </td>
                   <td className="px-6 py-5 text-center">
-                    <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${STATUS_BADGE[p.status]}`}>
+                    <span className="text-sm text-primary/60">
                       {STATUS_LABELS[p.status]}
                     </span>
                   </td>
