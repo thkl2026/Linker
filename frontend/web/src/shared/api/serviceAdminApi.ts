@@ -17,6 +17,7 @@ export interface ProjectAdmin {
   startDate: string | null
   endDate: string | null
   createdAt: string
+  awardStatus: string | null
 }
 
 export interface ProjectMember {
@@ -366,6 +367,23 @@ export interface EvalReport {
   distribution: { label: string; count: number }[]
 }
 
+export interface ProjectAnalysisResult {
+  title?: string
+  clientCompany?: string
+  mainContractor?: string
+  startDate?: string
+  endDate?: string
+  roles?: {
+    role: string
+    headcount: number
+    mm: number
+    roleStart?: string
+    roleEnd?: string
+    techStack?: string
+    roleDescription?: string
+  }[]
+}
+
 export const serviceAdminApi = {
   listTalents: (params?: {
     keyword?: string
@@ -511,4 +529,7 @@ export const serviceAdminApi = {
 
   getEvalReport: (period = '6m') =>
     axiosInstance.get<EvalReport>('/api/v1/service-admin/reports/evaluation', { params: { period } }),
+
+  analyzeProjectText: (text: string) =>
+    axiosInstance.post<ProjectAnalysisResult>('/api/v1/service-admin/projects/analyze', { text }),
 }

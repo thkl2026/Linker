@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { serviceAdminApi, AdminCreateProjectRequest, PmUser } from '@/shared/api/serviceAdminApi'
+import { serviceAdminApi, type AdminCreateProjectRequest, type PmUser, type ProjectAnalysisResult } from '@/shared/api/serviceAdminApi'
 import { settingsApi } from '@/shared/api/settingsApi'
+import { useUiStore } from '@/store/uiStore'
 
 const FALLBACK_ROLE_OPTIONS = [
   '프론트엔드 개발자', '백엔드 개발자', '풀스택 개발자',
@@ -73,7 +74,10 @@ export function CreateProjectPage() {
   const [autoMatching, setAutoMatching] = useState(true)
   const [clientNotification, setClientNotification] = useState(false)
   const [isPrivate, setIsPrivate] = useState(false)
+  const [aiInputText, setAiInputText] = useState('')
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [error, setError] = useState('')
+  const { addToast } = useUiStore()
 
   const { data: pmUsers = [] } = useQuery<PmUser[]>({
     queryKey: ['pm-users'],
@@ -103,6 +107,52 @@ export function CreateProjectPage() {
   const totalHeadcount = roles.reduce((s, r) => s + r.headcount, 0)
   const totalMM = roles.reduce((s, r) => s + r.mm * r.headcount, 0)
   const durationMonths = startDate && endDate ? monthsBetween(startDate, endDate) : null
+
+  async function handleAiAnalyze() {
+    if (!aiInputText.trim()) { 
+      setError('분석할 내용을 입력해주세요.'); 
+      return 
+    }
+    setIsAnalyzing(true);
+    setError('');
+    try {
+      const result = await serviceAdminApi.analyzeProjectText(aiInputText);
+      
+      // Update form fields with AI parsed data
+      if (result.data.title) setTitle(result.data.title);
+      if (result.data.clientCompany) setClientCompany(result.data.clientCompany);
+      if (result.data.mainContractor) setMainContractor(result.data.mainContractor);
+      if (result.data.startDate) setStartDate(result.data.startDate);
+      if (result.data.endDate) setEndDate(result.data.endDate);
+
+      // Update roles if provided by AI
+      if (result.data.roles && result.data.roles.length > 0) {
+        const newRoles: RoleRow[] = result.data.roles.map(r => ({
+          id: genId(), // Generate new ID for each role
+          role: r.role || initRole().role,
+          roleDescription: r.roleDescription || '',
+          headcount: r.headcount || 1,
+          mm: r.mm || 1,
+          roleStart: r.roleStart || startDate || '',
+          roleEnd: r.roleEnd || endDate || '',
+          techStack: r.techStack || '',
+        }));
+        setRoles(newRoles);
+      } else if (result.data.title) { // If title is present but no roles, reset to default role
+        setRoles([initRole()]);
+      }
+      // Clear the AI input text after successful analysis
+      setAiInputText('');
+      addToast('AI 분석 완료! 프로젝트 정보가 채워졌습니다.', 'success');
+    } catch (err) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
+        ?? 'AI 분석 중 오류가 발생했습니다.'
+      addToast(msg, 'error')
+      setError(msg)
+    } finally {
+      setIsAnalyzing(false);
+    }
+  }
 
   function handleSubmit() {
     if (!title.trim()) { setError('프로젝트명을 입력해주세요.'); return }
@@ -234,6 +284,35 @@ export function CreateProjectPage() {
                   ))}
                 </select>
               </div>
+            </div>
+          </div>
+
+          {/* Section AI: AI 입력기 */}
+          <div className="bg-white p-8 rounded-[40px] border border-border/30 shadow-sm space-y-6">
+            <div className="flex items-center gap-3 pb-4 border-b border-border/10">
+              <span className="w-8 h-8 rounded-full bg-secondary text-white flex items-center justify-center text-xs font-black">AI</span>
+              <h3 className="text-lg font-black text-secondary">AI 입력기 (메일/메신저 복붙)</h3>
+            </div>
+
+            <div>
+              <textarea
+                value={aiInputText}
+                onChange={e => setAiInputText(e.target.value)}
+                placeholder="메일이나 메신저로 받은 프로젝트 내역을 여기에 붙여넣으세요."
+                rows={8}
+                className="w-full bg-background border border-border/50 rounded-2xl px-5 py-4 text-sm font-bold focus:outline-none focus:border-secondary transition-all resize-y"
+              />
+            </div>
+
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={handleAiAnalyze}
+                disabled={isAnalyzing || !aiInputText.trim()}
+                className="px-6 py-3 bg-secondary text-white rounded-xl text-sm font-black shadow-lg shadow-secondary/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-60 disabled:scale-100"
+              >
+                {isAnalyzing ? 'AI가 정리 중...' : 'AI로 정리하기'}
+              </button>
             </div>
           </div>
 

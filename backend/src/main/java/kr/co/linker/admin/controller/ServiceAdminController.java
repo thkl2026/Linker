@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import kr.co.linker.admin.dto.AdminCreateProjectRequest;
+import kr.co.linker.admin.dto.AnalyzeProjectTextRequest;
+import kr.co.linker.admin.dto.ProjectAnalysisResult;
 import kr.co.linker.admin.dto.UpdateProjectRequest;
 import kr.co.linker.admin.dto.AssignMemberRequest;
 import kr.co.linker.admin.dto.ChangeProjectStatusRequest;
@@ -21,6 +23,7 @@ import kr.co.linker.admin.dto.ProjectStatsResponse;
 import kr.co.linker.admin.dto.ResumeAnalysisResult;
 import kr.co.linker.admin.dto.TalentAdminResponse;
 import kr.co.linker.admin.dto.TalentInsightData;
+import kr.co.linker.admin.service.ProjectAnalysisService;
 import kr.co.linker.admin.service.TalentInsightService;
 import kr.co.linker.admin.dto.UpdateAvailabilityRequest;
 import kr.co.linker.admin.dto.UpdateBonusScoreRequest;
@@ -56,6 +59,7 @@ public class ServiceAdminController {
 
     private final ServiceAdminService serviceAdminService;
     private final ResumeAnalysisService resumeAnalysisService;
+    private final ProjectAnalysisService projectAnalysisService;
     private final TalentInsightService talentInsightService;
     private final FileStorageService fileStorageService;
 
@@ -197,6 +201,13 @@ public class ServiceAdminController {
     public ResponseEntity<Void> removeMember(@PathVariable UUID id, @PathVariable UUID memberId) {
         serviceAdminService.removeMember(id, memberId);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "프로젝트 텍스트 AI 분석 — 메일·메신저 내용으로 폼 자동 입력")
+    @PostMapping("/projects/analyze")
+    public ResponseEntity<ProjectAnalysisResult> analyzeProjectText(
+            @RequestBody AnalyzeProjectTextRequest req) {
+        return ResponseEntity.ok(projectAnalysisService.analyze(req.text()));
     }
 
     @Operation(summary = "신규 프로젝트 등록 (관리자)")

@@ -66,6 +66,30 @@ function HBarChart({ data, max }: { data: { label: string; count: number; color:
 }
 
 
+function BarSparkline({ data, color = '#6366f1' }: { data: { month: string; count: number }[]; color?: string }) {
+  if (!data.length) return null
+  const max = Math.max(...data.map(d => d.count), 1)
+  const w = 300; const h = 90
+  const topPad = 22; const botPad = 4
+  const gap = w / data.length
+  const barW = Math.max(8, gap * 0.55)
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} className="w-full">
+      {data.map((d, i) => {
+        const barH = Math.max(2, (d.count / max) * (h - topPad - botPad))
+        const x = gap * i + gap / 2
+        const y = h - botPad - barH
+        return (
+          <g key={i}>
+            <rect x={x - barW / 2} y={y} width={barW} height={barH} rx="3" fill={color} opacity="0.85" />
+            <text x={x} y={y - 5} textAnchor="middle" fontSize="11" fontWeight="700" fill="#451A03">{d.count}</text>
+          </g>
+        )
+      })}
+    </svg>
+  )
+}
+
 function LineSparkline({ data, color = '#6366f1' }: { data: { month: string; count: number }[]; color?: string }) {
   const max = Math.max(...data.map(d => d.count))
   const min = Math.min(...data.map(d => d.count))
@@ -143,7 +167,7 @@ function TalentStatsTab({ data }: { data: TalentReport }) {
         </Section>
         <Section title="월별 등록 건수">
           <div className="flex-1 flex flex-col justify-end">
-            <LineSparkline data={recentMonthly} color="#6366f1" />
+            <BarSparkline data={recentMonthly} color="#6366f1" />
           </div>
           <div className="flex justify-between mt-4 px-2 h-5 items-center">
             {recentMonthly.map(d => (

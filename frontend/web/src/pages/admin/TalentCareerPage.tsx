@@ -3484,6 +3484,14 @@ export function TalentCareerPage() {
                         {referralSources.map(s => <option key={s.name} value={s.name}>{s.name}</option>)}
                       </select>
                     </td>
+                    <td className="px-4 py-[0.55rem]">
+                      {t.category ? (
+                        <div className="flex flex-col gap-0.5">
+                          <span className="text-xs font-semibold text-primary/80">{TALENT_CATEGORY_LABELS[t.category]}</span>
+                          {t.field && <span className="text-[11px] text-primary/40">{TALENT_FIELD_LABELS[t.field]}</span>}
+                        </div>
+                      ) : <span className="text-primary/30">—</span>}
+                    </td>
                     <td className="px-4 py-[0.55rem] text-primary/60" onClick={e => { e.stopPropagation(); if (inlineRateId !== t.id) { setInlineRateId(t.id); setInlineRateVal(t.desiredRate ? String(t.desiredRate) : '') } }}>
                       {inlineRateId === t.id ? (
                         <input autoFocus type="number"

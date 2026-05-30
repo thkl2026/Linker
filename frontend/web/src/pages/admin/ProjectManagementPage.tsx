@@ -169,7 +169,7 @@ export function ProjectManagementPage() {
                 <th className="px-6 py-5 text-xs font-black text-primary/40 uppercase tracking-wider">PM</th>
                 <th className="px-6 py-5 text-xs font-black text-primary/40 uppercase tracking-wider text-center">인원</th>
                 <th className="px-6 py-5 text-xs font-black text-primary/40 uppercase tracking-wider">수행 기간</th>
-                <th className="px-8 py-5 text-xs font-black text-primary/40 uppercase tracking-wider text-right">관리</th>
+                <th className="px-6 py-5 text-xs font-black text-primary/40 uppercase tracking-wider text-center">수주 여부</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/10">
@@ -212,20 +212,22 @@ export function ProjectManagementPage() {
                     <p className="text-sm text-primary/80">{p.pmName ?? '-'}</p>
                   </td>
                   <td className="px-6 py-5 text-center">
-                    <p className="text-sm font-bold text-primary">{p.requiredHeadcount}명</p>
+                    <p className="text-sm text-primary/60">{p.requiredHeadcount}명</p>
                   </td>
                   <td className="px-6 py-5">
                     <p className="text-sm text-primary/60">{formatPeriod(p)}</p>
                   </td>
-                  <td className="px-8 py-5 text-right" onClick={e => e.stopPropagation()}>
-                    <div className="flex justify-end gap-2">
-                      <button
-                        onClick={() => navigate(`/app/service-admin/projects/${p.id}`)}
-                        className="px-3 py-1.5 text-xs font-bold text-primary/40 hover:text-secondary hover:bg-secondary/5 rounded-lg transition-all"
-                      >
-                        상세
-                      </button>
-                    </div>
+                  <td className="px-6 py-5 text-center">
+                    {p.awardStatus === 'WON' && (
+                      <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700">수주</span>
+                    )}
+                    {p.awardStatus === 'LOST' && (
+                      <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-50 text-red-600">실주</span>
+                    )}
+                    {p.awardStatus === 'REVIEWING' && (
+                      <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700">검토중</span>
+                    )}
+                    {!p.awardStatus && <span className="text-primary/20">—</span>}
                   </td>
                 </tr>
               ))}

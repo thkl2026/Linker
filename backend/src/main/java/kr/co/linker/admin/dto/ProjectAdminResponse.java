@@ -15,7 +15,8 @@ public record ProjectAdminResponse(
         int requiredHeadcount,
         String startDate,
         String endDate,
-        String createdAt
+        String createdAt,
+        String awardStatus
 ) {
     public static ProjectAdminResponse from(ProjectOpportunity p, String pmName) {
         return new ProjectAdminResponse(
@@ -28,7 +29,8 @@ public record ProjectAdminResponse(
                 p.getRequiredHeadcount(),
                 p.getStartDate() != null ? p.getStartDate().toString() : null,
                 p.getEndDate() != null ? p.getEndDate().toString() : null,
-                p.getCreatedAt() != null ? p.getCreatedAt().toString() : null
+                p.getCreatedAt() != null ? p.getCreatedAt().toString() : null,
+                p.getAwardStatus()
         );
     }
 }
