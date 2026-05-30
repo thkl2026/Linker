@@ -41,7 +41,7 @@ const AWARD_BADGE: Record<string, string> = {
   LOST:      'bg-red-50 text-red-600',
 }
 
-type SkillRow = { role: string; headcount: number; mm?: number; techStack?: string; roleStart?: string; roleEnd?: string }
+type SkillRow = { role: string; headcount: number; mm?: number; techStack?: string; roleStart?: string; roleEnd?: string; workLocation?: string }
 
 function fmt(d: string | null | undefined) {
   return d ? d.slice(0, 10).replace(/-/g, '.') : '-'
@@ -548,6 +548,11 @@ function SkillEditModal({ initial, onSave, onClose }: {
                 className="w-full border border-border/50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary" />
             </div>
           </div>
+          <div>
+            <label className="block text-[11px] font-black text-primary/40 uppercase mb-1">근무 장소</label>
+            <input value={form.workLocation ?? ''} onChange={e => set('workLocation', e.target.value)}
+              className="w-full border border-border/50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary" placeholder="예: 서울 강남구 / 재택 / 혼합" />
+          </div>
         </div>
         <div className="flex gap-3 pt-2">
           <button onClick={onClose}
@@ -598,6 +603,9 @@ function SkillRowItem({ skill, positionMembers, onAssign, onEdit, onDelete }: {
         </div>
         {skill.techStack && (
           <p className="text-xs text-primary/40 mt-1">{skill.techStack}</p>
+        )}
+        {skill.workLocation && (
+          <p className="text-xs text-primary/40 mt-0.5">📍 {skill.workLocation}</p>
         )}
         {/* 배정된 멤버 미니 목록 */}
         {positionMembers.length > 0 && (
