@@ -142,6 +142,20 @@ export const settingsApi = {
   revokeInvitation: (id: string) =>
     axiosInstance.delete(`/api/v1/service-admin/settings/invitations/${id}`),
 
+  analyzeContractorDocument: (file: File, name: string) => {
+    const fd = new FormData()
+    fd.append('file', file)
+    fd.append('name', name)
+    return axiosInstance.post<{
+      registrationNo: string | null
+      phone: string | null
+      bankName: string | null
+      bankAccount: string | null
+      key: string
+      name: string
+    }>('/api/v1/service-admin/settings/attachments/analyze', fd)
+  },
+
   uploadReferralAttachment: (file: File, name: string) => {
     const fd = new FormData()
     fd.append('file', file)

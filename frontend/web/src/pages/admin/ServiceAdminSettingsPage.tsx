@@ -1036,9 +1036,19 @@ function ContractorsTab({ initial }: { initial: MasterData }) {
                         onUpload={async (file, name) => {
                           setUploadingIdx(idx)
                           try {
-                            const res = await settingsApi.uploadReferralAttachment(file, name)
-                            update(idx, { attachments: [...(r.attachments ?? []), res.data] })
-                          } finally { setUploadingIdx(null) }
+                            const res = await settingsApi.analyzeContractorDocument(file, name)
+                            const att = { key: res.data.key, name: res.data.name }
+                            const patch: Record<string, unknown> = { attachments: [...(r.attachments ?? []), att] }
+                            if (res.data.registrationNo) patch.registrationNo = res.data.registrationNo
+                            if (res.data.phone) patch.phone = res.data.phone
+                            if (res.data.bankName || res.data.bankAccount) {
+                              patch.bankAccount = combineBankAccount(res.data.bankName ?? '', res.data.bankAccount ?? '')
+                            }
+                            update(idx, patch)
+                            const filled = [res.data.registrationNo, res.data.phone, res.data.bankAccount].filter(Boolean)
+                            if (filled.length > 0) addToast('AI가 문서에서 정보를 자동 입력했습니다.', 'success')
+                          } catch { addToast('파일 업로드에 실패했습니다.', 'error') }
+                          finally { setUploadingIdx(null) }
                         }}
                         onDelete={att => update(idx, { attachments: (r.attachments ?? []).filter(a => a.key !== att.key) })}
                         onDownload={async att => { const res = await settingsApi.getAttachmentDownloadUrl(att.key); window.open(res.data.url, '_blank') }}

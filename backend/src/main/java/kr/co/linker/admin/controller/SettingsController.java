@@ -11,6 +11,8 @@ import kr.co.linker.admin.dto.SaveGeneralSettingsRequest;
 import kr.co.linker.admin.dto.SaveMasterDataRequest;
 import kr.co.linker.admin.dto.SaveSmtpSettingsRequest;
 import kr.co.linker.admin.dto.SaveNotificationSettingsRequest;
+import kr.co.linker.admin.dto.ContractorDocumentResult;
+import kr.co.linker.admin.service.ContractorDocumentService;
 import kr.co.linker.admin.service.SettingsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -31,6 +33,7 @@ import java.util.UUID;
 public class SettingsController {
 
     private final SettingsService settingsService;
+    private final ContractorDocumentService contractorDocumentService;
 
     @Operation(summary = "전체 설정 조회")
     @GetMapping
@@ -116,6 +119,14 @@ public class SettingsController {
     }
 
     // ── 추천소스 첨부파일 ────────────────────────────────────────────────────────
+
+    @Operation(summary = "사업자서류 AI 분석 + 업로드 (사업자등록증·통장사본)")
+    @PostMapping(value = "/attachments/analyze", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ContractorDocumentResult> analyzeContractorDocument(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("name") String name) {
+        return ResponseEntity.ok(contractorDocumentService.analyzeAndUpload(file, name));
+    }
 
     @Operation(summary = "추천소스 첨부파일 업로드")
     @PostMapping(value = "/attachments/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
