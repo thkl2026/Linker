@@ -107,7 +107,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 // ── 탭별 콘텐츠 ───────────────────────────────────────────────────────────────
 
 function TalentStatsTab({ data }: { data: TalentReport }) {
-  const { total, available, busy, rest, byCategory, byGrade, monthlyNew, topSkills } = data
+  const { total, available, busy, byCategory, byGrade, monthlyNew, topSkills } = data
   const coloredCategory = byCategory.map(d => ({ ...d, color: CATEGORY_COLORS[d.label] ?? 'bg-slate-400' }))
   const coloredGrade    = byGrade.map(d => ({ ...d, color: GRADE_COLORS[d.label] ?? 'bg-slate-400' }))
   const recentMonthly   = monthlyNew.slice(-6)
