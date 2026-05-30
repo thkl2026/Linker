@@ -287,6 +287,57 @@ function ActivityLogModal({ inv, onClose }: { inv: InvitedUser; onClose: () => v
   )
 }
 
+const ROLE_LABEL_KO: Record<string, string> = {
+  TALENT: '전문가', PM: 'PM', PROCUREMENT: '기업 담당자', SERVICE_ADMIN: '서비스 관리자',
+}
+
+function UserDetailModal({ inv, onClose }: { inv: InvitedUser; onClose: () => void }) {
+  const fmt = (s: string | null) => s ? s.slice(0, 16).replace('T', ' ') : '—'
+  const rows: { label: string; value: string }[] = [
+    { label: '이메일',      value: inv.email },
+    { label: '이름',        value: inv.name || '—' },
+    { label: '전화번호',     value: inv.phone || '—' },
+    { label: '소속',        value: inv.company || '—' },
+    { label: '유형',        value: ROLE_LABEL_KO[inv.role] ?? inv.role },
+    { label: '가입 상태',    value: STATUS_LABEL[inv.status] ?? inv.status },
+    { label: '초대일',      value: fmt(inv.invitedAt) },
+    { label: '가입 완료일',   value: fmt(inv.acceptedAt) },
+    { label: '계정 생성일',   value: fmt(inv.accountCreatedAt) },
+    { label: '마지막 로그인', value: fmt(inv.lastLoginAt) },
+    { label: '마지막 접속 IP', value: inv.lastLoginIp ?? '—' },
+  ]
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm" onClick={onClose}>
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 border border-border/30" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg font-black tracking-tight">사용자 상세 정보</h3>
+          <button onClick={onClose} className="text-xl text-primary/30 hover:text-primary">&times;</button>
+        </div>
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white font-black text-base shrink-0">
+            {inv.email.slice(0, 2).toUpperCase()}
+          </div>
+          <div>
+            <p className="text-sm font-black text-primary">{inv.name || inv.email.split('@')[0]}</p>
+            <p className="text-xs text-primary/40">{inv.email}</p>
+          </div>
+        </div>
+        <div className="border-t border-border/10 pt-4 space-y-3">
+          {rows.map(({ label, value }) => (
+            <div key={label} className="flex justify-between items-center gap-4">
+              <span className="text-xs text-primary/40 font-medium shrink-0">{label}</span>
+              <span className="text-xs text-primary/80 font-bold text-right break-all">{value}</span>
+            </div>
+          ))}
+        </div>
+        <button onClick={onClose} className="mt-6 w-full py-2.5 rounded-2xl border border-border/50 text-sm font-bold text-primary/60 hover:bg-primary/5 transition-all">
+          닫기
+        </button>
+      </div>
+    </div>
+  )
+}
+
 function EditUserModal({ inv, onClose }: { inv: InvitedUser; onClose: () => void }) {
   const { addToast } = useUiStore()
   const qc = useQueryClient()
@@ -356,6 +407,8 @@ function UsersTab() {
   const [role,    setRole]    = useState('TALENT')
   const [activityTarget, setActivityTarget] = useState<InvitedUser | null>(null)
   const [editTarget, setEditTarget] = useState<InvitedUser | null>(null)
+  const [detailTarget, setDetailTarget] = useState<InvitedUser | null>(null)
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
   const { addToast } = useUiStore()
   const qc = useQueryClient()
 
@@ -399,59 +452,36 @@ function UsersTab() {
     return '📧'
   }
 
-  return (<>
-    <Section
-      title="신규 사용자 초대"
-      sub="전문가 또는 기업 담당자에게 초대 메일을 발송하여 가입을 진행합니다."
-    >
-      {/* Invite form */}
-      <div className="p-6 bg-surface rounded-3xl border border-border/30 grid grid-cols-12 gap-4 items-end mb-8">
-        <div className="col-span-4">
-          <Label>초대 이메일 주소</Label>
-          <input
-            type="email" value={email}
-            onChange={e => setEmail(e.target.value)}
-            placeholder="user@company.com"
-            className="w-full bg-white border border-border/50 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-secondary transition-all"
-          />
-        </div>
-        <div className="col-span-3">
-          <Label>소속 회사</Label>
-          <input
-            type="text" value={company}
-            onChange={e => setCompany(e.target.value)}
-            placeholder="(주)회사명"
-            className="w-full bg-white border border-border/50 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-secondary transition-all"
-          />
-        </div>
-        <div className="col-span-2">
-          <Label>사용자 유형</Label>
-          <select
-            value={role}
-            onChange={e => setRole(e.target.value)}
-            className="w-full bg-white border border-border/50 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-secondary transition-all appearance-none font-bold text-secondary"
-          >
-            <option value="TALENT">전문가</option>
-            <option value="PM">PM</option>
-            <option value="PROCUREMENT">기업 담당자</option>
-            <option value="SERVICE_ADMIN">서비스 관리자</option>
-          </select>
-        </div>
-        <div className="col-span-3">
-          <button
-            onClick={() => email && invite()}
-            disabled={!email || inviting}
-            className="w-full py-3 bg-primary text-white rounded-xl text-sm font-black hover:opacity-90 transition-all disabled:opacity-50">
-            {inviting ? '발송 중...' : '초대 링크 발송'}
-          </button>
-        </div>
-      </div>
+  const selectedUser = selectedIds.length === 1
+    ? invitations.find(i => i.id === selectedIds[0]) ?? null
+    : null
 
-      {/* Table */}
+  return (<>
+    <div className="space-y-8">
+    {/* ── 사용자 목록 ── */}
+    <Section
+      title="사용자 목록"
+      sub="초대·가입한 사용자를 조회하고 관리합니다."
+      action={
+        <button
+          onClick={() => selectedUser && setDetailTarget(selectedUser)}
+          disabled={selectedIds.length !== 1}
+          className="px-5 py-2.5 rounded-xl border border-border text-sm font-semibold text-primary/70 hover:bg-surface disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+          상세조회
+        </button>
+      }
+    >
       <div className="overflow-hidden">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="text-[10px] font-black text-primary/30 uppercase tracking-widest border-b border-border/10">
+              <th className="pb-4 px-2 w-10">
+                <input type="checkbox"
+                  checked={invitations.length > 0 && selectedIds.length === invitations.length}
+                  ref={el => { if (el) el.indeterminate = selectedIds.length > 0 && selectedIds.length < invitations.length }}
+                  onChange={e => setSelectedIds(e.target.checked ? invitations.map(i => i.id) : [])}
+                  className="w-4 h-4 accent-secondary cursor-pointer" />
+              </th>
               <th className="pb-4 px-2">이메일 (계정 정보)</th>
               <th className="pb-4 px-2">이름</th>
               <th className="pb-4 px-2">전화번호</th>
@@ -465,12 +495,19 @@ function UsersTab() {
           <tbody className="divide-y divide-border/5">
             {invitations.length === 0 ? (
               <tr>
-                <td colSpan={8} className="py-12 text-center text-xs text-primary/30">초대 내역이 없습니다.</td>
+                <td colSpan={9} className="py-12 text-center text-xs text-primary/30">초대 내역이 없습니다.</td>
               </tr>
-            ) : invitations.map(inv => (
-              <tr key={inv.id} className="group">
+            ) : invitations.map(inv => {
+              const checked = selectedIds.includes(inv.id)
+              return (
+              <tr key={inv.id} className={`group transition-colors ${checked ? 'bg-secondary/5' : ''}`}>
                 <td className="py-5 px-2">
-                  <div className="flex items-center gap-3">
+                  <input type="checkbox" checked={checked}
+                    onChange={() => setSelectedIds(prev => prev.includes(inv.id) ? prev.filter(x => x !== inv.id) : [...prev, inv.id])}
+                    className="w-4 h-4 accent-secondary cursor-pointer" />
+                </td>
+                <td className="py-5 px-2">
+                  <button onClick={() => setDetailTarget(inv)} className="flex items-center gap-3 text-left hover:opacity-80 transition-opacity">
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xs font-black
                       ${inv.status === 'ACCEPTED' ? 'bg-primary text-white' : 'bg-white border border-border/30 text-sm'}`}>
                       {initials(inv)}
@@ -481,7 +518,7 @@ function UsersTab() {
                         {inv.status === 'PENDING' ? 'Invitation Pending' : inv.status === 'ACCEPTED' ? 'Active User' : 'Expired'}
                       </p>
                     </div>
-                  </div>
+                  </button>
                 </td>
                 <td className="py-5 px-2">
                   <p className="text-xs font-medium text-primary/80">{inv.name || <span className="text-primary/20">—</span>}</p>
@@ -544,17 +581,70 @@ function UsersTab() {
                   )}
                 </td>
               </tr>
-            ))}
+              )
+            })}
           </tbody>
         </table>
       </div>
     </Section>
+
+    {/* ── 신규 사용자 초대 ── */}
+    <Section
+      title="신규 사용자 초대"
+      sub="전문가 또는 기업 담당자에게 초대 메일을 발송하여 가입을 진행합니다."
+    >
+      <div className="grid grid-cols-12 gap-4 items-end">
+        <div className="col-span-4">
+          <Label>초대 이메일 주소</Label>
+          <input
+            type="email" value={email}
+            onChange={e => setEmail(e.target.value)}
+            placeholder="user@company.com"
+            className="w-full bg-white border border-border/50 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-secondary transition-all"
+          />
+        </div>
+        <div className="col-span-3">
+          <Label>소속 회사</Label>
+          <input
+            type="text" value={company}
+            onChange={e => setCompany(e.target.value)}
+            placeholder="(주)회사명"
+            className="w-full bg-white border border-border/50 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-secondary transition-all"
+          />
+        </div>
+        <div className="col-span-2">
+          <Label>사용자 유형</Label>
+          <select
+            value={role}
+            onChange={e => setRole(e.target.value)}
+            className="w-full bg-white border border-border/50 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-secondary transition-all appearance-none font-bold text-secondary"
+          >
+            <option value="TALENT">전문가</option>
+            <option value="PM">PM</option>
+            <option value="PROCUREMENT">기업 담당자</option>
+            <option value="SERVICE_ADMIN">서비스 관리자</option>
+          </select>
+        </div>
+        <div className="col-span-3">
+          <button
+            onClick={() => email && invite()}
+            disabled={!email || inviting}
+            className="w-full py-3 bg-primary text-white rounded-xl text-sm font-black hover:opacity-90 transition-all disabled:opacity-50">
+            {inviting ? '발송 중...' : '초대 링크 발송'}
+          </button>
+        </div>
+      </div>
+    </Section>
+    </div>
 
     {activityTarget && (
       <ActivityLogModal inv={activityTarget} onClose={() => setActivityTarget(null)} />
     )}
     {editTarget && (
       <EditUserModal inv={editTarget} onClose={() => setEditTarget(null)} />
+    )}
+    {detailTarget && (
+      <UserDetailModal inv={detailTarget} onClose={() => setDetailTarget(null)} />
     )}
   </>
   )
