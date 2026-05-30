@@ -140,8 +140,10 @@ public class ServiceAdminService {
                               trunc(req.address(), 200), trunc(req.title(), 50), trunc(req.projectRole(), 100));
 
         if (req.skills() != null) {
-            req.skills().forEach(skill ->
-                    profile.getSkills().add(TalentSkill.of(profile, skill, "MID", null)));
+            req.skills().stream()
+                    .filter(s -> s != null && !s.isBlank())
+                    .forEach(skill ->
+                            profile.getSkills().add(TalentSkill.of(profile, trunc(skill, 100), "MID", null)));
         }
 
         if (req.itCareerMonths() != null) {
@@ -241,8 +243,10 @@ public class ServiceAdminService {
         }
         if (req.skills() != null) {
             profile.getSkills().clear();
-            req.skills().forEach(skill ->
-                    profile.getSkills().add(TalentSkill.of(profile, skill, "MID", null)));
+            req.skills().stream()
+                    .filter(s -> s != null && !s.isBlank())
+                    .forEach(skill ->
+                            profile.getSkills().add(TalentSkill.of(profile, trunc(skill, 100), "MID", null)));
         }
         if (req.notes() != null) {
             profile.updateNotes(req.notes());

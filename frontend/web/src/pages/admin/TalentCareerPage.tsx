@@ -3314,7 +3314,10 @@ export function TalentCareerPage() {
       showToast('전문가가 등록되었습니다.', 'success')
       setShowCreate(false)
     },
-    onError: () => showToast('전문가 등록에 실패했습니다.', 'error'),
+    onError: (err: unknown) => {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
+      showToast(msg ?? '전문가 등록에 실패했습니다.', 'error')
+    },
   })
 
   const deleteMutation = useMutation({
