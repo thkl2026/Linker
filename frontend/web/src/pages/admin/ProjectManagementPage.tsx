@@ -129,38 +129,42 @@ export function ProjectManagementPage() {
       </div>
 
       {/* Filter */}
-      <div className="bg-white p-8 rounded-[40px] border border-border/30 shadow-sm">
-        <div className="flex flex-wrap gap-4 items-end">
-          <div className="flex-1 min-w-[300px]">
-            <label className="block text-[10px] font-black text-primary/40 uppercase mb-2 ml-1">Search Project</label>
-            <div className="relative">
-              <input
-                type="text"
-                value={searchInput}
-                onChange={e => setSearchInput(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handleSearch()}
-                placeholder="프로젝트명, 고객사, 주사업자를 입력하세요..."
-                className="w-full bg-background border border-border/50 rounded-2xl px-5 py-3 text-sm focus:outline-none focus:border-secondary transition-all"
-              />
-              <button onClick={handleSearch} className="absolute right-4 top-1/2 -translate-y-1/2 opacity-40 hover:opacity-80">🔍</button>
-            </div>
-          </div>
-          <div className="w-44">
-            <label className="block text-[10px] font-black text-primary/40 uppercase mb-2 ml-1">Status</label>
-            <select
-              value={statusFilter}
-              onChange={e => { setStatusFilter(e.target.value as ProjectStatus | ''); setPage(0) }}
-              className="w-full bg-background border border-border/50 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-secondary transition-all"
-            >
-              <option value="">전체 상태</option>
-              {(Object.keys(STATUS_LABELS) as ProjectStatus[]).map(s => (
-                <option key={s} value={s}>{STATUS_LABELS[s]}</option>
-              ))}
-            </select>
-          </div>
-          <button onClick={handleReset} className="p-3 text-primary/30 hover:text-primary transition-all mb-0.5" title="초기화">
-            🔄
+      <div className="space-y-3">
+        {/* 검색 */}
+        <div className="flex items-center bg-gray-100 rounded-2xl px-4 py-3 gap-3 focus-within:bg-gray-50 focus-within:ring-2 focus-within:ring-secondary/30 transition-all">
+          <input
+            type="text"
+            value={searchInput}
+            onChange={e => setSearchInput(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && handleSearch()}
+            placeholder="프로젝트명, 고객사, 주사업자를 입력하세요..."
+            className="flex-1 bg-transparent text-sm text-primary placeholder:text-gray-400 focus:outline-none"
+          />
+          <button onClick={handleSearch} className="text-gray-400 hover:text-secondary transition-colors shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+            </svg>
           </button>
+        </div>
+
+        {/* 상태 필터 칩 */}
+        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+          {([['', '전체'], ...Object.entries(STATUS_LABELS)] as [string, string][]).map(([code, label]) => {
+            const active = statusFilter === code
+            return (
+              <button
+                key={code}
+                onClick={() => { setStatusFilter(code as ProjectStatus | ''); setPage(0) }}
+                className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold border transition-all ${
+                  active
+                    ? 'bg-primary text-white border-primary'
+                    : 'bg-white text-primary/70 border-border/50 hover:border-primary/40 hover:text-primary'
+                }`}
+              >
+                {label}
+              </button>
+            )
+          })}
         </div>
       </div>
 
