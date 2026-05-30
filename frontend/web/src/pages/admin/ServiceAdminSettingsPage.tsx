@@ -700,18 +700,16 @@ function EvaluationTab({ initial }: { initial: EvaluationSettings }) {
     <Section
       title="평가 지표 및 기준 설정"
       sub="전문가 성과 측정을 위한 지표와 등급 체계를 관리합니다."
-      action={
-        <button
-          onClick={() => setForm(f => ({ ...f, metrics: [...f.metrics, { name: '신규 지표', icon: '📌', weight: 0 }] }))}
-          className="px-5 py-2.5 bg-surface border border-border rounded-xl text-xs font-bold hover:bg-white transition-all">
-          + 지표 추가
-        </button>
-      }
     >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
         {/* Metrics */}
         <div className="space-y-4">
-          <Label>평가 지표 구성 {totalWeight !== 100 && <span className="text-danger ml-2">합계: {totalWeight}%</span>}</Label>
+          <div className="flex items-center justify-between">
+            <Label>평가 지표 구성</Label>
+            <span className={`text-xs font-black ${totalWeight === 100 ? 'text-success' : 'text-danger'}`}>
+              합계: {totalWeight}% {totalWeight === 100 ? '✓' : '(100% 필요)'}
+            </span>
+          </div>
           <div className="space-y-3">
             {form.metrics.map((m, i) => (
               <div key={i} className="flex items-center justify-between p-4 bg-background rounded-2xl border border-border/30 gap-3">
@@ -770,11 +768,14 @@ function EvaluationTab({ initial }: { initial: EvaluationSettings }) {
         </div>
       </div>
 
-      <div className="pt-8 border-t border-border/10 flex justify-end mt-8">
+      <div className="pt-8 border-t border-border/10 flex items-center justify-end gap-4 mt-8">
+        {totalWeight !== 100 && (
+          <span className="text-xs font-bold text-danger">지표 가중치 합계가 100%일 때 저장할 수 있습니다.</span>
+        )}
         <button
           onClick={() => mutate()}
-          disabled={isPending}
-          className="px-10 py-4 bg-primary text-white rounded-2xl text-sm font-black shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50">
+          disabled={isPending || totalWeight !== 100}
+          className="px-10 py-4 bg-primary text-white rounded-2xl text-sm font-black shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:hover:scale-100">
           {isPending ? '저장 중...' : '변경 사항 저장'}
         </button>
       </div>
