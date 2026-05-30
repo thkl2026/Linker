@@ -3475,7 +3475,7 @@ export function TalentCareerPage() {
                 </th>
                 <th onClick={() => handleSort('desiredRate')}
                   className="text-left px-4 py-3 font-semibold text-primary/60 cursor-pointer hover:text-primary select-none">
-                  희망 단가(월)<SortIcon col="desiredRate" />
+                  월단가(원)<SortIcon col="desiredRate" />
                 </th>
                 <th className="text-left px-4 py-3 font-semibold text-primary/60">기술 스택</th>
               </tr>
@@ -3564,7 +3564,7 @@ export function TalentCareerPage() {
                         />
                       ) : (
                         <span className="cursor-pointer hover:text-secondary hover:underline">
-                          {t.desiredRate ? `${t.desiredRate.toLocaleString()}원/월` : '—'}
+                          {t.desiredRate ? t.desiredRate.toLocaleString() : '—'}
                         </span>
                       )}
                     </td>
