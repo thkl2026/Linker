@@ -168,50 +168,6 @@ function TalentStatsTab({ data }: { data: TalentReport }) {
         </div>
       </Section>
 
-      <Section title="가용 상태 요약">
-        <div className="flex items-center gap-6">
-          <div className="relative w-28 h-28 shrink-0">
-            <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
-              <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f1f5f9" strokeWidth="3.8" />
-              <circle cx="18" cy="18" r="15.9" fill="none" stroke="#10b981" strokeWidth="3.8"
-                strokeDasharray={`${total ? (available/total)*100 : 0} 100`} strokeLinecap="round" />
-              <circle cx="18" cy="18" r="15.9" fill="none" stroke="#f59e0b" strokeWidth="3.8"
-                strokeDasharray={`${total ? (busy/total)*100 : 0} 100`}
-                strokeDashoffset={`${total ? -(available/total)*100 : 0}`} strokeLinecap="round" />
-              <circle cx="18" cy="18" r="15.9" fill="none" stroke="#94a3b8" strokeWidth="3.8"
-                strokeDasharray={`${total ? (rest/total)*100 : 0} 100`}
-                strokeDashoffset={`${total ? -((available+busy)/total)*100 : 0}`} strokeLinecap="round" />
-            </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <p className="text-xl font-black text-primary">{total}</p>
-              <p className="text-[9px] text-primary/30">명</p>
-            </div>
-          </div>
-          <div className="space-y-3 flex-1">
-            {[
-              { label: '투입 가능', count: available, color: 'bg-emerald-500' },
-              { label: '수행 중',   count: busy,      color: 'bg-amber-500' },
-              { label: '투입 대기', count: rest,      color: 'bg-slate-400' },
-            ].map(s => (
-              <div key={s.label} className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className={`w-3 h-3 rounded-full ${s.color}`} />
-                  <span className="text-sm text-primary/60">{s.label}</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-32 bg-surface rounded-full h-2 overflow-hidden">
-                    <div className={`h-full rounded-full ${s.color}`}
-                      style={{ width: `${total ? (s.count/total)*100 : 0}%` }} />
-                  </div>
-                  <span className="text-sm font-bold text-primary/70 w-16 text-right">
-                    {s.count}명 ({total ? Math.round(s.count/total*100) : 0}%)
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </Section>
     </div>
   )
 }

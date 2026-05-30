@@ -260,30 +260,37 @@ function MemberRow({ member, projectId }: { member: ProjectMember; projectId: st
   })
 
   return (
-    <div className="flex items-center gap-4 px-5 py-4 rounded-2xl border border-border/20 hover:border-border/50 bg-surface/30 transition-all">
-      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-black text-primary shrink-0">
-        {member.talentName.slice(0, 1)}
+    <div className="flex h-full flex-col justify-between gap-4 rounded-2xl border border-border/20 bg-surface/30 p-5 shadow-sm transition-all hover:border-border/50">
+      <div className="flex items-start gap-4">
+        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-black text-primary shrink-0">
+          {member.talentName.slice(0, 1)}
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-bold text-primary">{member.talentName}</p>
+          <p className="text-xs text-primary/50 truncate">
+            {member.role || (member.category ? CAT_LABELS[member.category] ?? member.category : '-')}
+          </p>
+          <p className="text-[11px] text-primary/40 mt-2 line-clamp-2">
+            {member.skills ? member.skills.split(', ').slice(0, 3).join(', ') : '기술 정보 없음'}
+          </p>
+        </div>
       </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-bold text-primary">{member.talentName}</p>
-        <p className="text-xs text-primary/50 truncate">
-          {member.role || (member.category ? CAT_LABELS[member.category] ?? member.category : '-')}
-          {member.skills ? ` · ${member.skills.split(', ').slice(0, 3).join(', ')}` : ''}
-        </p>
+
+      <div className="flex items-center justify-between gap-3">
+        {member.availabilityStatus ? (
+          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${AVAIL_BADGE[member.availabilityStatus] ?? 'bg-slate-100 text-slate-500'}`}>
+            {AVAIL_LABELS[member.availabilityStatus] ?? member.availabilityStatus}
+          </span>
+        ) : <div />}
+        <button
+          onClick={() => remove.mutate()}
+          disabled={remove.isPending}
+          className="text-primary/20 hover:text-red-500 transition-colors shrink-0 disabled:opacity-40"
+          title="추천 취소"
+        >
+          ✕
+        </button>
       </div>
-      {member.availabilityStatus && (
-        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${AVAIL_BADGE[member.availabilityStatus] ?? 'bg-slate-100 text-slate-500'}`}>
-          {AVAIL_LABELS[member.availabilityStatus] ?? member.availabilityStatus}
-        </span>
-      )}
-      <button
-        onClick={() => remove.mutate()}
-        disabled={remove.isPending}
-        className="text-primary/20 hover:text-red-500 transition-colors shrink-0 disabled:opacity-40"
-        title="배정 해제"
-      >
-        ✕
-      </button>
     </div>
   )
 }
@@ -848,25 +855,25 @@ export function ProjectDetailPage() {
           )}
         </div>
 
-        {/* 배정 멤버 */}
+        {/* 추천 멤버 */}
         <div className="bg-white rounded-3xl border border-border/30 shadow-sm p-7 space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-xs font-black text-primary/40 uppercase tracking-wider">
-              배정 멤버 <span className="text-secondary">{project.members.length}</span>
+              추천 멤버 <span className="text-secondary">{project.members.length}</span>
             </h3>
             <button
               onClick={() => setModalRole('')}
               className="px-3 py-1.5 bg-secondary text-white text-xs font-black rounded-xl shadow-md shadow-secondary/20 hover:scale-105 active:scale-95 transition-all"
             >
-              + 추가
+              + 추천 추가
             </button>
           </div>
 
           {project.members.length === 0 ? (
             <div className="py-10 text-center">
               <p className="text-3xl mb-2">👤</p>
-              <p className="text-xs text-primary/30 font-bold">배정된 멤버가 없습니다</p>
-              <p className="text-[11px] text-primary/20 mt-1">역할 행의 배정 버튼을 이용하세요</p>
+              <p className="text-xs text-primary/30 font-bold">추천된 멤버가 없습니다</p>
+              <p className="text-[11px] text-primary/20 mt-1">역할 행의 추천 버튼을 이용하세요</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
