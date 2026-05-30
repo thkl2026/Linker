@@ -1,5 +1,7 @@
 package kr.co.linker.talent.domain;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 /** 전문가 직군 소분류 (category 에 종속) */
 public enum TalentField {
 
@@ -43,5 +45,12 @@ public enum TalentField {
     UI_DESIGNER,        // 디자이너
 
     // 공통
-    ETC                 // 기타
+    ETC;                // 기타
+
+    @JsonCreator
+    public static TalentField fromJson(String value) {
+        if (value == null || value.isBlank()) return null;
+        try { return TalentField.valueOf(value); }
+        catch (IllegalArgumentException e) { return ETC; }
+    }
 }

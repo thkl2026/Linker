@@ -31,20 +31,20 @@
 - name에 절대 금지: "경력기술", "프로필", "이력서", "기술경력", "경력소개", "기술스택", "인적사항" 등 문서 섹션 제목. 이름은 반드시 실존 인물의 성명이어야 한다. 확실하지 않으면 null.
 
 ### CATEGORY (하나만 선택, 판단 불가 시 null):
-- "DEVELOPER" : 소프트웨어 개발자 (백엔드/프론트엔드/풀스택/모바일/임베디드/DevOps)
-- "ARCHITECT" : 아키텍트 (솔루션/클라우드/데이터 설계)
-- "DBA"       : 데이터베이스 관리자 (DB 운영·튜닝·데이터 엔지니어링)
-- "PM"        : 프로젝트·제품 관리 (PM/PO)
-- "ANALYST"   : 분석·품질 (BA/데이터분석가/QA)
-- "DESIGNER"  : 디자인 (UI/UX·그래픽)
+- "DEVELOPER" : 소프트웨어 개발자 (백엔드/프론트엔드/풀스택/모바일/임베디드)
+- "ARCHITECT" : 아키텍트 (솔루션/클라우드/데이터/시스템/네트워크 설계)
+- "DATA"      : 데이터 전문가 (DBA/데이터엔지니어/데이터분석가/AI·ML)
+- "SECURITY"  : 보안 전문가 (정보보안/네트워크보안/모의해킹 등)
+- "PM"        : 프로젝트·사업 관리 (PM/PMO/QA)
+- "DESIGNER"  : 디자인·기획 (UI/UX 디자이너·기획자)
 
 ### FIELD (category에 맞는 것만 선택, 판단 불가 시 null):
-- DEVELOPER  → FRONTEND | BACKEND | FULLSTACK | MOBILE | EMBEDDED | DEVOPS
-- ARCHITECT  → SOLUTION_ARCHITECT | CLOUD_ARCHITECT | DATA_ARCHITECT
-- DBA        → RDBMS | NOSQL | DATA_ENGINEER
-- PM         → PROJECT_MANAGER | PRODUCT_OWNER
-- ANALYST    → BUSINESS_ANALYST | DATA_ANALYST | QA
-- DESIGNER   → UI_UX | GRAPHIC
+- DEVELOPER  → FRONTEND | BACKEND | FULLSTACK | MOBILE | EMBEDDED | ETC
+- ARCHITECT  → EA | SA | AA | DA | TA_SYSTEM | TA_NETWORK | TA_CLOUD | ETC
+- DATA       → DBA_RDBMS | DBA_NOSQL | DATA_ENGINEER | DATA_ANALYST | ML_ENGINEER | ETC
+- SECURITY   → ISMS | NETWORK_SEC | APP_SEC | CLOUD_SEC | PENTEST | ETC
+- PM         → PROJECT_MGR | PMO | QA | ETC
+- DESIGNER   → UX_PLANNER | UI_DESIGNER | ETC
 
 ### WORK TYPE (명시된 경우만, 없으면 null):
 - "REMOTE" | "ONSITE" | "HYBRID"
