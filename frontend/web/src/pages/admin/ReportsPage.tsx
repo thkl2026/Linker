@@ -70,19 +70,26 @@ function LineSparkline({ data, color = '#6366f1' }: { data: { month: string; cou
   const max = Math.max(...data.map(d => d.count))
   const min = Math.min(...data.map(d => d.count))
   const range = max - min || 1
-  const w = 280; const h = 60
-  const pts = data.map((d, i) => {
-    const x = (i / (data.length - 1)) * w
-    const y = h - ((d.count - min) / range) * (h - 10) - 5
-    return `${x},${y}`
-  }).join(' ')
+  const w = 300; const h = 90
+  const padX = 16; const topPad = 22; const botPad = 12
+  const plotW = w - padX * 2
+  const xy = (i: number, count: number) => {
+    const x = data.length === 1 ? w / 2 : padX + (i / (data.length - 1)) * plotW
+    const y = topPad + (1 - (count - min) / range) * (h - topPad - botPad)
+    return { x, y }
+  }
+  const pts = data.map((d, i) => { const p = xy(i, d.count); return `${p.x},${p.y}` }).join(' ')
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="w-full" preserveAspectRatio="none">
+    <svg viewBox={`0 0 ${w} ${h}`} className="w-full">
       <polyline fill="none" stroke={color} strokeWidth="2.5" strokeLinejoin="round" points={pts} />
       {data.map((d, i) => {
-        const x = (i / (data.length - 1)) * w
-        const y = h - ((d.count - min) / range) * (h - 10) - 5
-        return <circle key={i} cx={x} cy={y} r="3.5" fill={color} />
+        const p = xy(i, d.count)
+        return (
+          <g key={i}>
+            <circle cx={p.x} cy={p.y} r="3.5" fill={color} />
+            <text x={p.x} y={p.y - 9} textAnchor="middle" fontSize="11" fontWeight="700" fill="#451A03">{d.count}</text>
+          </g>
+        )
       })}
     </svg>
   )
@@ -92,7 +99,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   return (
     <div className="bg-white rounded-2xl border border-border/30 shadow-sm p-5 h-full flex flex-col">
       <h3 className="text-sm font-bold text-primary mb-4 border-l-4 border-secondary pl-3">{title}</h3>
-      <div className="flex-1 flex flex-col justify-center">{children}</div>
+      <div className="flex-1 flex flex-col">{children}</div>
     </div>
   )
 }
@@ -103,6 +110,7 @@ function TalentStatsTab({ data }: { data: TalentReport }) {
   const { total, available, busy, rest, byCategory, byGrade, monthlyNew, topSkills } = data
   const coloredCategory = byCategory.map(d => ({ ...d, color: CATEGORY_COLORS[d.label] ?? 'bg-slate-400' }))
   const coloredGrade    = byGrade.map(d => ({ ...d, color: GRADE_COLORS[d.label] ?? 'bg-slate-400' }))
+  const recentMonthly   = monthlyNew.slice(-6)
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-3 gap-4">
@@ -115,12 +123,16 @@ function TalentStatsTab({ data }: { data: TalentReport }) {
 
       <div className="grid grid-cols-3 gap-5">
         <Section title="직군별 인원 분포">
-          <HBarChart data={coloredCategory} />
-          <p className="text-xs text-primary/30 text-right mt-3">총 {total}명</p>
+          <div className="flex-1 flex flex-col justify-end">
+            <HBarChart data={coloredCategory} />
+          </div>
+          <p className="text-xs text-primary/30 text-right mt-4 h-5 flex items-center justify-end">총 {total}명</p>
         </Section>
         <Section title="기술 등급별 분포">
-          <HBarChart data={coloredGrade} />
-          <div className="flex gap-3 mt-4 flex-wrap justify-center">
+          <div className="flex-1 flex flex-col justify-end">
+            <HBarChart data={coloredGrade} />
+          </div>
+          <div className="flex gap-3 mt-4 flex-wrap justify-center h-5 items-center">
             {coloredGrade.map(g => (
               <div key={g.label} className="flex items-center gap-1.5">
                 <div className={`w-2.5 h-2.5 rounded-full ${g.color}`} />
@@ -129,14 +141,13 @@ function TalentStatsTab({ data }: { data: TalentReport }) {
             ))}
           </div>
         </Section>
-        <Section title="월별 신규 등록 추이">
-          <LineSparkline data={monthlyNew} color="#6366f1" />
-          <div className="flex justify-between mt-2">
-            {monthlyNew.map(d => (
-              <div key={d.month} className="text-center">
-                <p className="text-[10px] text-primary/30">{d.month}</p>
-                <p className="text-xs font-bold text-primary/70">{d.count}</p>
-              </div>
+        <Section title="월별 등록 건수">
+          <div className="flex-1 flex flex-col justify-end">
+            <LineSparkline data={recentMonthly} color="#6366f1" />
+          </div>
+          <div className="flex justify-between mt-4 px-2 h-5 items-center">
+            {recentMonthly.map(d => (
+              <span key={d.month} className="text-[11px] text-primary/40 font-medium">{d.month}</span>
             ))}
           </div>
         </Section>
