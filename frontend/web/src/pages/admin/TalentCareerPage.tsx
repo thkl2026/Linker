@@ -3412,7 +3412,7 @@ export function TalentCareerPage() {
         </button>
         <button onClick={() => setShowCreate(true)}
           className="w-28 py-2.5 bg-secondary text-white rounded-xl text-sm font-semibold hover:bg-secondary/90">
-          전문가 등록
+          신규등록
         </button>
       </div>
 
