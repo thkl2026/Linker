@@ -579,7 +579,7 @@ th{font-size:9px;font-weight:900;color:rgba(69,26,3,.3);text-transform:uppercase
     <table style="width:100%;text-align:left;border-top:1px solid rgba(69,26,3,.06);padding-top:12px;margin-top:4px;">
       <thead><tr>
         <th>자격증</th>
-        <th>발행기관</th>
+        <th>발급기관</th>
         <th style="width:80px;">취득 연도</th>
       </tr></thead>
       <tbody style="font-size:13px;color:#475569;">${certRows}</tbody>
@@ -1446,7 +1446,7 @@ function TalentDetailModal({
 
                       {/* ── 산업군 경험 (전체 너비) ── */}
                       <div className="bg-surface px-3 py-2 text-center text-[13px] font-bold text-primary border-r border-b border-border/50 flex items-center justify-center">산업군 경험</div>
-                      <div className="border-b border-border/50 bg-white px-3 py-2 text-[13px] min-h-[38px]" style={{ gridColumn: 'span 3' }}>
+                      <div className="border-b border-border/50 bg-white p-0.5 text-[13px] min-h-[38px]" style={{ gridColumn: 'span 3' }}>
                         {(() => {
                           const selected = (talent.industryExperience || '').split(',').map(s => s.trim()).filter(Boolean)
                           return (
@@ -1457,7 +1457,8 @@ function TalentDetailModal({
                                   <button key={opt} type="button"
                                     onClick={() => {
                                       const next = active ? selected.filter(s => s !== opt) : [...selected, opt]
-                                      handleBasicUpdate({ industryExperience: next.join(',') })
+                                      setForm(f => ({ ...f, industryExperience: next.join(',') }))
+                                      setHasChanges(true)
                                     }}
                                     className={`px-2 py-0.5 rounded-full text-xs font-semibold border transition-colors ${active ? 'bg-secondary text-white border-secondary' : 'border-border/60 text-primary/50 hover:border-secondary/50 hover:text-secondary'}`}>
                                     {opt}
@@ -1527,7 +1528,7 @@ function TalentDetailModal({
                                   }}
                                 />
                               </td>
-                              <td className="w-1/4 p-1 border-b border-r border-border/50 text-center align-middle relative group/btn">
+                              <td className="w-1/4 p-1 border-b border-r border-border/50 align-middle relative group/btn">
                                 <select
                                   className="w-[calc(100%-24px)] text-center text-primary/80 bg-transparent hover:bg-white px-1 py-1.5 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none transition-all appearance-none cursor-pointer"
                                   defaultValue={exp.role || ''}
@@ -2903,7 +2904,7 @@ function ProjectAssignModal({ talent, onClose }: { talent: TalentAdmin; onClose:
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
       <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8">
-        <h3 className="text-lg font-black mb-1">프로젝트 배정</h3>
+        <h3 className="font-bold text-primary text-base mb-1">프로젝트 배정</h3>
         <p className="text-xs text-primary/40 mb-6">{talent.name} · {talent.category ?? '-'}</p>
 
         <div className="space-y-4">
@@ -2989,7 +2990,9 @@ function AvailabilityModal({
           </div>
         )}
         <div className="flex gap-2">
-          <button onClick={onClose} className="flex-1 py-2 rounded-xl border border-border text-sm font-semibold text-primary/70 hover:bg-surface">취소</button>
+          <button onClick={onClose} className="flex-1 py-2 rounded-xl border border-border text-sm font-semibold text-primary/70 hover:bg-surface transition-colors">
+            취소
+          </button>
           <button onClick={() => mutation.mutate()} disabled={mutation.isPending}
             className="flex-1 py-2 rounded-xl bg-secondary text-white text-sm font-semibold hover:bg-secondary/90 disabled:opacity-50">
             {mutation.isPending ? '저장 중...' : '저장'}
