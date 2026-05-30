@@ -126,6 +126,9 @@ export const settingsApi = {
   resendInvitation: (id: string) =>
     axiosInstance.post(`/api/v1/service-admin/settings/invitations/${id}/resend`),
 
+  updateInvitedUser: (id: string, req: { name?: string; company?: string; role?: string }) =>
+    axiosInstance.put(`/api/v1/service-admin/settings/invitations/${id}`, req),
+
   revokeInvitation: (id: string) =>
     axiosInstance.delete(`/api/v1/service-admin/settings/invitations/${id}`),
 

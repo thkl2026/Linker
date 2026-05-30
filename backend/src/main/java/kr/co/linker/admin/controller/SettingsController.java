@@ -92,6 +92,14 @@ public class SettingsController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "사용자 정보 수정 (이름·소속·역할)")
+    @PutMapping("/invitations/{id}")
+    public ResponseEntity<Void> updateInvitedUser(@PathVariable UUID id,
+            @Valid @RequestBody kr.co.linker.admin.dto.UpdateInvitedUserRequest req) {
+        settingsService.updateInvitedUser(id, req);
+        return ResponseEntity.noContent().build();
+    }
+
     @Operation(summary = "초대 취소")
     @DeleteMapping("/invitations/{id}")
     public ResponseEntity<Void> revokeInvitation(@PathVariable UUID id) {

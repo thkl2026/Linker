@@ -245,6 +245,28 @@ public class SettingsService {
         log.info("[SETTINGS] 초대 취소 id={}", id);
     }
 
+    @Transactional
+    public void updateInvitedUser(UUID id, kr.co.linker.admin.dto.UpdateInvitedUserRequest req) {
+        UserInvitation inv = requireInvitation(id);
+        inv.updateInfo(req.company(), req.role());
+
+        // 가입 완료된 사용자면 실제 User 레코드도 갱신
+        if ("ACCEPTED".equals(inv.getStatus())) {
+            String emailHash = encryptionService.hash(inv.getEmail());
+            userRepository.findByEmailHash(emailHash).ifPresent(user -> {
+                user.updateProfile(req.name(), null, req.company());
+                if (req.role() != null && !req.role().isBlank()) {
+                    try {
+                        user.changeRole(kr.co.linker.auth.domain.UserRole.valueOf(req.role().trim()));
+                    } catch (IllegalArgumentException ignored) {
+                        log.warn("[SETTINGS] 알 수 없는 역할 값 무시 role={}", req.role());
+                    }
+                }
+            });
+        }
+        log.info("[SETTINGS] 사용자 정보 수정 id={} role={}", id, req.role());
+    }
+
     // ── 내부 유틸 ─────────────────────────────────────────────────────────────
 
     private void put(String key, String value) {

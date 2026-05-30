@@ -62,6 +62,11 @@ public class UserInvitation {
         refreshToken();
     }
 
+    public void updateInfo(String company, String role) {
+        if (company != null) this.company = company.isBlank() ? null : company.trim();
+        if (role != null && !role.isBlank()) this.role = role.trim();
+    }
+
     public void accept() {
         this.status = "ACCEPTED";
         this.acceptedAt = OffsetDateTime.now();

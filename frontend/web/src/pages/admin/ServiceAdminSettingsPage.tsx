@@ -287,11 +287,75 @@ function ActivityLogModal({ inv, onClose }: { inv: InvitedUser; onClose: () => v
   )
 }
 
+function EditUserModal({ inv, onClose }: { inv: InvitedUser; onClose: () => void }) {
+  const { addToast } = useUiStore()
+  const qc = useQueryClient()
+  const [form, setForm] = useState({
+    name: inv.name ?? '',
+    company: inv.company ?? '',
+    role: inv.role,
+  })
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: () => settingsApi.updateInvitedUser(inv.id, form),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['settings', 'invitations'] })
+      addToast('사용자 정보가 수정되었습니다.', 'success')
+      onClose()
+    },
+    onError: () => addToast('수정에 실패했습니다.', 'error'),
+  })
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm" onClick={onClose}>
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 border border-border/30" onClick={e => e.stopPropagation()}>
+        <h3 className="text-lg font-black tracking-tight mb-1">사용자 정보 수정</h3>
+        <p className="text-xs text-primary/40 mb-6">{inv.email}</p>
+        <div className="space-y-4">
+          <div>
+            <label className="text-xs font-bold text-primary/50 block mb-1">이름</label>
+            <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+              className="w-full bg-white border border-border/50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary transition-all"
+              placeholder="이름" />
+          </div>
+          <div>
+            <label className="text-xs font-bold text-primary/50 block mb-1">소속</label>
+            <input value={form.company} onChange={e => setForm(f => ({ ...f, company: e.target.value }))}
+              className="w-full bg-white border border-border/50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary transition-all"
+              placeholder="소속" />
+          </div>
+          <div>
+            <label className="text-xs font-bold text-primary/50 block mb-1">유형</label>
+            <select value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value }))}
+              className="w-full bg-white border border-border/50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary transition-all">
+              <option value="TALENT">전문가</option>
+              <option value="PM">PM</option>
+              <option value="PROCUREMENT">기업 담당자</option>
+              <option value="SERVICE_ADMIN">서비스 관리자</option>
+            </select>
+          </div>
+        </div>
+        <div className="flex gap-3 mt-8">
+          <button onClick={onClose}
+            className="flex-1 py-2.5 rounded-2xl border border-border/50 text-sm font-bold text-primary/60 hover:bg-primary/5 transition-all">
+            취소
+          </button>
+          <button onClick={() => mutate()} disabled={isPending}
+            className="flex-1 py-2.5 rounded-2xl bg-secondary text-white text-sm font-bold hover:bg-secondary/90 transition-all disabled:opacity-50">
+            {isPending ? '저장 중...' : '저장'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function UsersTab() {
   const [email,   setEmail]   = useState('')
   const [company, setCompany] = useState('')
   const [role,    setRole]    = useState('TALENT')
   const [activityTarget, setActivityTarget] = useState<InvitedUser | null>(null)
+  const [editTarget, setEditTarget] = useState<InvitedUser | null>(null)
   const { addToast } = useUiStore()
   const qc = useQueryClient()
 
@@ -469,9 +533,14 @@ function UsersTab() {
                       </button>
                     </div>
                   ) : (
-                    <button onClick={() => setActivityTarget(inv)} className="text-xs font-bold text-primary/30 hover:text-primary transition-all">
-                      활동 로그
-                    </button>
+                    <div className="flex items-center justify-end gap-3">
+                      <button onClick={() => setEditTarget(inv)} className="text-xs font-bold text-secondary hover:underline transition-all">
+                        수정
+                      </button>
+                      <button onClick={() => setActivityTarget(inv)} className="text-xs font-bold text-primary/30 hover:text-primary transition-all">
+                        활동 로그
+                      </button>
+                    </div>
                   )}
                 </td>
               </tr>
@@ -483,6 +552,9 @@ function UsersTab() {
 
     {activityTarget && (
       <ActivityLogModal inv={activityTarget} onClose={() => setActivityTarget(null)} />
+    )}
+    {editTarget && (
+      <EditUserModal inv={editTarget} onClose={() => setEditTarget(null)} />
     )}
   </>
   )
