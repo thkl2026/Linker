@@ -3383,7 +3383,7 @@ export function TalentCareerPage() {
           <span className="text-sm text-primary/50">총 {data?.totalElements ?? 0}명</span>
         </div>
         <button onClick={() => setShowHelp(true)} title="도움말"
-          className="w-8 h-8 rounded-full border border-border text-primary/50 hover:text-primary hover:bg-surface flex items-center justify-center text-sm font-bold transition-colors">
+          className="w-[1.6rem] h-[1.6rem] rounded-full border border-border text-primary/50 hover:text-primary hover:bg-surface flex items-center justify-center text-xs font-bold transition-colors">
           ?
         </button>
       </div>
