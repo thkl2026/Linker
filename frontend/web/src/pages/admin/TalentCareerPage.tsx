@@ -3377,33 +3377,14 @@ export function TalentCareerPage() {
   return (
     <div className="p-8">
       {/* 헤더 */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-baseline gap-3">
-          <h1 className="text-2xl font-bold text-primary">전문가 목록</h1>
-          <span className="text-sm text-primary/50">총 {data?.totalElements ?? 0}명</span>
-        </div>
-        <div className="flex gap-2">
-          <HelpButton onClick={() => setShowHelp(true)} />
-          <button onClick={() => selectedTalent && setDetailTarget(selectedTalent)}
-            disabled={selectedIds.length !== 1}
-            className="w-28 py-2.5 rounded-xl border border-border text-sm font-semibold text-primary/70 hover:bg-surface disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
-            상세조회
-          </button>
-          <button onClick={handleDelete}
-            disabled={selectedIds.length === 0 || deleteMutation.isPending}
-            className="w-28 py-2.5 rounded-xl border border-red-200 text-sm font-semibold text-red-500 hover:bg-red-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
-            삭제
-          </button>
-          <button onClick={() => setShowCreate(true)}
-            className="w-28 py-2.5 bg-secondary text-white rounded-xl text-sm font-semibold hover:bg-secondary/90">
-            전문가 등록
-          </button>
-        </div>
+      <div className="flex items-baseline gap-3 mb-4">
+        <h1 className="text-2xl font-bold text-primary">전문가 목록</h1>
+        <span className="text-sm text-primary/50">총 {data?.totalElements ?? 0}명</span>
       </div>
 
-      {/* 통합 검색 */}
-      <div className="mb-3">
-        <div className="flex items-center bg-gray-100 rounded-2xl px-4 py-3 gap-3 focus-within:bg-gray-50 focus-within:ring-2 focus-within:ring-secondary/30 transition-all">
+      {/* 검색 + 버튼 */}
+      <div className="flex items-center gap-2 mb-3">
+        <div className="flex items-center bg-gray-100 rounded-2xl px-4 py-2.5 gap-3 focus-within:bg-gray-50 focus-within:ring-2 focus-within:ring-secondary/30 transition-all w-80">
           <input value={keyword} onChange={e => setKeyword(e.target.value)} onKeyDown={e => e.key === 'Enter' && doSearch()}
             className="flex-1 bg-transparent text-sm text-primary placeholder:text-gray-400 focus:outline-none"
             placeholder="이름, 기술스택으로 검색" />
@@ -3413,6 +3394,21 @@ export function TalentCareerPage() {
             </svg>
           </button>
         </div>
+        <HelpButton onClick={() => setShowHelp(true)} />
+        <button onClick={() => selectedTalent && setDetailTarget(selectedTalent)}
+          disabled={selectedIds.length !== 1}
+          className="w-28 py-2.5 rounded-xl border border-border text-sm font-semibold text-primary/70 hover:bg-surface disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+          상세조회
+        </button>
+        <button onClick={handleDelete}
+          disabled={selectedIds.length === 0 || deleteMutation.isPending}
+          className="w-28 py-2.5 rounded-xl border border-red-200 text-sm font-semibold text-red-500 hover:bg-red-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+          삭제
+        </button>
+        <button onClick={() => setShowCreate(true)}
+          className="w-28 py-2.5 bg-secondary text-white rounded-xl text-sm font-semibold hover:bg-secondary/90">
+          전문가 등록
+        </button>
       </div>
 
       {/* 카테고리 필터 칩 */}
