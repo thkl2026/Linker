@@ -3384,7 +3384,7 @@ export function TalentCareerPage() {
 
       {/* 검색 + 버튼 */}
       <div className="flex items-center gap-2 mb-3">
-        <div className="flex items-center bg-gray-100 rounded-2xl px-4 py-2.5 gap-3 focus-within:bg-gray-50 focus-within:ring-2 focus-within:ring-secondary/30 transition-all w-80">
+        <div className="flex items-center bg-gray-100 rounded-2xl px-4 py-2.5 gap-3 focus-within:bg-gray-50 focus-within:ring-2 focus-within:ring-secondary/30 transition-all flex-1">
           <input value={keyword} onChange={e => setKeyword(e.target.value)} onKeyDown={e => e.key === 'Enter' && doSearch()}
             className="flex-1 bg-transparent text-sm text-primary placeholder:text-gray-400 focus:outline-none"
             placeholder="이름, 기술스택으로 검색" />
