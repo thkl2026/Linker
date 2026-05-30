@@ -3401,12 +3401,15 @@ export function TalentCareerPage() {
 
       {/* 통합 검색 */}
       <div className="mb-4">
-        <div className="flex items-center border border-border rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-secondary/50 bg-white">
+        <div className="flex items-center bg-gray-100 rounded-2xl px-4 py-3 gap-3 focus-within:bg-gray-50 focus-within:ring-2 focus-within:ring-secondary/30 transition-all">
           <input value={keyword} onChange={e => setKeyword(e.target.value)} onKeyDown={e => e.key === 'Enter' && doSearch()}
-            className="flex-1 px-4 py-2.5 text-sm focus:outline-none bg-transparent"
+            className="flex-1 bg-transparent text-sm text-primary placeholder:text-gray-400 focus:outline-none"
             placeholder="이름, 기술스택으로 검색" />
-          <button onClick={doSearch}
-            className="px-5 py-2.5 text-sm font-medium text-primary/70 hover:bg-surface border-l border-border transition-colors shrink-0">검색</button>
+          <button onClick={doSearch} className="text-gray-400 hover:text-secondary transition-colors shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+            </svg>
+          </button>
         </div>
       </div>
 
