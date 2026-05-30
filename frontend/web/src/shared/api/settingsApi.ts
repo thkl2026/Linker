@@ -38,6 +38,7 @@ export interface Contact {
   position: string
   email: string
   phone: string
+  role?: string
 }
 
 export type ReferralContact = Contact

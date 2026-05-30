@@ -924,7 +924,7 @@ function MasterDataTab({ initial }: { initial: MasterData }) {
 
 // ─── Contractors tab ──────────────────────────────────────────────────────────
 const EMPTY_CONTRACTOR: Contractor = { name: '', registrationNo: '', phone: '', bankAccount: '', attachments: [] }
-const EMPTY_CONTACT: Contact = { name: '', position: '', email: '', phone: '' }
+const EMPTY_CONTACT: Contact = { name: '', position: '', email: '', phone: '', role: '' }
 
 function ContractorsTab({ initial }: { initial: MasterData }) {
   const [items, setItems]             = useState<Contractor[]>(initial.contractors)
@@ -932,6 +932,8 @@ function ContractorsTab({ initial }: { initial: MasterData }) {
   const [editingIdx, setEditingIdx]   = useState<number | null>(null)
   const [expandedIdx, setExpandedIdx] = useState<number | null>(null)
   const [newContact, setNewContact]   = useState<Contact>(EMPTY_CONTACT)
+  const [editingContactKey, setEditingContactKey] = useState<string | null>(null)
+  const [editContactForm, setEditContactForm] = useState<Contact>(EMPTY_CONTACT)
   const [uploadingIdx, setUploadingIdx] = useState<number | null>(null)
   const { addToast } = useUiStore()
   const qc = useQueryClient()
@@ -971,6 +973,18 @@ function ContractorsTab({ initial }: { initial: MasterData }) {
 
   function removeContact(agencyIdx: number, contactIdx: number) {
     update(agencyIdx, { contacts: (items[agencyIdx].contacts ?? []).filter((_, i) => i !== contactIdx) })
+  }
+
+  function startEditContact(agencyIdx: number, contactIdx: number, contact: Contact) {
+    setEditingContactKey(`${agencyIdx}-${contactIdx}`)
+    setEditContactForm({ ...contact })
+  }
+
+  function saveEditContact(agencyIdx: number, contactIdx: number) {
+    const contacts = [...(items[agencyIdx].contacts ?? [])]
+    contacts[contactIdx] = { ...editContactForm }
+    update(agencyIdx, { contacts })
+    setEditingContactKey(null)
   }
 
   const cellCls  = 'px-3 py-2.5 text-sm text-primary/70'
@@ -1130,35 +1144,67 @@ function ContractorsTab({ initial }: { initial: MasterData }) {
 
           {(items[expandedIdx].contacts ?? []).length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {(items[expandedIdx].contacts ?? []).map((contact, cIdx) => (
-                <div key={cIdx} className="flex items-start justify-between bg-white rounded-2xl p-4 border border-border/30 shadow-sm">
-                  <div className="space-y-1.5">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-sm font-black text-primary">{contact.name}</p>
-                      {contact.position && (
-                        <span className="text-[10px] font-bold text-primary/50 bg-surface px-2 py-0.5 rounded-lg border border-border/30">
-                          {contact.position}
-                        </span>
-                      )}
+              {(items[expandedIdx].contacts ?? []).map((contact, cIdx) => {
+                const key = `${expandedIdx}-${cIdx}`
+                const isEditing = editingContactKey === key
+                return isEditing ? (
+                  <div key={cIdx} className="bg-white rounded-2xl p-4 border-2 border-secondary/30 shadow-sm space-y-2">
+                    <div className="grid grid-cols-2 gap-1.5">
+                      <input value={editContactForm.name} onChange={e => setEditContactForm(f => ({ ...f, name: e.target.value }))}
+                        placeholder="이름 *" className="border border-border/50 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-secondary" />
+                      <input value={editContactForm.position} onChange={e => setEditContactForm(f => ({ ...f, position: e.target.value }))}
+                        placeholder="직책" className="border border-border/50 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-secondary" />
+                      <input value={editContactForm.role ?? ''} onChange={e => setEditContactForm(f => ({ ...f, role: e.target.value }))}
+                        placeholder="역할" className="border border-border/50 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-secondary" />
+                      <input value={editContactForm.phone} onChange={e => setEditContactForm(f => ({ ...f, phone: e.target.value }))}
+                        placeholder="전화번호" className="border border-border/50 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-secondary" />
+                      <input value={editContactForm.email} onChange={e => setEditContactForm(f => ({ ...f, email: e.target.value }))}
+                        placeholder="이메일" className="col-span-2 border border-border/50 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-secondary" />
                     </div>
-                    {contact.email && <p className="text-xs text-primary/60">✉️ {contact.email}</p>}
-                    {contact.phone && <p className="text-xs text-primary/60">📞 {contact.phone}</p>}
+                    <div className="flex gap-1.5 justify-end">
+                      <button onClick={() => setEditingContactKey(null)} className="px-3 py-1 text-[11px] font-bold border border-border/50 rounded-lg text-primary/50 hover:bg-surface">취소</button>
+                      <button onClick={() => saveEditContact(expandedIdx, cIdx)} disabled={!editContactForm.name.trim()}
+                        className="px-3 py-1 text-[11px] font-bold bg-secondary text-white rounded-lg hover:bg-secondary/90 disabled:opacity-40">저장</button>
+                    </div>
                   </div>
-                  <button onClick={() => removeContact(expandedIdx, cIdx)}
-                    className="text-primary/20 hover:text-danger transition-colors text-xs shrink-0 mt-0.5">✕</button>
-                </div>
-              ))}
+                ) : (
+                  <div key={cIdx} className="flex items-start justify-between bg-white rounded-2xl p-4 border border-border/30 shadow-sm group">
+                    <div className="space-y-1.5 flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="text-sm font-black text-primary">{contact.name}</p>
+                        {contact.position && (
+                          <span className="text-[10px] font-bold text-primary/50 bg-surface px-2 py-0.5 rounded-lg border border-border/30">{contact.position}</span>
+                        )}
+                        {contact.role && (
+                          <span className="text-[10px] font-bold text-secondary bg-secondary/10 px-2 py-0.5 rounded-lg">{contact.role}</span>
+                        )}
+                      </div>
+                      {contact.email && <p className="text-xs text-primary/60">✉️ {contact.email}</p>}
+                      {contact.phone && <p className="text-xs text-primary/60">📞 {contact.phone}</p>}
+                    </div>
+                    <div className="flex gap-1 shrink-0 mt-0.5">
+                      <button onClick={() => startEditContact(expandedIdx, cIdx, contact)}
+                        className="text-primary/20 hover:text-secondary transition-colors text-xs opacity-0 group-hover:opacity-100">✎</button>
+                      <button onClick={() => removeContact(expandedIdx, cIdx)}
+                        className="text-primary/20 hover:text-danger transition-colors text-xs">✕</button>
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           ) : (
             <p className="text-xs text-primary/30 py-2">등록된 담당자가 없습니다. 아래에서 추가하세요.</p>
           )}
 
-          <div className="grid grid-cols-5 gap-2 pt-4 border-t border-border/10">
+          <div className="grid grid-cols-6 gap-2 pt-4 border-t border-border/10">
             <input value={newContact.name} onChange={e => setNewContact(c => ({ ...c, name: e.target.value }))}
               placeholder="이름 *"
               className="bg-white border border-dashed border-border/50 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-secondary transition-all" />
             <input value={newContact.position} onChange={e => setNewContact(c => ({ ...c, position: e.target.value }))}
               placeholder="직책"
+              className="bg-white border border-dashed border-border/50 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-secondary transition-all" />
+            <input value={newContact.role ?? ''} onChange={e => setNewContact(c => ({ ...c, role: e.target.value }))}
+              placeholder="역할"
               className="bg-white border border-dashed border-border/50 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-secondary transition-all" />
             <input value={newContact.email} onChange={e => setNewContact(c => ({ ...c, email: e.target.value }))}
               placeholder="이메일"
@@ -1191,6 +1237,8 @@ function ReferralTab({ initial }: { initial: MasterData }) {
   const [editingIdx, setEditingIdx]     = useState<number | null>(null)
   const [expandedIdx, setExpandedIdx]   = useState<number | null>(null)
   const [newContact, setNewContact]     = useState<Contact>(EMPTY_CONTACT)
+  const [editingContactKey, setEditingContactKey] = useState<string | null>(null)
+  const [editContactForm, setEditContactForm] = useState<Contact>(EMPTY_CONTACT)
   const [uploadingIdx, setUploadingIdx] = useState<number | null>(null)
   const { addToast } = useUiStore()
   const qc = useQueryClient()
@@ -1230,6 +1278,18 @@ function ReferralTab({ initial }: { initial: MasterData }) {
 
   function removeContact(agencyIdx: number, contactIdx: number) {
     update(agencyIdx, { contacts: (sources[agencyIdx].contacts ?? []).filter((_, i) => i !== contactIdx) })
+  }
+
+  function startEditContact(agencyIdx: number, contactIdx: number, contact: Contact) {
+    setEditingContactKey(`${agencyIdx}-${contactIdx}`)
+    setEditContactForm({ ...contact })
+  }
+
+  function saveEditContact(agencyIdx: number, contactIdx: number) {
+    const contacts = [...(sources[agencyIdx].contacts ?? [])]
+    contacts[contactIdx] = { ...editContactForm }
+    update(agencyIdx, { contacts })
+    setEditingContactKey(null)
   }
 
   const refInputCls = 'bg-background border border-dashed border-border/50 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-secondary transition-all w-full'
@@ -1383,35 +1443,67 @@ function ReferralTab({ initial }: { initial: MasterData }) {
 
           {(sources[expandedIdx].contacts ?? []).length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {(sources[expandedIdx].contacts ?? []).map((contact, cIdx) => (
-                <div key={cIdx} className="flex items-start justify-between bg-white rounded-2xl p-4 border border-border/30 shadow-sm">
-                  <div className="space-y-1.5">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-sm font-black text-primary">{contact.name}</p>
-                      {contact.position && (
-                        <span className="text-[10px] font-bold text-primary/50 bg-surface px-2 py-0.5 rounded-lg border border-border/30">
-                          {contact.position}
-                        </span>
-                      )}
+              {(sources[expandedIdx].contacts ?? []).map((contact, cIdx) => {
+                const key = `${expandedIdx}-${cIdx}`
+                const isEditing = editingContactKey === key
+                return isEditing ? (
+                  <div key={cIdx} className="bg-white rounded-2xl p-4 border-2 border-secondary/30 shadow-sm space-y-2">
+                    <div className="grid grid-cols-2 gap-1.5">
+                      <input value={editContactForm.name} onChange={e => setEditContactForm(f => ({ ...f, name: e.target.value }))}
+                        placeholder="이름 *" className="border border-border/50 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-secondary" />
+                      <input value={editContactForm.position} onChange={e => setEditContactForm(f => ({ ...f, position: e.target.value }))}
+                        placeholder="직책" className="border border-border/50 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-secondary" />
+                      <input value={editContactForm.role ?? ''} onChange={e => setEditContactForm(f => ({ ...f, role: e.target.value }))}
+                        placeholder="역할" className="border border-border/50 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-secondary" />
+                      <input value={editContactForm.phone} onChange={e => setEditContactForm(f => ({ ...f, phone: e.target.value }))}
+                        placeholder="전화번호" className="border border-border/50 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-secondary" />
+                      <input value={editContactForm.email} onChange={e => setEditContactForm(f => ({ ...f, email: e.target.value }))}
+                        placeholder="이메일" className="col-span-2 border border-border/50 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-secondary" />
                     </div>
-                    {contact.email && <p className="text-xs text-primary/60">✉️ {contact.email}</p>}
-                    {contact.phone && <p className="text-xs text-primary/60">📞 {contact.phone}</p>}
+                    <div className="flex gap-1.5 justify-end">
+                      <button onClick={() => setEditingContactKey(null)} className="px-3 py-1 text-[11px] font-bold border border-border/50 rounded-lg text-primary/50 hover:bg-surface">취소</button>
+                      <button onClick={() => saveEditContact(expandedIdx, cIdx)} disabled={!editContactForm.name.trim()}
+                        className="px-3 py-1 text-[11px] font-bold bg-secondary text-white rounded-lg hover:bg-secondary/90 disabled:opacity-40">저장</button>
+                    </div>
                   </div>
-                  <button onClick={() => removeContact(expandedIdx, cIdx)}
-                    className="text-primary/20 hover:text-danger transition-colors text-xs shrink-0 mt-0.5">✕</button>
-                </div>
-              ))}
+                ) : (
+                  <div key={cIdx} className="flex items-start justify-between bg-white rounded-2xl p-4 border border-border/30 shadow-sm group">
+                    <div className="space-y-1.5 flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="text-sm font-black text-primary">{contact.name}</p>
+                        {contact.position && (
+                          <span className="text-[10px] font-bold text-primary/50 bg-surface px-2 py-0.5 rounded-lg border border-border/30">{contact.position}</span>
+                        )}
+                        {contact.role && (
+                          <span className="text-[10px] font-bold text-secondary bg-secondary/10 px-2 py-0.5 rounded-lg">{contact.role}</span>
+                        )}
+                      </div>
+                      {contact.email && <p className="text-xs text-primary/60">✉️ {contact.email}</p>}
+                      {contact.phone && <p className="text-xs text-primary/60">📞 {contact.phone}</p>}
+                    </div>
+                    <div className="flex gap-1 shrink-0 mt-0.5">
+                      <button onClick={() => startEditContact(expandedIdx, cIdx, contact)}
+                        className="text-primary/20 hover:text-secondary transition-colors text-xs opacity-0 group-hover:opacity-100">✎</button>
+                      <button onClick={() => removeContact(expandedIdx, cIdx)}
+                        className="text-primary/20 hover:text-danger transition-colors text-xs">✕</button>
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           ) : (
             <p className="text-xs text-primary/30 py-2">등록된 담당자가 없습니다. 아래에서 추가하세요.</p>
           )}
 
-          <div className="grid grid-cols-5 gap-2 pt-4 border-t border-border/10">
+          <div className="grid grid-cols-6 gap-2 pt-4 border-t border-border/10">
             <input value={newContact.name} onChange={e => setNewContact(c => ({ ...c, name: e.target.value }))}
               placeholder="이름 *"
               className="bg-white border border-dashed border-border/50 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-secondary transition-all" />
             <input value={newContact.position} onChange={e => setNewContact(c => ({ ...c, position: e.target.value }))}
               placeholder="직책"
+              className="bg-white border border-dashed border-border/50 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-secondary transition-all" />
+            <input value={newContact.role ?? ''} onChange={e => setNewContact(c => ({ ...c, role: e.target.value }))}
+              placeholder="역할"
               className="bg-white border border-dashed border-border/50 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-secondary transition-all" />
             <input value={newContact.email} onChange={e => setNewContact(c => ({ ...c, email: e.target.value }))}
               placeholder="이메일"
