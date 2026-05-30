@@ -135,8 +135,9 @@ public class ServiceAdminService {
             try { birth = java.time.LocalDate.parse(req.birthDate()); } catch (Exception ignored) {}
         }
         
-        profile.updateProfile(req.name(), req.nameEn(), req.desiredRate(), req.category(), req.field(), workType,
-                              birth, req.email(), req.address(), req.title(), req.projectRole());
+        profile.updateProfile(req.name(), trunc(req.nameEn(), 100), req.desiredRate(),
+                              req.category(), req.field(), workType, birth, req.email(),
+                              trunc(req.address(), 200), trunc(req.title(), 50), trunc(req.projectRole(), 100));
 
         if (req.skills() != null) {
             req.skills().forEach(skill ->
@@ -150,7 +151,7 @@ public class ServiceAdminService {
             profile.updateNotes(req.notes());
         }
         if (req.skillGrade() != null && !req.skillGrade().isBlank()) {
-            profile.updateSkillGrade(req.skillGrade());
+            profile.updateSkillGrade(trunc(req.skillGrade(), 50));
         }
         if (req.industryExperience() != null || req.referralSource() != null) {
             profile.updateIndustryAndReferral(req.industryExperience(), req.referralSource());
@@ -227,12 +228,13 @@ public class ServiceAdminService {
             else { try { birth = java.time.LocalDate.parse(req.birthDate()); } catch (Exception ignored) {} }
         }
         
-        profile.updateProfile(req.name(), req.nameEn() != null ? req.nameEn() : profile.getNameEn(),
-                              req.desiredRate(), category, field, workType,
-                              birth, req.email() != null ? req.email() : profile.getEmail(),
-                              req.address() != null ? req.address() : profile.getAddress(),
-                              req.title() != null ? req.title() : profile.getTitle(),
-                              req.projectRole() != null ? req.projectRole() : profile.getProjectRole());
+        profile.updateProfile(req.name(),
+                              trunc(req.nameEn() != null ? req.nameEn() : profile.getNameEn(), 100),
+                              req.desiredRate(), category, field, workType, birth,
+                              req.email() != null ? req.email() : profile.getEmail(),
+                              trunc(req.address() != null ? req.address() : profile.getAddress(), 200),
+                              trunc(req.title() != null ? req.title() : profile.getTitle(), 50),
+                              trunc(req.projectRole() != null ? req.projectRole() : profile.getProjectRole(), 100));
 
         if (req.phone() != null && !req.phone().isBlank()) {
             profile.updatePhone(encryptionService.encrypt(req.phone()));
@@ -259,6 +261,9 @@ public class ServiceAdminService {
         }
         if (req.resumeKey() != null && !req.resumeKey().isBlank()) {
             profile.updateResumeKey(req.resumeKey());
+        }
+        if (req.skillGrade() != null && !req.skillGrade().isBlank()) {
+            profile.updateSkillGrade(trunc(req.skillGrade(), 50));
         }
         if (req.secondaryFields() != null) {
             profile.updateSecondaryFields(req.secondaryFields());
