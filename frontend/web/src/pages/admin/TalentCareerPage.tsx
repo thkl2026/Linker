@@ -3172,6 +3172,7 @@ export function TalentCareerPage() {
   // 검색
   const [keyword, setKeyword] = useState('')
   const [searchKeyword, setSearchKeyword] = useState('')
+  const [filterCategory, setFilterCategory] = useState<TalentCategory | ''>('')
   const [page, setPage] = useState(0)
 
   // 정렬
@@ -3254,9 +3255,10 @@ export function TalentCareerPage() {
   }
 
   const { data, isLoading } = useQuery({
-    queryKey: ['admin', 'talents', searchKeyword, page, sortBy, sortDir],
+    queryKey: ['admin', 'talents', searchKeyword, filterCategory, page, sortBy, sortDir],
     queryFn: () => serviceAdminApi.listTalents({
       keyword:  searchKeyword || undefined,
+      category: filterCategory || undefined,
       page, size: 20,
       sort: `${sortBy},${sortDir}`,
     }).then(r => r.data),
@@ -3400,7 +3402,7 @@ export function TalentCareerPage() {
       </div>
 
       {/* 통합 검색 */}
-      <div className="mb-4">
+      <div className="mb-3">
         <div className="flex items-center bg-gray-100 rounded-2xl px-4 py-3 gap-3 focus-within:bg-gray-50 focus-within:ring-2 focus-within:ring-secondary/30 transition-all">
           <input value={keyword} onChange={e => setKeyword(e.target.value)} onKeyDown={e => e.key === 'Enter' && doSearch()}
             className="flex-1 bg-transparent text-sm text-primary placeholder:text-gray-400 focus:outline-none"
@@ -3411,6 +3413,26 @@ export function TalentCareerPage() {
             </svg>
           </button>
         </div>
+      </div>
+
+      {/* 카테고리 필터 칩 */}
+      <div className="flex gap-2 overflow-x-auto pb-3 scrollbar-none mb-1">
+        {([['', '전체'], ...Object.entries(TALENT_CATEGORY_LABELS)] as [string, string][]).map(([code, label]) => {
+          const active = filterCategory === code
+          return (
+            <button
+              key={code}
+              onClick={() => { setFilterCategory(code as TalentCategory | ''); setPage(0) }}
+              className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold border transition-all ${
+                active
+                  ? 'bg-primary text-white border-primary'
+                  : 'bg-white text-primary/70 border-border/50 hover:border-primary/40 hover:text-primary'
+              }`}
+            >
+              {label}
+            </button>
+          )
+        })}
       </div>
 
       {/* 그리드 툴바 */}
