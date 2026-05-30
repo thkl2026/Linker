@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { serviceAdminApi, type TalentAdmin, type AvailabilityStatus, type LabelCount } from '@/shared/api/serviceAdminApi'
 import { notificationApi } from '@/shared/api/notificationApi'
@@ -30,24 +30,26 @@ const AVAILABILITY_COLOR: Record<AvailabilityStatus, string> = {
 
 // ─── StatCard ────────────────────────────────────────────────────────────────
 function StatCard({
-  icon, label, value, unit, badge, badgeColor, valueColor, iconBg,
+  icon, label, value, unit, onClick, valueColor, iconBg,
 }: {
   icon: string; label: string; value: string | number; unit: string
-  badge: string; badgeColor: string; valueColor?: string; iconBg?: string
+  onClick?: () => void; valueColor?: string; iconBg?: string
 }) {
   return (
     <div className="bg-white p-6 rounded-3xl border border-border/30 shadow-[0_4px_20px_-4px_rgba(69,26,3,0.05)] hover:shadow-[0_8px_30px_-4px_rgba(69,26,3,0.1)] transition-all duration-300 group">
-      <div className="flex justify-between items-start mb-4">
-        <div className={`w-12 h-12 ${iconBg ?? 'bg-secondary/10'} rounded-2xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform`}>
+      <div className="flex items-center gap-4 mb-4">
+        <div className={`w-12 h-12 ${iconBg ?? 'bg-secondary/10'} rounded-2xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform shrink-0`}>
           {icon}
         </div>
-        <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${badgeColor}`}>{badge}</span>
+        <p className="text-sm font-bold text-primary/50">{label}</p>
       </div>
-      <p className="text-xs font-bold text-primary/40 mb-1">{label}</p>
-      <p className={`text-3xl font-black tracking-tight ${valueColor ?? 'text-primary'}`}>
+      <button
+        onClick={onClick}
+        className={`text-3xl font-black tracking-tight ${valueColor ?? 'text-primary'} ${onClick ? 'hover:text-secondary transition-colors cursor-pointer' : ''}`}
+      >
         {typeof value === 'number' ? value.toLocaleString() : value}
         <span className="text-sm font-normal text-primary/30 ml-1">{unit}</span>
-      </p>
+      </button>
     </div>
   )
 }
@@ -168,6 +170,7 @@ function formatNotifTime(iso: string): string {
 // ─── Main page ───────────────────────────────────────────────────────────────
 export function ServiceAdminDashboardPage() {
   const [showHelp, setShowHelp] = useState(false)
+  const navigate = useNavigate()
   const { data: talentsPage } = useQuery({
     queryKey: ['service-admin', 'dashboard', 'recent'],
     queryFn: () => serviceAdminApi.listTalents({ page: 0, size: 5 }).then(r => r.data),
@@ -233,10 +236,10 @@ export function ServiceAdminDashboardPage() {
       {/* Stat cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <StatCard icon="💼" label="총 전문가 수" value={totalTalents} unit="명"
-          badge="전체" badgeColor="text-success bg-success/10" />
+          onClick={() => navigate('/app/service-admin/talents')} />
         <StatCard icon="🚀" label="활성 프로젝트" value={activeProjects} unit="건"
-          badge="모집중" badgeColor="text-primary/40 border border-border/30 bg-white"
-          iconBg="bg-blue-50" />
+          iconBg="bg-blue-50"
+          onClick={() => navigate('/app/service-admin/projects')} />
       </div>
 
       {/* Charts row: 3 doughnuts */}
