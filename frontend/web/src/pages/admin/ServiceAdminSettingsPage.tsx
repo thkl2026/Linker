@@ -50,7 +50,7 @@ const TABS: { id: Tab; label: string }[] = [
   { id: 'general',       label: '일반 설정' },
   { id: 'users',         label: '사용자 관리' },
   { id: 'evaluation',    label: '평가 관리' },
-  { id: 'master',        label: '마스터 데이터 관리' },
+  { id: 'master',        label: '마스터 데이터' },
   { id: 'contractors',   label: '주사업자' },
   { id: 'referral',      label: '추천기관' },
   { id: 'notifications', label: '알림 규칙 설정' },
