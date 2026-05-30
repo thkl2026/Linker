@@ -3376,9 +3376,9 @@ export function TalentCareerPage() {
     <div className="p-8">
       {/* 헤더 */}
       <div className="flex items-center justify-between mb-6">
-        <div>
+        <div className="flex items-baseline gap-3">
           <h1 className="text-2xl font-bold text-primary">전문가 목록</h1>
-          <p className="text-sm text-primary/50 mt-0.5">총 {data?.totalElements ?? 0}명</p>
+          <span className="text-sm text-primary/50">총 {data?.totalElements ?? 0}명</span>
         </div>
         <div className="flex gap-2">
           <HelpButton onClick={() => setShowHelp(true)} />
