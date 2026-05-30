@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { HelpPanel, HelpButton } from '@/shared/components/HelpPanel'
+import { HelpPanel } from '@/shared/components/HelpPanel'
 import { helpTalentList } from '@/shared/help/helpContent'
 import { displayName } from '@/shared/utils/nameUtils'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -3377,9 +3377,15 @@ export function TalentCareerPage() {
   return (
     <div className="p-8">
       {/* 헤더 */}
-      <div className="flex items-baseline gap-3 mb-4">
-        <h1 className="text-2xl font-bold text-primary">전문가 목록</h1>
-        <span className="text-sm text-primary/50">총 {data?.totalElements ?? 0}명</span>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-baseline gap-3">
+          <h1 className="text-2xl font-bold text-primary">전문가 목록</h1>
+          <span className="text-sm text-primary/50">총 {data?.totalElements ?? 0}명</span>
+        </div>
+        <button onClick={() => setShowHelp(true)} title="도움말"
+          className="w-8 h-8 rounded-full border border-border text-primary/50 hover:text-primary hover:bg-surface flex items-center justify-center text-sm font-bold transition-colors">
+          ?
+        </button>
       </div>
 
       {/* 검색 + 버튼 */}
@@ -3394,7 +3400,6 @@ export function TalentCareerPage() {
             </svg>
           </button>
         </div>
-        <HelpButton onClick={() => setShowHelp(true)} />
         <button onClick={() => selectedTalent && setDetailTarget(selectedTalent)}
           disabled={selectedIds.length !== 1}
           className="w-28 py-2.5 rounded-xl border border-border text-sm font-semibold text-primary/70 hover:bg-surface disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
