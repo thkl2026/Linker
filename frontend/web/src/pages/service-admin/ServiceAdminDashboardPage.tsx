@@ -173,7 +173,7 @@ export function ServiceAdminDashboardPage() {
   const navigate = useNavigate()
   const { data: talentsPage } = useQuery({
     queryKey: ['service-admin', 'dashboard', 'recent'],
-    queryFn: () => serviceAdminApi.listTalents({ page: 0, size: 5 }).then(r => r.data),
+    queryFn: () => serviceAdminApi.listTalents({ page: 0, size: 5, sort: 'createdAt,desc' }).then(r => r.data),
   })
 
   const { data: stats } = useQuery({
