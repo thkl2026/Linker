@@ -106,8 +106,8 @@ function AddMemberModal({ projectId, initialRole, techStack, headcount, position
     const fail = results.length - ok
     qc.invalidateQueries({ queryKey: ['project-detail', projectId] })
     qc.invalidateQueries({ queryKey: ['admin-talents'] })
-    if (fail === 0) addToast(`${ok}명 배정 완료.`, 'success')
-    else addToast(`${ok}명 배정 완료 · ${fail}명 실패 (이미 배정됨)`, 'warning')
+    if (fail === 0) addToast(`${ok}명 후보 추천 완료.`, 'success')
+    else addToast(`${ok}명 추천 완료 · ${fail}명 실패 (이미 추천됨)`, 'warning')
     setAssigning(false)
     onClose()
   }
@@ -678,6 +678,7 @@ function SkillRowItem({ skill, positionMembers, onAssign, onEdit, onDelete }: {
   const filled = positionMembers.length
   const total = skill.headcount
   const isFull = filled >= total
+  const hasConfirmed = positionMembers.some(m => m.confirmed)
 
   return (
     <div className="flex items-start gap-4 p-4 rounded-2xl bg-surface/50 border border-border/20 hover:border-border/40 transition-all group">
@@ -728,13 +729,16 @@ function SkillRowItem({ skill, positionMembers, onAssign, onEdit, onDelete }: {
         </button>
         <button
           onClick={() => onAssign(skill.role, skill.techStack || '')}
+          disabled={hasConfirmed}
           className={`px-3 py-1.5 text-xs font-black rounded-xl border transition-all ${
-            isFull
-              ? 'bg-emerald-50 text-emerald-600 border-emerald-100 hover:bg-secondary hover:text-white hover:border-secondary'
-              : 'bg-primary/5 hover:bg-secondary hover:text-white text-primary border-border/30 hover:border-secondary'
+            hasConfirmed
+              ? 'bg-emerald-50 text-emerald-600 border-emerald-100 opacity-40 cursor-not-allowed'
+              : isFull
+                ? 'bg-emerald-50 text-emerald-600 border-emerald-100 hover:bg-secondary hover:text-white hover:border-secondary'
+                : 'bg-primary/5 hover:bg-secondary hover:text-white text-primary border-border/30 hover:border-secondary'
           }`}
         >
-          {isFull ? '배정 완료' : '+ 배정'}
+          {isFull ? '후보 추천' : '+ 후보 추천'}
         </button>
       </div>
     </div>
