@@ -3178,6 +3178,11 @@ export function TalentCareerPage() {
   const [filterCategory, setFilterCategory] = useState<TalentCategory | ''>('')
   const [page, setPage] = useState(0)
 
+  useEffect(() => {
+    const t = setTimeout(() => { setSearchKeyword(keyword); setPage(0) }, 300)
+    return () => clearTimeout(t)
+  }, [keyword])
+
   // 정렬
   const [sortBy, setSortBy] = useState<'name' | 'category' | 'availabilityStatus' | 'desiredRate' | 'createdAt'>('createdAt')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc')
@@ -3229,6 +3234,7 @@ export function TalentCareerPage() {
   }
 
   const doSearch = () => { setSearchKeyword(keyword); setPage(0) }
+
 
   const handleSort = (col: typeof sortBy) => {
     if (sortBy === col) {
