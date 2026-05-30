@@ -48,7 +48,7 @@ function combineBankAccount(bank: string, account: string): string {
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'general',       label: '일반 설정' },
-  { id: 'users',         label: '사용자 초대 및 관리' },
+  { id: 'users',         label: '사용자 관리' },
   { id: 'evaluation',    label: '평가 시스템 설정' },
   { id: 'master',        label: '마스터 데이터 관리' },
   { id: 'contractors',   label: '주사업자 관리' },
