@@ -713,6 +713,15 @@ public class ServiceAdminService {
     }
 
     @Transactional
+    public void deleteProject(UUID projectId) {
+        ProjectOpportunity project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new LinkerException(HttpStatus.NOT_FOUND, "PROJECT_NOT_FOUND", "프로젝트를 찾을 수 없습니다."));
+        projectMemberRepository.deleteByProjectId(projectId);
+        projectRepository.delete(project);
+        log.info("[SERVICE_ADMIN] 프로젝트 삭제 projectId={}", projectId);
+    }
+
+    @Transactional
     public void confirmMember(UUID projectId, UUID memberId) {
         ProjectMember member = projectMemberRepository.findById(memberId)
                 .orElseThrow(() -> new LinkerException(HttpStatus.NOT_FOUND, "MEMBER_NOT_FOUND", "배정 정보를 찾을 수 없습니다."));

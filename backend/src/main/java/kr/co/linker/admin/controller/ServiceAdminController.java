@@ -210,6 +210,13 @@ public class ServiceAdminController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "프로젝트 삭제")
+    @DeleteMapping("/projects/{id}")
+    public ResponseEntity<Void> deleteProject(@PathVariable UUID id) {
+        serviceAdminService.deleteProject(id);
+        return ResponseEntity.noContent().build();
+    }
+
     @Operation(summary = "프로젝트 텍스트 AI 분석 — 메일·메신저 내용으로 폼 자동 입력")
     @PostMapping("/projects/analyze")
     public ResponseEntity<ProjectAnalysisResult> analyzeProjectText(

@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
-import { serviceAdminApi, ProjectAdmin, ProjectStatus } from '@/shared/api/serviceAdminApi'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { serviceAdminApi, type ProjectAdmin, type ProjectStatus } from '@/shared/api/serviceAdminApi'
 import { HelpPanel, HelpButton } from '@/shared/components/HelpPanel'
 import { helpProjectManagement } from '@/shared/help/helpContent'
+import { useUiStore } from '@/store/uiStore'
 
 const STATUS_LABELS: Record<ProjectStatus, string> = {
   OPEN: '인력모집중',
@@ -50,10 +51,13 @@ export function ProjectManagementPage() {
   const [keyword, setKeyword] = useState('')
   const [searchInput, setSearchInput] = useState('')
   const [statusFilter, setStatusFilter] = useState<ProjectStatus | ''>('')
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const navigate = useNavigate()
   const [page, setPage] = useState(0)
   const [showHelp, setShowHelp] = useState(false)
   const PAGE_SIZE = 10
+  const { addToast } = useUiStore()
+  const qc = useQueryClient()
 
   const { data: stats } = useQuery({
     queryKey: ['project-stats'],
@@ -80,6 +84,31 @@ export function ProjectManagementPage() {
     setPage(0)
   }
 
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => serviceAdminApi.deleteProject(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin-projects'] })
+      qc.invalidateQueries({ queryKey: ['project-stats'] })
+    },
+    onError: () => addToast('삭제에 실패했습니다.', 'error'),
+  })
+
+  async function handleDeleteSelected() {
+    if (selectedIds.size === 0) return
+    if (!window.confirm(`선택한 ${selectedIds.size}개의 프로젝트를 삭제하시겠습니까?`)) return
+    await Promise.allSettled([...selectedIds].map(id => deleteMutation.mutateAsync(id)))
+    setSelectedIds(new Set())
+    addToast(`${selectedIds.size}개 프로젝트가 삭제되었습니다.`, 'success')
+  }
+
+  function toggleSelect(id: string) {
+    setSelectedIds(prev => { const n = new Set(prev); if (n.has(id)) n.delete(id); else n.add(id); return n })
+  }
+
+  function toggleAll() {
+    setSelectedIds(selectedIds.size === projects.length ? new Set() : new Set(projects.map(p => p.id)))
+  }
+
 
   return (
     <div className="p-8 space-y-8 max-w-[1400px] mx-auto">
@@ -95,10 +124,24 @@ export function ProjectManagementPage() {
         <div className="flex items-center gap-2">
           <HelpButton onClick={() => setShowHelp(true)} />
           <button
+            onClick={() => { if (selectedIds.size !== 1) return; navigate(`/app/service-admin/projects/${[...selectedIds][0]}`) }}
+            disabled={selectedIds.size !== 1}
+            className="px-4 py-2.5 bg-white border border-border text-primary/60 rounded-xl text-sm font-black hover:border-secondary hover:text-secondary transition-all disabled:opacity-30"
+          >
+            수정
+          </button>
+          <button
+            onClick={handleDeleteSelected}
+            disabled={selectedIds.size === 0 || deleteMutation.isPending}
+            className="px-4 py-2.5 bg-white border border-border text-primary/60 rounded-xl text-sm font-black hover:border-danger hover:text-danger transition-all disabled:opacity-30"
+          >
+            삭제{selectedIds.size > 0 ? ` (${selectedIds.size})` : ''}
+          </button>
+          <button
             onClick={() => navigate('/app/service-admin/projects/create')}
             className="px-6 py-2.5 bg-primary text-white rounded-xl text-sm font-black shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
           >
-            + 신규 프로젝트 등록
+            + 신규등록
           </button>
         </div>
       </div>
@@ -162,6 +205,12 @@ export function ProjectManagementPage() {
           <table className="w-full text-left border-collapse min-w-[900px]">
             <thead>
               <tr className="bg-surface/50 border-b border-border/30">
+                <th className="px-4 py-5 w-10" onClick={e => e.stopPropagation()}>
+                  <input type="checkbox" className="w-4 h-4 accent-secondary cursor-pointer"
+                    checked={projects.length > 0 && selectedIds.size === projects.length}
+                    ref={el => { if (el) el.indeterminate = selectedIds.size > 0 && selectedIds.size < projects.length }}
+                    onChange={toggleAll} />
+                </th>
                 <th className="px-8 py-5 text-xs font-black text-primary/40 uppercase tracking-wider">프로젝트명</th>
                 <th className="px-6 py-5 text-xs font-black text-primary/40 uppercase tracking-wider">고객사</th>
                 <th className="px-6 py-5 text-xs font-black text-primary/40 uppercase tracking-wider">주사업자</th>
@@ -175,18 +224,23 @@ export function ProjectManagementPage() {
             <tbody className="divide-y divide-border/10">
               {isLoading ? (
                 <tr>
-                  <td colSpan={8} className="px-8 py-16 text-center text-sm text-primary/30">불러오는 중...</td>
+                  <td colSpan={9} className="px-8 py-16 text-center text-sm text-primary/30">불러오는 중...</td>
                 </tr>
               ) : projects.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-8 py-16 text-center text-sm text-primary/30">프로젝트가 없습니다.</td>
+                  <td colSpan={9} className="px-8 py-16 text-center text-sm text-primary/30">프로젝트가 없습니다.</td>
                 </tr>
               ) : projects.map((p, idx) => (
                 <tr
                   key={p.id}
                   onClick={() => navigate(`/app/service-admin/projects/${p.id}`)}
-                  className="hover:bg-primary/[0.02] transition-all group cursor-pointer"
+                  className={`transition-all group cursor-pointer ${selectedIds.has(p.id) ? 'bg-secondary/5' : 'hover:bg-primary/[0.02]'}`}
                 >
+                  <td className="px-4 py-5 text-center" onClick={e => { e.stopPropagation(); toggleSelect(p.id) }}>
+                    <input type="checkbox" className="w-4 h-4 accent-secondary cursor-pointer"
+                      checked={selectedIds.has(p.id)}
+                      onChange={() => toggleSelect(p.id)} />
+                  </td>
                   <td className="px-8 py-5">
                     <div className="flex items-center gap-3">
                       <span className="text-[11px] font-bold text-primary/20 shrink-0">

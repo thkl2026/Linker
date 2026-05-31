@@ -493,6 +493,9 @@ export const serviceAdminApi = {
   changeProjectStatus: (projectId: string, status: ProjectStatus) =>
     axiosInstance.patch(`/api/v1/service-admin/projects/${projectId}/status`, { status }),
 
+  deleteProject: (id: string) =>
+    axiosInstance.delete(`/api/v1/service-admin/projects/${id}`),
+
   adminCreateProject: (req: AdminCreateProjectRequest) =>
     axiosInstance.post<string>('/api/v1/service-admin/projects', req),
 

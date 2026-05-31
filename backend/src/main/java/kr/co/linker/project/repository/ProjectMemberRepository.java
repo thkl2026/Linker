@@ -11,6 +11,7 @@ import java.util.UUID;
 public interface ProjectMemberRepository extends JpaRepository<ProjectMember, UUID> {
     List<ProjectMember> findByProjectId(UUID projectId);
     boolean existsByProjectIdAndTalentId(UUID projectId, UUID talentId);
+    void deleteByProjectId(UUID projectId);
 
     /** 월별 투입 단가 합계 (매출 근사치) */
     @Query(value = """
