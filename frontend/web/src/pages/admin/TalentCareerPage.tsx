@@ -2897,8 +2897,7 @@ function ProjectAssignModal({ talent, onClose }: { talent: TalentAdmin; onClose:
       qc.invalidateQueries({ queryKey: ['service-admin', 'projects'] })
       onClose()
     },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    onError: (err: any) => addToast(err?.response?.data?.message ?? '할당에 실패했습니다.', 'error'),
+    onError: (err: unknown) => addToast((err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? '할당에 실패했습니다.', 'error'),
   })
 
   return (

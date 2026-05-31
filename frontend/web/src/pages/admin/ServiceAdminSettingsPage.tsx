@@ -176,6 +176,7 @@ function GeneralTab({ initial }: { initial: GeneralSettings }) {
   const [form, setForm] = useState(initial)
   const { addToast } = useUiStore()
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { setForm(initial) }, [initial.platformName, initial.logoUrl, initial.companyLogoUrl])
 
   const { mutate, isPending } = useMutation({
@@ -673,6 +674,7 @@ function EvaluationTab({ initial }: { initial: EvaluationSettings }) {
   const { addToast } = useUiStore()
   const qc = useQueryClient()
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { setForm(initial) }, [initial.gradeS])
 
   const { mutate, isPending } = useMutation({
@@ -817,6 +819,7 @@ function MasterDataTab({ initial }: { initial: MasterData }) {
   const { addToast } = useUiStore()
   const qc = useQueryClient()
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { setForm(initial) }, [initial.techStacks.length, initial.projectRoles?.length])
 
   const { mutate, isPending } = useMutation({
@@ -938,6 +941,7 @@ function ContractorsTab({ initial }: { initial: MasterData }) {
   const { addToast } = useUiStore()
   const qc = useQueryClient()
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { setItems(initial.contractors) }, [initial.contractors.length])
 
   const { mutate, isPending } = useMutation({
@@ -1254,6 +1258,7 @@ function ReferralTab({ initial }: { initial: MasterData }) {
   const { addToast } = useUiStore()
   const qc = useQueryClient()
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { setSources(initial.referralSources ?? []) }, [initial.referralSources?.length])
 
   const { mutate, isPending } = useMutation({
@@ -1278,7 +1283,7 @@ function ReferralTab({ initial }: { initial: MasterData }) {
   }
 
   function toggleSelect(idx: number) {
-    setSelectedIds(prev => { const n = new Set(prev); n.has(idx) ? n.delete(idx) : n.add(idx); return n })
+    setSelectedIds(prev => { const n = new Set(prev); if (n.has(idx)) n.delete(idx); else n.add(idx); return n })
   }
 
   function toggleAll() {
@@ -1580,6 +1585,7 @@ function NotificationsTab({ initial }: { initial: NotificationSettings }) {
   const { addToast } = useUiStore()
   const qc = useQueryClient()
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { setForm(initial) }, [initial.evalReminderDays, initial.urgentHours])
 
   const { mutate, isPending } = useMutation({
