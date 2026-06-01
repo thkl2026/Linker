@@ -56,6 +56,7 @@ export function RootLayout() {
   const updateUser = useAuthStore(s => s.updateUser)
   const { isSidebarOpen, toggleSidebar, addToast } = useUiStore()
   const navigate = useNavigate()
+  const location = useLocation()
 
   const [showProfile, setShowProfile] = useState(false)
   const [profileName, setProfileName] = useState('')
@@ -115,7 +116,6 @@ export function RootLayout() {
     </div>
   )
 
-  const location = useLocation()
   const role = user?.role ?? ''
   const navItems = NAV_ITEMS[role] ?? []
 
