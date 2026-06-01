@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { HelpPanel, HelpButton } from '@/shared/components/HelpPanel'
 import { helpTalentList } from '@/shared/help/helpContent'
 import { displayName } from '@/shared/utils/nameUtils'
@@ -3170,6 +3171,7 @@ function EvaluationModal({
 export function TalentCareerPage() {
   const qc = useQueryClient()
   const showToast = useUiStore(s => s.addToast)
+  const navigate = useNavigate()
 
   // 검색
   const [keyword, setKeyword] = useState('')
@@ -3373,7 +3375,7 @@ export function TalentCareerPage() {
       {/* 헤더 */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-baseline gap-3">
-          <h1 className="text-2xl font-bold text-primary">전문가 목록</h1>
+          <h1 onClick={() => navigate('/app/service-admin/talents')} className="text-2xl font-bold text-primary cursor-pointer hover:text-primary/70 transition-colors">전문가 관리</h1>
           <span className="text-sm text-primary/50">총 {data?.totalElements ?? 0}명</span>
         </div>
         <HelpButton onClick={() => setShowHelp(true)} />

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { serviceAdminApi, type TalentReport, type ProjectReport, type RevenueReport, type EvalReport } from '@/shared/api/serviceAdminApi'
 import { HelpPanel, HelpButton } from '@/shared/components/HelpPanel'
@@ -486,6 +487,7 @@ function LoadingState() {
 }
 
 export function ReportsPage() {
+  const navigate = useNavigate()
   const [tab, setTab] = useState<ReportTab>('talent')
   const [period, setPeriod] = useState('6m')
   const [showHelp, setShowHelp] = useState(false)
@@ -517,7 +519,7 @@ export function ReportsPage() {
     <div className="p-6 max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-black text-primary">통계 및 보고서</h1>
+          <h1 onClick={() => navigate('/app/service-admin/reports')} className="text-2xl font-black text-primary cursor-pointer hover:text-primary/70 transition-colors">통계 및 보고서</h1>
           <p className="text-sm text-primary/40 mt-0.5">인력·프로젝트·매출·평가 현황을 한눈에 확인합니다.</p>
         </div>
         <div className="flex items-center gap-3">

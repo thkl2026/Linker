@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Outlet, NavLink, useNavigate, Navigate } from 'react-router-dom'
+import { Outlet, NavLink, useNavigate, useLocation, Navigate } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
 import linkerLogo from '@/statics/linker_bi_logo.png'
 import { ToastContainer } from '@/shared/components/ToastContainer'
@@ -115,6 +115,7 @@ export function RootLayout() {
     </div>
   )
 
+  const location = useLocation()
   const role = user?.role ?? ''
   const navItems = NAV_ITEMS[role] ?? []
 
@@ -204,7 +205,9 @@ export function RootLayout() {
 
       <div className="flex-1 flex flex-col min-w-0">
         <main className="flex-1 overflow-auto bg-background">
-          <Outlet />
+          <div key={location.key}>
+            <Outlet />
+          </div>
         </main>
       </div>
 

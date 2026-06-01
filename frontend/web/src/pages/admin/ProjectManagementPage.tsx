@@ -116,7 +116,7 @@ export function ProjectManagementPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-black tracking-tight text-primary">프로젝트 관리</h2>
+          <h2 onClick={() => navigate('/app/service-admin/projects')} className="text-xl font-black tracking-tight text-primary cursor-pointer hover:text-primary/70 transition-colors">프로젝트 관리</h2>
           <p className="text-xs text-primary/40 font-medium mt-0.5">
             플랫폼 내의 모든 프로젝트 진행 현황을 통합 관리합니다.
           </p>

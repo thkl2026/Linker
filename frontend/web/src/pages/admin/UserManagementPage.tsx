@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { systemAdminApi, ManagedUserRole, UserSummary } from '@/shared/api/systemAdminApi'
 import { useUiStore } from '@/store/uiStore'
@@ -199,6 +200,7 @@ function EditUserModal({ user, onClose }: { user: UserSummary; onClose: () => vo
 const ROLE_FILTERS: Array<ManagedUserRole | ''> = ['', 'SYSTEM_ADMIN', 'SERVICE_ADMIN', 'PM', 'PROCUREMENT']
 
 export function UserManagementPage() {
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const showToast = useUiStore(s => s.addToast)
   const [roleFilter, setRoleFilter] = useState<ManagedUserRole | ''>('')
@@ -230,7 +232,7 @@ export function UserManagementPage() {
     <div className="p-8">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-primary">사용자 관리</h1>
+          <h1 onClick={() => navigate('/app/system-admin/users')} className="text-2xl font-bold text-primary cursor-pointer hover:text-primary/70 transition-colors">사용자 관리</h1>
           <p className="text-sm text-primary/50 mt-0.5">총 {data?.totalElements ?? 0}명</p>
         </div>
         <div className="flex items-center gap-2">

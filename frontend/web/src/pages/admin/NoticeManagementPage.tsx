@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useUiStore } from '@/store/uiStore'
 import {
@@ -191,6 +192,7 @@ function EditModal({
 export function NoticeManagementPage() {
   const { addToast } = useUiStore()
   const qc = useQueryClient()
+  const navigate = useNavigate()
 
   const [category, setCategory]     = useState('')
   const [keyword, setKeyword]       = useState('')
@@ -267,7 +269,7 @@ export function NoticeManagementPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-black tracking-tight">공지사항 관리</h2>
+          <h2 onClick={() => navigate('/app/service-admin/notices')} className="text-xl font-black tracking-tight cursor-pointer hover:text-primary/70 transition-colors">공지사항</h2>
           <p className="text-xs text-primary/40 mt-0.5">Linker 플랫폼의 주요 공지 및 안내 사항을 체계적으로 관리합니다.</p>
         </div>
         <div className="flex items-center gap-2">
