@@ -88,7 +88,7 @@ public class ServiceAdminService {
                 : talentProfileRepository.search(kw,
                         category != null ? category.name() : null,
                         field != null ? field.name() : null,
-                        pageable);
+                        toNativePageable(pageable));
         log.info("[SERVICE_ADMIN] listTalents keyword={} category={} field={} -> {}건",
                 kw, category, field, page.getTotalElements());
         return page.map(p -> {
@@ -98,6 +98,33 @@ public class ServiceAdminService {
                     ? fileStorageService.generateDownloadUrl(p.getResumeKey(), java.time.Duration.ofHours(1)) : null;
             return TalentAdminResponse.from(p, decryptPhone(p), photoUrl, resumeUrl);
         });
+    }
+
+    /**
+     * Native query용 Pageable 변환 — JPA 엔티티 필드명(camelCase)을 DB 컬럼명(snake_case)으로 매핑한다.
+     * nativeQuery=true 쿼리에서는 Spring Data가 Sort 프로퍼티를 그대로 SQL에 붙이므로
+     * camelCase 컬럼명을 쓰면 PostgreSQL이 "column does not exist" 오류를 낸다.
+     *
+     * @rule 그라운드룰 Rule 1: @Transactional 메서드 외부 헬퍼로 분리
+     */
+    private Pageable toNativePageable(Pageable pageable) {
+        if (!pageable.getSort().isSorted()) {
+            return PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
+                    Sort.by(Sort.Order.desc("created_at")));
+        }
+        Sort nativeSort = Sort.by(
+                pageable.getSort().stream().map(order -> {
+                    String col = switch (order.getProperty()) {
+                        case "createdAt"          -> "created_at";
+                        case "desiredRate"         -> "desired_rate";
+                        case "availabilityStatus"  -> "availability_status";
+                        case "totalScore"          -> "total_score";
+                        default                    -> order.getProperty();
+                    };
+                    return order.isAscending() ? Sort.Order.asc(col) : Sort.Order.desc(col);
+                }).toList()
+        );
+        return PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), nativeSort);
     }
 
     @Transactional

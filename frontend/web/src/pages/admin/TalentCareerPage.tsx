@@ -3258,6 +3258,7 @@ export function TalentCareerPage() {
       page, size: 20,
       sort: `${sortBy},${sortDir}`,
     }).then(r => r.data),
+    placeholderData: (prev) => prev,
   })
 
   const inlineRateMutation = useMutation({
