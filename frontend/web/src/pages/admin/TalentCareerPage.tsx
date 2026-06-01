@@ -2551,12 +2551,15 @@ function TalentCreateModal({ onClose, onSave, isPending }: {
   const [tempPhotoUrl, setTempPhotoUrl] = useState<string | null>(null)
   const [skillInput, setSkillInput] = useState('')
   const [analyzing, setAnalyzing] = useState(false)
+  const [analysisError, setAnalysisError] = useState(false)
   const [dragging, setDragging] = useState(false)
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const processFile = async (file: File) => {
-    setAnalyzing(true); setUploadedFileName(file.name)
+    setAnalyzing(true)
+    setUploadedFileName(file.name)
+    setAnalysisError(false)
     try {
       const { data } = await serviceAdminApi.analyzeResume(file)
       setForm(f => ({
@@ -2597,7 +2600,10 @@ function TalentCreateModal({ onClose, onSave, isPending }: {
       } else {
         addToast('이력서 분석 완료. 파일 저장은 등록 후 상세보기에서 다시 업로드해 주세요.', 'warning')
       }
-    } catch { addToast('이력서 분석에 실패했습니다.', 'error') }
+    } catch {
+      setAnalysisError(true)
+      addToast('이력서 분석에 실패했습니다. 다시 시도해 주세요.', 'error')
+    }
     finally { setAnalyzing(false) }
   }
 
@@ -2626,13 +2632,27 @@ function TalentCreateModal({ onClose, onSave, isPending }: {
           className={`mb-5 flex items-center gap-3 px-4 py-3 rounded-xl border-2 border-dashed transition-colors cursor-pointer
             ${analyzing ? 'border-secondary/40 bg-secondary/5 cursor-not-allowed' : dragging ? 'border-secondary bg-secondary/10' : 'border-border hover:border-secondary/60 hover:bg-secondary/5'}`}
         >
-          <span className="text-xl">{analyzing ? '⏳' : dragging ? '📥' : uploadedFileName ? '✅' : '📄'}</span>
+          <span className="text-xl">
+            {analyzing ? '⏳' : dragging ? '📥' : analysisError ? '❌' : uploadedFileName ? '✅' : '📄'}
+          </span>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-primary truncate">
-              {analyzing ? `AI 분석 중... (${uploadedFileName})` : dragging ? '여기에 놓으세요' : uploadedFileName ? uploadedFileName : '이력서 업로드로 자동 입력'}
+            <p className={`text-sm font-semibold truncate ${analysisError ? 'text-red-500' : 'text-primary'}`}>
+              {analyzing
+                ? `AI 분석 중... (${uploadedFileName})`
+                : dragging
+                ? '여기에 놓으세요'
+                : uploadedFileName
+                ? uploadedFileName
+                : '이력서 업로드로 자동 입력'}
             </p>
-            <p className="text-xs text-primary/40 mt-0.5">
-              {uploadedFileName && !analyzing ? '분석 완료 · 다른 파일을 올려 재분석' : 'PDF · DOCX · TXT · 드래그 앤 드롭 가능'}
+            <p className={`text-xs mt-0.5 ${analysisError ? 'text-red-400' : 'text-primary/40'}`}>
+              {analyzing
+                ? ''
+                : analysisError
+                ? '분석 실패 · 다시 시도하거나 다른 파일을 올려주세요'
+                : uploadedFileName
+                ? '분석 완료 · 다른 파일을 올려 재분석'
+                : 'PDF · DOCX · TXT · 드래그 앤 드롭 가능'}
             </p>
           </div>
           {!analyzing && !dragging && <span className="text-xs font-semibold text-secondary shrink-0">{uploadedFileName ? '재선택' : '파일 선택'}</span>}
