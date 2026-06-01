@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { HelpPanel, HelpButton } from '@/shared/components/HelpPanel'
 import { helpTalentList } from '@/shared/help/helpContent'
 import { displayName } from '@/shared/utils/nameUtils'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueries, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   serviceAdminApi,
   TalentAdmin,
@@ -2884,12 +2884,59 @@ function ProjectAssignModal({ talent, onClose }: { talent: TalentAdmin; onClose:
   })
   const projects = projectsPage?.content ?? []
 
-  const { data: settingsData } = useQuery({
-    queryKey: ['settings'],
-    queryFn: () => settingsApi.getAllSettings().then(r => r.data),
-    staleTime: 60_000,
+  // 역할 필터링을 위해 OPEN 프로젝트 전체 상세 병렬 fetch
+  const detailResults = useQueries({
+    queries: projects.map(p => ({
+      queryKey: ['service-admin', 'project-detail', p.id],
+      queryFn: () => serviceAdminApi.getProjectDetail(p.id).then(r => r.data),
+      staleTime: 30_000,
+    })),
   })
-  const roleOptions = settingsData?.masterData?.projectRoles ?? []
+  const detailMap = Object.fromEntries(
+    detailResults.flatMap(q => q.data ? [[q.data.id, q.data]] : [])
+  )
+
+  // requiredSkills JSON → { role, headcount }[] 파싱
+  const parseRoles = (json: string | null): { role: string; headcount: number }[] => {
+    if (!json) return []
+    try { return JSON.parse(json) } catch { return [] }
+  }
+
+  // 이 전문가가 특정 프로젝트에서 배정 가능한 역할 목록 반환
+  const getAvailableRoles = (projectId: string): string[] => {
+    const detail = detailMap[projectId]
+    if (!detail) return []
+    const skillRows = parseRoles(detail.requiredSkills)
+    if (skillRows.length === 0) return []
+    const myRoles = new Set(
+      detail.members
+        .filter(m => m.talentId === talent.id)
+        .map(m => m.role)
+        .filter((r): r is string => !!r)
+    )
+    return skillRows
+      .filter(s => {
+        const filled = detail.members.filter(m => m.role === s.role).length
+        return !myRoles.has(s.role) && filled < s.headcount
+      })
+      .map(s => s.role)
+  }
+
+  // 상세가 로드된 프로젝트 중 이 전문가가 배정 가능한 프로젝트만 표시
+  const visibleProjects = projects.filter(p => {
+    const detail = detailMap[p.id]
+    if (!detail) return true // 로딩 중에는 표시
+    const skillRows = parseRoles(detail.requiredSkills)
+    if (skillRows.length === 0) return true // 역할 미정의 프로젝트는 항상 표시
+    return getAvailableRoles(p.id).length > 0
+  })
+
+  const roleOptions = selectedProjectId ? getAvailableRoles(selectedProjectId) : []
+
+  const handleProjectChange = (id: string) => {
+    setSelectedProjectId(id)
+    setRole('')
+  }
 
   const { mutate, isPending } = useMutation({
     mutationFn: () => serviceAdminApi.assignMember(selectedProjectId, talent.id, role || undefined),
@@ -2912,26 +2959,35 @@ function ProjectAssignModal({ talent, onClose }: { talent: TalentAdmin; onClose:
             <label className="block text-[11px] font-black text-primary/40 uppercase mb-1.5">프로젝트 선택 *</label>
             <select
               value={selectedProjectId}
-              onChange={e => setSelectedProjectId(e.target.value)}
+              onChange={e => handleProjectChange(e.target.value)}
               className="w-full bg-background border border-border/50 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-secondary transition-all">
               <option value="">모집 중인 프로젝트 선택</option>
-              {projects.map(p => (
+              {visibleProjects.map(p => (
                 <option key={p.id} value={p.id}>{p.title}{p.clientCompany ? ` (${p.clientCompany})` : ''}</option>
               ))}
             </select>
           </div>
-          <div>
-            <label className="block text-[11px] font-black text-primary/40 uppercase mb-1.5">역할 (선택)</label>
-            <select
-              value={role}
-              onChange={e => setRole(e.target.value)}
-              className="w-full bg-background border border-border/50 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-secondary transition-all">
-              <option value="">역할 선택</option>
-              {roleOptions.map(r => (
-                <option key={r} value={r}>{r}</option>
-              ))}
-            </select>
-          </div>
+
+          {selectedProjectId && (
+            <div>
+              <label className="block text-[11px] font-black text-primary/40 uppercase mb-1.5">역할</label>
+              {roleOptions.length > 0 ? (
+                <select
+                  value={role}
+                  onChange={e => setRole(e.target.value)}
+                  className="w-full bg-background border border-border/50 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-secondary transition-all">
+                  <option value="">역할 선택</option>
+                  {roleOptions.map(r => (
+                    <option key={r} value={r}>{r}</option>
+                  ))}
+                </select>
+              ) : (
+                <p className="text-xs text-primary/40 px-1">
+                  {detailMap[selectedProjectId] ? '필요 역할 정보가 없습니다.' : '로딩 중...'}
+                </p>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="flex gap-3 mt-8">
