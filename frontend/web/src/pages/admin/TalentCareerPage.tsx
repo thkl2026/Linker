@@ -36,6 +36,34 @@ const INDUSTRY_OPTIONS = [
   '교육', 'IT/통신', '건설/부동산', '미디어/엔터테인먼트', '에너지/환경', '기타',
 ]
 
+// ── 기술 스택 카테고리 분류 ────────────────────────────────────────────────────
+const SKILL_CATEGORIES: { label: string; keywords: string[] }[] = [
+  { label: '언어', keywords: ['java','python','c++','c#',' c ','javascript','typescript','php','go','kotlin','swift','rust','scala','groovy','bash','shell','pl/sql','cobol','vba','vb.net','html','css','node.js','asp','jsp','r ','perl','ruby','lua'] },
+  { label: '프레임워크', keywords: ['spring','react','vue','angular','django','fastapi','flask','nestjs','express','next.js','nuxt','jpa','hibernate','mybatis','ibatis','struts','egov','bootstrap','jquery','.net framework','laravel','rails','quarkus'] },
+  { label: '미들웨어', keywords: ['apache http','apache web','nginx','tomcat','jboss','websphere','weblogic','webtob','iis','kafka','rabbitmq','activemq','nifi','esb','mq broker','tibero was'] },
+  { label: 'DBMS', keywords: ['oracle','mysql','mariadb','postgresql','tibero','sap hana','db2','mssql','ms sql','sql server','sqlite','mongodb','redis','elasticsearch','cassandra','dynamodb','hbase','sybase','informix','nosql'] },
+  { label: 'OS/서버', keywords: ['linux','red hat','rhel','centos','ubuntu','debian','aix','ibm aix','hp-ux','solaris','windows server','unix','fedora'] },
+  { label: '클라우드/DevOps', keywords: ['aws','amazon','azure','gcp','google cloud','kubernetes','k8s','docker','jenkins','terraform','ansible','helm','git','svn','argocd','github action','openstack','vmware','virtualization','spark','hadoop','ambari','dataflow','airflow','rancher','nexus','sonarqube'] },
+  { label: '도구', keywords: ['eclipse','intellij','visual studio','vscode','jira','confluence','swagger','postman','maven','gradle','npm','yarn','figma','notion'] },
+]
+
+function categorizeSkills(skills: string[]): { label: string; skills: string[] }[] {
+  const used = new Set<string>()
+  const result: { label: string; skills: string[] }[] = []
+  for (const cat of SKILL_CATEGORIES) {
+    const matched = skills.filter(s => {
+      if (used.has(s)) return false
+      const lower = s.toLowerCase()
+      return cat.keywords.some(kw => lower.includes(kw))
+    })
+    matched.forEach(s => used.add(s))
+    if (matched.length > 0) result.push({ label: cat.label, skills: matched })
+  }
+  const others = skills.filter(s => !used.has(s))
+  if (others.length > 0) result.push({ label: '기타', skills: others })
+  return result
+}
+
 const AVAILABILITY_LABELS: Record<AvailabilityStatus, string> = { AVAILABLE: '투입 가능', BUSY: '수행 중', REST: '투입대기중' }
 const AVAILABILITY_COLORS: Record<AvailabilityStatus, string> = {
   AVAILABLE: 'text-emerald-700 bg-emerald-50 border border-emerald-200',
@@ -1707,26 +1735,24 @@ function TalentDetailModal({
                   <div className="border border-border/50 border-r-0 border-b-0 rounded-sm overflow-hidden">
                     <table className="w-full text-[13px]">
                       <tbody>
-                        <tr className="bg-white">
-                          <th className="w-32 bg-surface px-3 py-3 text-left text-primary font-bold border-b border-r border-border/50">Language</th>
-                          <td className="px-3 py-3 border-b border-r border-border/50">
-                            <div className="flex flex-wrap gap-2">
-                              {talent.skills.length > 0 ? talent.skills.map(s => (
-                                <span key={s} className="px-2 py-1 bg-surface border border-border/60 text-primary font-bold text-xs rounded-md shadow-sm">
-                                  {s} (상)
-                                </span>
-                              )) : <span className="text-primary/40">—</span>}
-                            </div>
-                          </td>
-                        </tr>
-                        <tr className="bg-white">
-                          <th className="w-32 bg-surface px-3 py-3 text-left text-primary font-bold border-b border-r border-border/50">Framework</th>
-                          <td className="px-3 py-3 border-b border-r border-border/50 text-primary/40">—</td>
-                        </tr>
-                        <tr className="bg-white">
-                          <th className="w-32 bg-surface px-3 py-3 text-left text-primary font-bold border-b border-r border-border/50">DB / Server</th>
-                          <td className="px-3 py-3 border-b border-r border-border/50 text-primary/40">—</td>
-                        </tr>
+                        {talent.skills.length === 0 ? (
+                          <tr className="bg-white">
+                            <td colSpan={2} className="px-3 py-3 border-b border-r border-border/50 text-primary/40 text-center">등록된 기술이 없습니다.</td>
+                          </tr>
+                        ) : categorizeSkills(talent.skills).map(({ label, skills: catSkills }) => (
+                          <tr key={label} className="bg-white">
+                            <th className="w-32 bg-surface px-3 py-3 text-left text-primary font-bold border-b border-r border-border/50 align-top">{label}</th>
+                            <td className="px-3 py-3 border-b border-r border-border/50">
+                              <div className="flex flex-wrap gap-2">
+                                {catSkills.map(s => (
+                                  <span key={s} className="px-2 py-1 bg-surface border border-border/60 text-primary font-bold text-xs rounded-md shadow-sm">
+                                    {s} (상)
+                                  </span>
+                                ))}
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
                       </tbody>
                     </table>
                   </div>

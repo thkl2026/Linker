@@ -265,7 +265,7 @@ export interface TalentInsightResponse {
     persistenceReason: string | null
   } | null
   technicalProfile: {
-    coreSkills: { skill: string; level: string; recency: string }[]
+    coreSkills: { skill: string; type?: string; level: string; recency: string }[]
     skillBreadth: 'WIDE' | 'MEDIUM' | 'NARROW' | null
     skillDepth: 'DEEP' | 'MEDIUM' | 'SHALLOW' | null
     modernSkillRatio: number

@@ -69,7 +69,12 @@
 
   "technicalProfile": {
     "coreSkills": [
-      {"skill": "기술명", "level": "초급|중급|고급|전문가", "recency": "최근|보통|오래됨"}
+      {
+        "skill": "기술명",
+        "type": "언어|프레임워크|미들웨어|DBMS|OS/서버|클라우드/DevOps|도구|기타",
+        "level": "초급|중급|고급|전문가",
+        "recency": "최근|보통|오래됨"
+      }
     ],
     "skillBreadth": "WIDE|MEDIUM|NARROW",
     "skillDepth": "DEEP|MEDIUM|SHALLOW",
@@ -137,3 +142,12 @@
 - category가 DBA이면 coreSkills에 DBMS별 숙련도를 상세히 포함
 - category가 DEVELOPER이면 주력 언어·프레임워크 조합을 coreSkills 상위에 배치
 - category가 ARCHITECT이면 roleProfile.roleNote에 설계 범위(대용량, MSA, 데이터 표준화 등)를 명시
+- coreSkills.type 분류 기준 (반드시 아래 기준을 엄격히 적용):
+  * 언어: Java, Python, C, C++, C#, JavaScript, TypeScript, PHP, Go, Kotlin, Swift, Rust, Scala, Groovy, Bash, Shell Script, PL/SQL, SQL, COBOL, VBA, HTML, CSS, Node.js, ASP, JSP 등 프로그래밍·스크립트·마크업 언어
+  * 프레임워크: Spring, Spring Boot, Spring MVC, React, Vue.js, Angular, Django, FastAPI, Flask, NestJS, Express.js, Next.js, JPA, Hibernate, MyBatis, iBatis, Struts, 전자정부프레임워크, Bootstrap, jQuery, .NET Framework 등 개발 프레임워크·라이브러리
+  * 미들웨어: Apache HTTP Server, Nginx, Tomcat, JBoss, WebSphere, WebLogic, Webtob, IIS, Kafka, RabbitMQ, ActiveMQ, Apache Kafka, Apache NiFi, MQ 등 웹서버·WAS·메시지브로커·ESB
+  * DBMS: Oracle, MySQL, MariaDB, PostgreSQL, Tibero, SAP HANA, DB2, MS SQL Server, SQLite, MongoDB, Redis, Elasticsearch, Cassandra, DynamoDB, HBase, Sybase, Informix, NoSQL 등 데이터베이스
+  * OS/서버: Linux, Red Hat, Red Hat Enterprise Linux, RHEL, CentOS, Ubuntu, Debian, AIX, IBM AIX, HP-UX, Solaris, Windows Server, Unix 등 운영체제·서버 플랫폼
+  * 클라우드/DevOps: AWS(모든 서비스: EC2, S3, RDS, Lambda, EKS, IAM, WAF, ALB, Route53, Direct Connect, Certificate Manager 등), Microsoft Azure, GCP, Google Cloud, Kubernetes, Docker, Jenkins, Terraform, Ansible, Helm, Git, SVN, ArgoCD, GitHub Actions, OpenStack, VMware, Red Hat Enterprise Virtualization, Apache Spark, Apache Hadoop, Apache Ambari 등
+  * 도구: Eclipse, IntelliJ, Visual Studio, VS Code, Jira, Confluence, Swagger, Postman, SonarQube, Maven, Gradle, npm 등 개발·협업 도구
+  * 기타: 위 항목에 해당하지 않는 기술
