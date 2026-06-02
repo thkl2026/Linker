@@ -931,7 +931,10 @@ function TalentDetailModal({
       setMode('view')
       setHasChanges(false)
     },
-    onError: () => addToast('수정에 실패했습니다.', 'error'),
+    onError: (err: unknown) => {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
+      addToast(msg ?? '수정에 실패했습니다.', 'error')
+    },
   })
 
   const deleteExpMutation = useMutation({
@@ -983,7 +986,8 @@ function TalentDetailModal({
       setHasChanges(false)
       addToast('모든 변경사항이 안전하게 저장되었습니다.', 'success')
     } catch (err) {
-      addToast('저장 중 오류가 발생했습니다.', 'error')
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
+      if (!msg) addToast('저장 중 오류가 발생했습니다.', 'error')
     }
   }
 
