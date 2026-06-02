@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { serviceAdminApi, type TalentAdmin, type AvailabilityStatus, type LabelCount } from '@/shared/api/serviceAdminApi'
-import { notificationApi } from '@/shared/api/notificationApi'
 import { displayName } from '@/shared/utils/nameUtils'
 import { HelpPanel, HelpButton } from '@/shared/components/HelpPanel'
 import { helpServiceAdminDashboard } from '@/shared/help/helpContent'
@@ -28,28 +27,28 @@ const AVAILABILITY_COLOR: Record<AvailabilityStatus, string> = {
   REST:      'text-primary/40',
 }
 
-// ─── StatCard ────────────────────────────────────────────────────────────────
+// ─── StatCard (compact horizontal) ───────────────────────────────────────────
 function StatCard({
-  icon, label, value, unit, onClick, valueColor, iconBg,
+  icon, label, value, unit, onClick, iconBg,
 }: {
   icon: string; label: string; value: string | number; unit: string
-  onClick?: () => void; valueColor?: string; iconBg?: string
+  onClick?: () => void; iconBg?: string
 }) {
   return (
-    <div className="bg-white p-6 rounded-3xl border border-border/30 shadow-[0_4px_20px_-4px_rgba(69,26,3,0.05)] hover:shadow-[0_8px_30px_-4px_rgba(69,26,3,0.1)] transition-all duration-300 group">
-      <div className="flex items-center gap-4 mb-4">
-        <div className={`w-12 h-12 ${iconBg ?? 'bg-secondary/10'} rounded-2xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform shrink-0`}>
-          {icon}
-        </div>
-        <p className="text-sm font-bold text-primary/50">{label}</p>
+    <div className="bg-white px-5 py-4 rounded-2xl border border-border/30 shadow-sm flex items-center gap-4 hover:shadow-md transition-all">
+      <div className={`w-10 h-10 ${iconBg ?? 'bg-secondary/10'} rounded-xl flex items-center justify-center text-xl shrink-0`}>
+        {icon}
       </div>
-      <button
-        onClick={onClick}
-        className={`text-3xl font-black tracking-tight ${valueColor ?? 'text-primary'} ${onClick ? 'hover:text-secondary transition-colors cursor-pointer' : ''}`}
-      >
-        {typeof value === 'number' ? value.toLocaleString() : value}
-        <span className="text-sm font-normal text-primary/30 ml-1">{unit}</span>
-      </button>
+      <div>
+        <p className="text-[11px] font-bold text-primary/40 mb-0.5">{label}</p>
+        <button
+          onClick={onClick}
+          className={`text-2xl font-black text-primary leading-none ${onClick ? 'hover:text-secondary transition-colors cursor-pointer' : ''}`}
+        >
+          {typeof value === 'number' ? value.toLocaleString() : value}
+          <span className="text-xs font-normal text-primary/30 ml-1">{unit}</span>
+        </button>
+      </div>
     </div>
   )
 }
@@ -74,7 +73,7 @@ function Doughnut({ segs, centerValue, centerLabel }: {
   }, [])
 
   return (
-    <svg viewBox="0 0 200 200" className="w-full h-full max-h-[286px]">
+    <svg viewBox="0 0 200 200" className="w-full h-full max-h-[200px]">
       <circle cx="100" cy="100" r={r} fill="none" stroke="#f5ede0" strokeWidth={sw} />
       {arcs.map((a, i) => (
         <circle key={i} cx="100" cy="100" r={r} fill="none"
@@ -83,7 +82,6 @@ function Doughnut({ segs, centerValue, centerLabel }: {
           strokeDashoffset={circ / 4 - a.cumOffset}
         />
       ))}
-      {/* Segment value labels */}
       {arcs.map((a, i) => {
         if (a.pct < 6) return null
         const midAngle = -Math.PI / 2 + ((a.cumOffset + a.dash / 2) / circ) * 2 * Math.PI
@@ -113,25 +111,25 @@ function Doughnut({ segs, centerValue, centerLabel }: {
   )
 }
 
-// ─── Recent talent row ───────────────────────────────────────────────────────
+// ─── Recent talent row (compact) ─────────────────────────────────────────────
 function RecentTalentRow({ talent }: { talent: TalentAdmin }) {
   return (
-    <div className="p-5 flex items-center justify-between hover:bg-primary/[0.02] transition-all">
-      <div className="flex items-center gap-4">
-        <div className="w-12 h-12 rounded-2xl bg-secondary/5 flex items-center justify-center text-xl">👨‍💻</div>
+    <div className="py-2 px-5 flex items-center justify-between hover:bg-primary/[0.02] transition-all">
+      <div className="flex items-center gap-3">
+        <div className="w-7 h-7 rounded-xl bg-secondary/5 flex items-center justify-center text-sm shrink-0">👤</div>
         <div>
-          <h4 className="text-sm font-black">
+          <span className="text-sm font-black">
             {displayName(talent.name, talent.nameEn)}
-            {talent.category && (
-              <span className="text-[10px] font-bold text-primary/40 ml-2">{talent.category}</span>
-            )}
-          </h4>
+          </span>
+          {talent.category && (
+            <span className="text-[10px] font-bold text-primary/40 ml-2">{talent.category}</span>
+          )}
           {talent.skills.length > 0 && (
-            <p className="text-xs text-primary/40 mt-0.5">{talent.skills.slice(0, 3).join(', ')}</p>
+            <p className="text-[11px] text-primary/40 leading-tight">{talent.skills.slice(0, 3).join(', ')}</p>
           )}
         </div>
       </div>
-      <p className={`text-[10px] font-bold ${AVAILABILITY_COLOR[talent.availabilityStatus]}`}>
+      <p className={`text-[10px] font-bold shrink-0 ${AVAILABILITY_COLOR[talent.availabilityStatus]}`}>
         {AVAILABILITY_LABEL[talent.availabilityStatus]}
       </p>
     </div>
@@ -150,30 +148,14 @@ function toSegs(dist: LabelCount[], colorMap?: Record<string, string>, fallbackC
   }))
 }
 
-const NOTIFICATION_ICON: Record<string, string> = {
-  TALENT_REGISTERED: '👤',
-  TALENT_UPDATED:    '✏️',
-  TALENT_DELETED:    '🗑️',
-  PROJECT_CREATED:   '🚀',
-  MEMBER_ASSIGNED:   '📋',
-  EVAL_COMPLETED:    '⭐',
-}
-
-function formatNotifTime(iso: string): string {
-  const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000)
-  if (diff < 60)   return '방금 전'
-  if (diff < 3600) return `${Math.floor(diff / 60)}분 전`
-  if (diff < 86400) return `${Math.floor(diff / 3600)}시간 전`
-  return `${Math.floor(diff / 86400)}일 전`
-}
-
 // ─── Main page ───────────────────────────────────────────────────────────────
 export function ServiceAdminDashboardPage() {
   const [showHelp, setShowHelp] = useState(false)
   const navigate = useNavigate()
+
   const { data: talentsPage } = useQuery({
     queryKey: ['service-admin', 'dashboard', 'recent'],
-    queryFn: () => serviceAdminApi.listTalents({ page: 0, size: 5, sort: 'createdAt,desc' }).then(r => r.data),
+    queryFn: () => serviceAdminApi.listTalents({ page: 0, size: 6, sort: 'createdAt,desc' }).then(r => r.data),
   })
 
   const { data: stats } = useQuery({
@@ -181,25 +163,13 @@ export function ServiceAdminDashboardPage() {
     queryFn: () => serviceAdminApi.getDashboardStats().then(r => r.data),
   })
 
-  const qc = useQueryClient()
-  const { data: notifications = [] } = useQuery({
-    queryKey: ['notifications', 'recent'],
-    queryFn: () => notificationApi.getRecent().then(r => r.data),
-    refetchInterval: 30_000,
-  })
-  const { mutate: markAllRead } = useMutation({
-    mutationFn: () => notificationApi.markAllRead(),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['notifications'] }),
-  })
-  const unreadCount = notifications.filter(n => !n.isRead).length
-
-  const totalTalents = stats?.totalTalents ?? talentsPage?.totalElements ?? 0
+  const totalTalents  = stats?.totalTalents ?? talentsPage?.totalElements ?? 0
   const activeProjects = stats?.activeProjects ?? 0
-  const recentTalents = talentsPage?.content ?? []
+  const recentTalents  = talentsPage?.content ?? []
 
   const categoryDist = stats?.categoryDist ?? []
-  const gradeDist = stats?.gradeDist ?? []
-  const evalDist = stats?.evalDist ?? []
+  const gradeDist    = stats?.gradeDist    ?? []
+  const evalDist     = stats?.evalDist     ?? []
 
   const CATEGORY_DOUGHNUT_COLORS = ['#B45309', '#D97706', '#FBBF24', '#92400e', '#a0855a', '#e0cdb0']
   const categorySegs = toSegs(categoryDist, undefined, CATEGORY_DOUGHNUT_COLORS)
@@ -215,30 +185,30 @@ export function ServiceAdminDashboardPage() {
   })
 
   return (
-    <div className="p-10 space-y-8">
-      {/* Greeting header */}
+    <div className="p-6 space-y-4 h-full">
+      {/* Greeting + Actions */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-black tracking-tight">안녕하세요, 서비스 운영 현황입니다. 👋</h2>
-          <p className="text-xs text-primary/40 mt-0.5">
+          <h2 className="text-lg font-black tracking-tight">안녕하세요, 서비스 운영 현황입니다. 👋</h2>
+          <p className="text-[11px] text-primary/40 mt-0.5">
             {today} · <span className="text-secondary font-bold">운영 중인 서버: 정상</span>
           </p>
         </div>
         <div className="flex items-center gap-3">
           <HelpButton onClick={() => setShowHelp(true)} />
           <Link to="/app/service-admin/talents"
-            className="px-5 py-2.5 bg-primary text-white rounded-xl text-sm font-bold shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
+            className="px-4 py-2 bg-primary text-white rounded-xl text-sm font-bold shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
             + 전문가 등록
           </Link>
           <Link to="/app/service-admin/projects/create"
-            className="px-5 py-2.5 bg-secondary text-white rounded-xl text-sm font-bold shadow-lg shadow-secondary/20 hover:scale-105 active:scale-95 transition-all">
+            className="px-4 py-2 bg-secondary text-white rounded-xl text-sm font-bold shadow-lg shadow-secondary/20 hover:scale-105 active:scale-95 transition-all">
             + 프로젝트 등록
           </Link>
         </div>
       </div>
 
-      {/* Stat cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Stat cards (compact horizontal) */}
+      <div className="flex gap-4">
         <StatCard icon="💼" label="총 전문가 수" value={totalTalents} unit="명"
           onClick={() => navigate('/app/service-admin/talents')} />
         <StatCard icon="🚀" label="활성 프로젝트" value={activeProjects} unit="건"
@@ -246,103 +216,61 @@ export function ServiceAdminDashboardPage() {
           onClick={() => navigate('/app/service-admin/projects')} />
       </div>
 
-      {/* Charts row: 3 doughnuts */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* Charts + Recent talents (same row) */}
+      <div className="grid grid-cols-4 gap-4 flex-1">
 
         {/* 직무별 인력 구성 */}
-        <div className="bg-white p-8 rounded-3xl border border-border/30 shadow-sm flex flex-col">
-          <div className="mb-4">
-            <h3 className="text-base font-black tracking-tight">직무별 인력 구성</h3>
-          </div>
-          <div className="flex-1 flex items-center justify-center min-h-[275px]">
+        <div className="bg-white p-5 rounded-2xl border border-border/30 shadow-sm flex flex-col">
+          <h3 className="text-sm font-black tracking-tight mb-2">직무별 인력 구성</h3>
+          <div className="flex-1 flex items-center justify-center min-h-[190px]">
             {categorySegs.length > 0
               ? <Doughnut segs={categorySegs} centerValue={categoryTotal} centerLabel="직무" />
-              : <p className="text-xs text-primary/30">데이터가 없습니다.</p>
+              : <p className="text-xs text-primary/30">데이터 없음</p>
             }
           </div>
         </div>
 
         {/* 기술 등급별 분포 */}
-        <div className="bg-white p-8 rounded-3xl border border-border/30 shadow-sm flex flex-col">
-          <div className="mb-4">
-            <h3 className="text-base font-black tracking-tight">기술 등급별 분포</h3>
-          </div>
-          <div className="flex-1 flex items-center justify-center min-h-[275px]">
+        <div className="bg-white p-5 rounded-2xl border border-border/30 shadow-sm flex flex-col">
+          <h3 className="text-sm font-black tracking-tight mb-2">기술 등급별 분포</h3>
+          <div className="flex-1 flex items-center justify-center min-h-[190px]">
             {gradeSegs.length > 0
               ? <Doughnut segs={gradeSegs} centerValue={gradeTotal} centerLabel="등급" />
-              : <p className="text-xs text-primary/30">데이터가 없습니다.</p>
+              : <p className="text-xs text-primary/30">데이터 없음</p>
             }
           </div>
         </div>
 
         {/* 전문가 평가 분포 */}
-        <div className="bg-white p-8 rounded-3xl border border-border/30 shadow-sm flex flex-col">
-          <div className="mb-4">
-            <h3 className="text-base font-black tracking-tight">전문가 평가 분포</h3>
-          </div>
-          <div className="flex-1 flex items-center justify-center min-h-[275px]">
+        <div className="bg-white p-5 rounded-2xl border border-border/30 shadow-sm flex flex-col">
+          <h3 className="text-sm font-black tracking-tight mb-2">전문가 평가 분포</h3>
+          <div className="flex-1 flex items-center justify-center min-h-[190px]">
             {evalSegs.length > 0
               ? <Doughnut segs={evalSegs} centerValue={evalTotal} centerLabel="평가" />
-              : <p className="text-xs text-primary/30">평가 데이터가 없습니다.</p>
+              : <p className="text-xs text-primary/30">평가 데이터 없음</p>
             }
           </div>
         </div>
 
-      </div>
-
-      {/* Bottom row: recent talents + urgent projects */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-3xl border border-border/30 shadow-sm overflow-hidden">
-          <div className="p-8 border-b border-border/10 flex justify-between items-center">
-            <h3 className="text-lg font-black tracking-tight">최근 등록된 전문가</h3>
-            <Link to="/app/service-admin/talents" className="text-xs font-bold text-secondary hover:underline">
+        {/* 최근 등록된 전문가 */}
+        <div className="bg-white rounded-2xl border border-border/30 shadow-sm overflow-hidden flex flex-col">
+          <div className="px-5 py-3 border-b border-border/10 flex justify-between items-center shrink-0">
+            <h3 className="text-sm font-black tracking-tight">최근 등록된 전문가</h3>
+            <Link to="/app/service-admin/talents" className="text-[11px] font-bold text-secondary hover:underline">
               전체보기 ➔
             </Link>
           </div>
-          <div className="divide-y divide-border/10">
+          <div className="divide-y divide-border/10 overflow-y-auto flex-1">
             {recentTalents.length === 0 ? (
-              <p className="text-center text-xs text-primary/30 py-12">등록된 전문가가 없습니다.</p>
+              <p className="text-center text-xs text-primary/30 py-8">등록된 전문가가 없습니다.</p>
             ) : (
               recentTalents.map(t => <RecentTalentRow key={t.id} talent={t} />)
             )}
           </div>
         </div>
 
-        <div className="bg-white rounded-3xl border border-border/30 shadow-sm overflow-hidden">
-          <div className="p-8 border-b border-border/10 flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <h3 className="text-lg font-black tracking-tight">최근 알림</h3>
-              {unreadCount > 0 && (
-                <span className="px-2 py-0.5 bg-danger text-white text-[10px] font-black rounded-full">{unreadCount}</span>
-              )}
-            </div>
-            {unreadCount > 0 && (
-              <button onClick={() => markAllRead()} className="text-xs font-bold text-primary/40 hover:text-secondary transition-colors">
-                전체 읽음
-              </button>
-            )}
-          </div>
-          <div className="divide-y divide-border/10">
-            {notifications.length === 0 ? (
-              <p className="text-center text-xs text-primary/30 py-12">알림이 없습니다.</p>
-            ) : (
-              notifications.map(n => (
-                <div key={n.id} className={`flex items-start gap-4 px-8 py-5 transition-colors ${n.isRead ? '' : 'bg-secondary/[0.03]'}`}>
-                  <span className="text-lg shrink-0 mt-0.5">{NOTIFICATION_ICON[n.type] ?? '🔔'}</span>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <p className={`text-sm font-bold truncate ${n.isRead ? 'text-primary/60' : 'text-primary'}`}>{n.title}</p>
-                      {!n.isRead && <span className="w-1.5 h-1.5 rounded-full bg-danger shrink-0" />}
-                    </div>
-                    <p className="text-xs text-primary/50 truncate">{n.message}</p>
-                  </div>
-                  <span className="text-[10px] text-primary/30 shrink-0 mt-1">{formatNotifTime(n.createdAt)}</span>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
       </div>
+
       <HelpPanel open={showHelp} onClose={() => setShowHelp(false)} content={helpServiceAdminDashboard} />
     </div>
   )
