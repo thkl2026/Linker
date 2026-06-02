@@ -46,20 +46,26 @@ public interface TalentProfileRepository extends JpaRepository<TalentProfile, UU
     @Query(value = """
             SELECT DISTINCT t.* FROM talent_profiles t
             LEFT JOIN talent_skills s ON s.talent_id = t.id
+            LEFT JOIN project_members pm ON pm.talent_id = t.id
+            LEFT JOIN project_opportunities po ON po.id = pm.project_id
             WHERE t.deleted_at IS NULL
               AND (:keyword IS NULL OR
                    LOWER(t.name) LIKE LOWER(CONCAT('%', CAST(:keyword AS text), '%')) OR
-                   LOWER(s.skill_name) LIKE LOWER(CONCAT('%', CAST(:keyword AS text), '%')))
+                   LOWER(s.skill_name) LIKE LOWER(CONCAT('%', CAST(:keyword AS text), '%')) OR
+                   LOWER(po.client_company) LIKE LOWER(CONCAT('%', CAST(:keyword AS text), '%')))
               AND (CAST(:category AS text) IS NULL OR t.category = CAST(:category AS text))
               AND (CAST(:field AS text) IS NULL OR t.field = CAST(:field AS text))
             """,
             countQuery = """
             SELECT COUNT(DISTINCT t.id) FROM talent_profiles t
             LEFT JOIN talent_skills s ON s.talent_id = t.id
+            LEFT JOIN project_members pm ON pm.talent_id = t.id
+            LEFT JOIN project_opportunities po ON po.id = pm.project_id
             WHERE t.deleted_at IS NULL
               AND (:keyword IS NULL OR
                    LOWER(t.name) LIKE LOWER(CONCAT('%', CAST(:keyword AS text), '%')) OR
-                   LOWER(s.skill_name) LIKE LOWER(CONCAT('%', CAST(:keyword AS text), '%')))
+                   LOWER(s.skill_name) LIKE LOWER(CONCAT('%', CAST(:keyword AS text), '%')) OR
+                   LOWER(po.client_company) LIKE LOWER(CONCAT('%', CAST(:keyword AS text), '%')))
               AND (CAST(:category AS text) IS NULL OR t.category = CAST(:category AS text))
               AND (CAST(:field AS text) IS NULL OR t.field = CAST(:field AS text))
             """,
