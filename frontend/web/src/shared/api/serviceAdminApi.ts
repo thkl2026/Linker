@@ -146,6 +146,7 @@ export interface CreateTalentRequest {
   companyExps?: any[]
   projectExps?: any[]
   certifications?: any[]
+  trainings?: any[]
 }
 
 export type EvalStatus = 'PENDING' | 'COMPLETED' | 'CRITICAL'
@@ -244,6 +245,7 @@ export interface ResumeAnalysisResult {
   companyExps?: any[]
   projectExps?: any[]
   certifications?: any[]
+  trainings?: any[]
   itCareerMonths?: number | null
   photoKey?: string | null
   resumeKey?: string | null
@@ -304,7 +306,7 @@ export interface TalentInsightResponse {
   } | null
 }
 
-export type ExperienceType = 'PROJECT' | 'COMPANY' | 'EDUCATION' | 'CERTIFICATION'
+export type ExperienceType = 'PROJECT' | 'COMPANY' | 'EDUCATION' | 'CERTIFICATION' | 'TRAINING'
 export type EmploymentType = '정규직' | '계약직' | '인턴'
 
 export interface ExperienceRequest {

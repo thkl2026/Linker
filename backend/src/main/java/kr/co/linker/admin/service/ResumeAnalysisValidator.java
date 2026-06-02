@@ -109,7 +109,8 @@ public class ResumeAnalysisValidator {
         List<ResumeAnalysisResult.Exp> eduExps     = cleanEduExps(raw.educations());
         List<ResumeAnalysisResult.Exp> companyExps = validateExps(raw.companyExps());
         List<ResumeAnalysisResult.Exp> projectExps = validateExps(raw.projectExps());
-        List<ResumeAnalysisResult.Exp> certExps    = validateExps(raw.certifications());
+        List<ResumeAnalysisResult.Exp> certExps     = validateExps(raw.certifications());
+        List<ResumeAnalysisResult.Exp> trainingExps = validateExps(raw.trainings());
 
         ResumeAnalysisResult validated = new ResumeAnalysisResult(
                 normalizeName(raw.name()),
@@ -129,6 +130,7 @@ public class ResumeAnalysisValidator {
                 companyExps,
                 projectExps,
                 certExps,
+                trainingExps,
                 raw.itCareerMonths(),
                 raw.photoKey(),
                 raw.resumeKey(),
@@ -142,6 +144,7 @@ public class ResumeAnalysisValidator {
                 validated.category(), validated.field(), validated.skills(), validated.birthDate(),
                 validated.email(), validated.address(), validated.skillGrade(), validated.title(),
                 validated.educations(), validated.companyExps(), validated.projectExps(), validated.certifications(),
+                validated.trainings(),
                 validated.itCareerMonths(),
                 validated.photoKey(),
                 validated.resumeKey(),

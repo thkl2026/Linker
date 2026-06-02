@@ -124,7 +124,7 @@ public class ResumeAnalysisService {
                                 r.category(), r.field(), r.skills(), r.birthDate(),
                                 r.email(), r.address(), r.skillGrade(), r.title(),
                                 r.educations(), r.companyExps(), r.projectExps(), r.certifications(),
-                                r.itCareerMonths(), r.photoKey(), resumeKey,
+                                r.trainings(), r.itCareerMonths(), r.photoKey(), resumeKey,
                                 r.confidenceScore(), r.needsManualReview());
                     }
                 } catch (Exception e) {
@@ -179,7 +179,7 @@ public class ResumeAnalysisService {
             res = new ResumeAnalysisResult(fallbackName, res.nameEn(), res.phone(), res.workType(), res.desiredRate(),
                     res.category(), res.field(), res.skills(), res.birthDate(), res.email(),
                     res.address(), res.skillGrade(), res.title(), res.educations(), res.companyExps(),
-                    res.projectExps(), res.certifications(), res.itCareerMonths(), null, null, null, false);
+                    res.projectExps(), res.certifications(), res.trainings(), res.itCareerMonths(), null, null, null, false);
         }
         return res;
     }
@@ -222,6 +222,7 @@ public class ResumeAnalysisService {
                 company.companyExps(),
                 project.projectExps(),
                 eduCert.certifications(),
+                eduCert.trainings(),
                 basic.itCareerMonths(),
                 photoKey,
                 resumeKey,
@@ -273,6 +274,7 @@ public class ResumeAnalysisService {
                 normalizedCompany,
                 normalizedProject,
                 res.certifications().stream().map(fixExp).toList(),
+                res.trainings().stream().map(fixExp).toList(),
                 itCareerMonths,
                 res.photoKey(),
                 res.resumeKey(),
@@ -488,7 +490,7 @@ public class ResumeAnalysisService {
 
     private ResumeAnalysisResult emptyResult(String resumeKey) {
         return new ResumeAnalysisResult(null, null, null, null, null, null, null, List.of(),
-                null, null, null, null, null, List.of(), List.of(), List.of(), List.of(), null, null, resumeKey, null, false);
+                null, null, null, null, null, List.of(), List.of(), List.of(), List.of(), List.of(), null, null, resumeKey, null, false);
     }
 
     private ResumeAnalysisResult getSafe(CompletableFuture<ResumeAnalysisResult> future) {

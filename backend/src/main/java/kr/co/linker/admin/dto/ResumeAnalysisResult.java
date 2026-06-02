@@ -25,6 +25,7 @@ public record ResumeAnalysisResult(
         List<Exp> companyExps,
         List<Exp> projectExps,
         List<Exp> certifications,
+        List<Exp> trainings,
         Integer itCareerMonths,
         String photoKey,
         String resumeKey,
@@ -51,6 +52,7 @@ public record ResumeAnalysisResult(
         if (companyExps == null) { companyExps = List.of(); }
         if (projectExps == null) { projectExps = List.of(); }
         if (certifications == null) { certifications = List.of(); }
+        if (trainings == null) { trainings = List.of(); }
         if (needsManualReview == null) { needsManualReview = false; }
     }
 

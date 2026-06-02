@@ -415,6 +415,7 @@ function analysisToExps(result: ResumeAnalysisResult): ExperienceResponse[] {
     ...(result.companyExps  ?? []).map(e => toExp('COMPANY',       e)),
     ...(result.projectExps  ?? []).map(e => toExp('PROJECT',       e)),
     ...(result.certifications ?? []).map(e => toExp('CERTIFICATION', e)),
+    ...(result.trainings    ?? []).map(e => toExp('TRAINING',      e)),
   ]
 }
 
@@ -972,7 +973,8 @@ function TalentDetailModal({
         (form.educations?.length ?? 0) +
         (form.companyExps?.length ?? 0) +
         (form.projectExps?.length ?? 0) +
-        (form.certifications?.length ?? 0) > 0
+        (form.certifications?.length ?? 0) +
+        (form.trainings?.length ?? 0) > 0
       )) {
         await serviceAdminApi.replaceExperiences(talent.id, form)
         qc.invalidateQueries({ queryKey: ['admin', 'experiences', talent.id] })
@@ -1021,6 +1023,7 @@ function TalentDetailModal({
         companyExps:    data.companyExps,
         projectExps:    data.projectExps,
         certifications: data.certifications,
+        trainings:      data.trainings,
       }))
       if (data.photoKey) {
         try {
@@ -1077,6 +1080,7 @@ function TalentDetailModal({
   const projectExps = sortedExps.filter(e => e.experienceType === 'PROJECT')
   const educations = sortedExps.filter(e => e.experienceType === 'EDUCATION')
   const certifications = sortedExps.filter(e => e.experienceType === 'CERTIFICATION')
+  const trainings      = sortedExps.filter(e => e.experienceType === 'TRAINING')
 
   // IT 경력: 명기값 우선, 없으면 최초 근무/프로젝트 시작일 기준
   const totalMonths    = talent.itCareerMonths ?? calcItCareerMonths(sortedExps)
@@ -1670,6 +1674,69 @@ function TalentDetailModal({
                     className="mt-2 flex items-center gap-1 text-xs text-secondary font-bold hover:text-secondary/70 disabled:opacity-50 transition-colors"
                   >
                     + 근무 경력 추가
+                  </button>
+                </div>
+
+                {/* 3-1. 교육 */}
+                <div className="mb-10">
+                  <h3 className="text-lg font-bold mb-4 flex items-center gap-2 border-l-4 border-secondary pl-3 text-primary">
+                    교육
+                  </h3>
+                  <div className="border border-border/50 border-r-0 border-b-0 rounded-sm overflow-hidden">
+                    <table className="w-full text-[13px]">
+                      <thead className="bg-surface text-primary font-bold">
+                        <tr>
+                          <th className="w-1/3 px-3 py-2 border-b border-r border-border/50 text-center">교육명</th>
+                          <th className="w-1/4 px-3 py-2 border-b border-r border-border/50 text-center">시작일</th>
+                          <th className="w-1/4 px-3 py-2 border-b border-r border-border/50 text-center">종료일</th>
+                          <th className="w-1/4 px-3 py-2 border-b border-r border-border/50 text-center">기관</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {trainings.length > 0 ? (
+                          trainings.map(exp => (
+                            <tr key={exp.id} className="group bg-white hover:bg-surface/50 transition-colors">
+                              <td className="w-1/3 p-1 border-b border-r border-border/50 text-center align-middle">
+                                <input
+                                  className="w-full text-center font-bold text-primary bg-transparent hover:bg-white px-2 py-1.5 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none transition-all"
+                                  defaultValue={exp.projectName || ''} placeholder="교육명"
+                                  onBlur={e => { if (e.target.value !== (exp.projectName || '')) handleExpUpdate(exp.id, exp, { projectName: e.target.value }) }}
+                                />
+                              </td>
+                              <td className="w-1/4 p-1 border-b border-r border-border/50 text-center align-middle">
+                                <input type="month" className="w-full text-center bg-transparent hover:bg-white px-1 py-1 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none text-xs"
+                                  defaultValue={exp.startDate.substring(0,7)}
+                                  onBlur={e => { const val = e.target.value ? e.target.value + '-01' : ''; if (val !== exp.startDate) handleExpUpdate(exp.id, exp, { startDate: val }) }} />
+                              </td>
+                              <td className="w-1/4 p-1 border-b border-r border-border/50 text-center align-middle">
+                                <input type="month" className="w-full text-center bg-transparent hover:bg-white px-1 py-1 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none text-xs"
+                                  defaultValue={exp.endDate?.substring(0,7) || ''}
+                                  onBlur={e => { const val = e.target.value ? e.target.value + '-01' : null; if (val !== exp.endDate) handleExpUpdate(exp.id, exp, { endDate: val }) }} />
+                              </td>
+                              <td className="w-1/4 p-1 border-b border-r border-border/50 text-center align-middle relative group/btn">
+                                <input
+                                  className="w-[calc(100%-24px)] text-center text-primary/80 bg-transparent hover:bg-white px-2 py-1.5 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none transition-all text-xs"
+                                  defaultValue={exp.companyName || ''} placeholder="교육기관"
+                                  onBlur={e => { if (e.target.value !== (exp.companyName || '')) handleExpUpdate(exp.id, exp, { companyName: e.target.value }) }}
+                                />
+                                <button onClick={() => { if (window.confirm('삭제하시겠습니까?')) deleteExpMutation.mutate(exp.id) }} className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover/btn:opacity-100 p-1 text-red-400 hover:text-red-600 transition-opacity">🗑️</button>
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr className="bg-white">
+                            <td colSpan={4} className="px-3 py-3 text-center text-primary/50 border-b border-r border-border/50">등록된 교육 사항이 없습니다.</td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                  <button
+                    onClick={() => addExpMutation.mutate('TRAINING')}
+                    disabled={addExpMutation.isPending}
+                    className="mt-2 flex items-center gap-1 text-xs text-secondary font-bold hover:text-secondary/70 disabled:opacity-50 transition-colors"
+                  >
+                    + 교육 추가
                   </button>
                 </div>
 
@@ -2607,6 +2674,7 @@ function TalentCreateModal({ onClose, onSave, isPending }: {
         companyExps:    data.companyExps?.length ? data.companyExps : f.companyExps,
         projectExps:    data.projectExps?.length ? data.projectExps : f.projectExps,
         certifications: data.certifications?.length ? data.certifications : f.certifications,
+        trainings:      data.trainings?.length      ? data.trainings      : f.trainings,
         itCareerMonths: data.itCareerMonths ?? f.itCareerMonths,
         photoKey:       data.photoKey ?? f.photoKey,
         resumeKey:      data.resumeKey ?? f.resumeKey,
