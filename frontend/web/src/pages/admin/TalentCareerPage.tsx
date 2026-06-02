@@ -1363,7 +1363,7 @@ function TalentDetailModal({
                       <div className="bg-surface px-3 py-2 text-center text-[13px] font-bold text-primary border-r border-b border-border/50 flex items-center justify-center">기술 분류</div>
                       <div className="border-r border-b border-border/50 bg-white p-0.5 text-[13px] flex items-center gap-1">
                         <select className="flex-1 bg-transparent hover:bg-surface/50 px-1 py-1.5 outline-none transition-all rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 text-primary/80"
-                          defaultValue={talent.category || ''}
+                          value={form.category || ''}
                           onChange={e => handleBasicUpdate({ category: (e.target.value as TalentCategory) || undefined, field: undefined })}>
                           <option value="">분류 선택</option>
                           {(Object.keys(TALENT_CATEGORY_LABELS) as TalentCategory[]).map(c => (
@@ -1372,11 +1372,11 @@ function TalentDetailModal({
                         </select>
                         <span className="text-primary/20 shrink-0">/</span>
                         <select className="flex-1 bg-transparent hover:bg-surface/50 px-1 py-1.5 outline-none transition-all rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 text-primary/80"
-                          defaultValue={talent.field || ''}
-                          disabled={!talent.category}
+                          value={form.field || ''}
+                          disabled={!form.category}
                           onChange={e => handleBasicUpdate({ field: (e.target.value as TalentField) || undefined })}>
                           <option value="">분야 선택</option>
-                          {(talent.category ? TALENT_FIELDS_BY_CATEGORY[talent.category] : []).map(f => (
+                          {(form.category ? TALENT_FIELDS_BY_CATEGORY[form.category] : []).map(f => (
                             <option key={f} value={f}>{TALENT_FIELD_LABELS[f]}</option>
                           ))}
                         </select>
