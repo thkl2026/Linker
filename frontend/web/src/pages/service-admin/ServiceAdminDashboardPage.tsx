@@ -6,14 +6,6 @@ import { displayName } from '@/shared/utils/nameUtils'
 import { HelpPanel, HelpButton } from '@/shared/components/HelpPanel'
 import { helpServiceAdminDashboard } from '@/shared/help/helpContent'
 
-const EVAL_COLORS: Record<string, string> = {
-  '우수':    '#10b981',
-  '양호':    '#f59e0b',
-  '주의':    '#f87171',
-  '투입불가': '#9ca3af',
-  '평가없음': '#d1d5db',
-}
-
 const GRADE_COLORS = ['#D97706', '#B45309', '#FBBF24', '#92400e', '#e0cdb0', '#a8a29e']
 
 const AVAILABILITY_LABEL: Record<AvailabilityStatus, string> = {
@@ -169,16 +161,13 @@ export function ServiceAdminDashboardPage() {
 
   const categoryDist = stats?.categoryDist ?? []
   const gradeDist    = stats?.gradeDist    ?? []
-  const evalDist     = stats?.evalDist     ?? []
 
   const CATEGORY_DOUGHNUT_COLORS = ['#B45309', '#D97706', '#FBBF24', '#92400e', '#a0855a', '#e0cdb0']
   const categorySegs = toSegs(categoryDist, undefined, CATEGORY_DOUGHNUT_COLORS)
   const gradeSegs    = toSegs(gradeDist,    undefined, GRADE_COLORS)
-  const evalSegs     = toSegs(evalDist,     EVAL_COLORS)
 
   const categoryTotal = categoryDist.reduce((s, d) => s + d.count, 0)
   const gradeTotal    = gradeDist.reduce((s, d) => s + d.count, 0)
-  const evalTotal     = evalDist.reduce((s, d) => s + d.count, 0)
 
   const today = new Date().toLocaleDateString('ko-KR', {
     year: 'numeric', month: 'long', day: 'numeric', weekday: 'long',
@@ -207,8 +196,8 @@ export function ServiceAdminDashboardPage() {
         </div>
       </div>
 
-      {/* Stat cards (compact horizontal) */}
-      <div className="flex gap-4">
+      {/* Stat cards */}
+      <div className="grid grid-cols-2 gap-4 max-w-md">
         <StatCard icon="💼" label="총 전문가 수" value={totalTalents} unit="명"
           onClick={() => navigate('/app/service-admin/talents')} />
         <StatCard icon="🚀" label="활성 프로젝트" value={activeProjects} unit="건"
@@ -216,45 +205,54 @@ export function ServiceAdminDashboardPage() {
           onClick={() => navigate('/app/service-admin/projects')} />
       </div>
 
-      {/* Charts + Recent talents (same row) */}
-      <div className="grid grid-cols-4 gap-4 flex-1">
+      {/* Charts + Recent talents */}
+      <div className="grid grid-cols-3 gap-5 flex-1">
 
         {/* 직무별 인력 구성 */}
-        <div className="bg-white p-5 rounded-2xl border border-border/30 shadow-sm flex flex-col">
-          <h3 className="text-sm font-black tracking-tight mb-2">직무별 인력 구성</h3>
-          <div className="flex-1 flex items-center justify-center min-h-[190px]">
+        <div className="bg-white p-6 rounded-2xl border border-border/30 shadow-sm flex flex-col gap-4">
+          <h3 className="text-sm font-black text-primary tracking-tight">직무별 인력 구성</h3>
+          <div className="flex items-center justify-center min-h-[220px]">
             {categorySegs.length > 0
               ? <Doughnut segs={categorySegs} centerValue={categoryTotal} centerLabel="직무" />
               : <p className="text-xs text-primary/30">데이터 없음</p>
             }
           </div>
+          {categorySegs.length > 0 && (
+            <div className="flex flex-wrap gap-x-4 gap-y-1.5 pt-2 border-t border-border/10">
+              {categorySegs.map(s => (
+                <div key={s.label} className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: s.color }} />
+                  <span className="text-[11px] text-primary/60 font-medium">{s.label} <span className="font-bold text-primary">{s.value}</span></span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* 기술 등급별 분포 */}
-        <div className="bg-white p-5 rounded-2xl border border-border/30 shadow-sm flex flex-col">
-          <h3 className="text-sm font-black tracking-tight mb-2">기술 등급별 분포</h3>
-          <div className="flex-1 flex items-center justify-center min-h-[190px]">
+        <div className="bg-white p-6 rounded-2xl border border-border/30 shadow-sm flex flex-col gap-4">
+          <h3 className="text-sm font-black text-primary tracking-tight">기술 등급별 분포</h3>
+          <div className="flex items-center justify-center min-h-[220px]">
             {gradeSegs.length > 0
               ? <Doughnut segs={gradeSegs} centerValue={gradeTotal} centerLabel="등급" />
               : <p className="text-xs text-primary/30">데이터 없음</p>
             }
           </div>
-        </div>
-
-        {/* 전문가 평가 분포 */}
-        <div className="bg-white p-5 rounded-2xl border border-border/30 shadow-sm flex flex-col">
-          <h3 className="text-sm font-black tracking-tight mb-2">전문가 평가 분포</h3>
-          <div className="flex-1 flex items-center justify-center min-h-[190px]">
-            {evalSegs.length > 0
-              ? <Doughnut segs={evalSegs} centerValue={evalTotal} centerLabel="평가" />
-              : <p className="text-xs text-primary/30">평가 데이터 없음</p>
-            }
-          </div>
+          {gradeSegs.length > 0 && (
+            <div className="flex flex-wrap gap-x-4 gap-y-1.5 pt-2 border-t border-border/10">
+              {gradeSegs.map(s => (
+                <div key={s.label} className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: s.color }} />
+                  <span className="text-[11px] text-primary/60 font-medium">{s.label} <span className="font-bold text-primary">{s.value}</span></span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* 최근 등록된 전문가 */}
         <div className="bg-white rounded-2xl border border-border/30 shadow-sm overflow-hidden flex flex-col">
-          <div className="px-5 py-3 border-b border-border/10 flex justify-between items-center shrink-0">
+          <div className="px-5 py-4 border-b border-border/10 flex justify-between items-center shrink-0">
             <h3 className="text-sm font-black tracking-tight">최근 등록된 전문가</h3>
             <Link to="/app/service-admin/talents" className="text-[11px] font-bold text-secondary hover:underline">
               전체보기 ➔
