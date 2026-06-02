@@ -38,7 +38,7 @@ const INDUSTRY_OPTIONS = [
 
 // ── 기술 스택 카테고리 분류 ────────────────────────────────────────────────────
 const SKILL_CATEGORIES: { label: string; keywords: string[] }[] = [
-  { label: '언어', keywords: ['java','python','c++','c#',' c ','javascript','typescript','php','go','kotlin','swift','rust','scala','groovy','bash','shell','pl/sql','cobol','vba','vb.net','html','css','node.js','asp','jsp','r ','perl','ruby','lua'] },
+  { label: '개발언어', keywords: ['java','python','c++','c#','javascript','typescript','php','go','kotlin','swift','rust','scala','groovy','bash','shell','pl/sql','cobol','vba','vb.net','html','css','node.js','asp','jsp','perl','ruby','lua'] },
   { label: '프레임워크', keywords: ['spring','react','vue','angular','django','fastapi','flask','nestjs','express','next.js','nuxt','jpa','hibernate','mybatis','ibatis','struts','egov','bootstrap','jquery','.net framework','laravel','rails','quarkus'] },
   { label: '미들웨어', keywords: ['apache http','apache web','nginx','tomcat','jboss','websphere','weblogic','webtob','iis','kafka','rabbitmq','activemq','nifi','esb','mq broker','tibero was'] },
   { label: 'DBMS', keywords: ['oracle','mysql','mariadb','postgresql','tibero','sap hana','db2','mssql','ms sql','sql server','sqlite','mongodb','redis','elasticsearch','cassandra','dynamodb','hbase','sybase','informix','nosql'] },
@@ -47,6 +47,13 @@ const SKILL_CATEGORIES: { label: string; keywords: string[] }[] = [
   { label: '도구', keywords: ['eclipse','intellij','visual studio','vscode','jira','confluence','swagger','postman','maven','gradle','npm','yarn','figma','notion'] },
 ]
 
+function matchesSkillKeyword(skillLower: string, kw: string): boolean {
+  if (skillLower === kw) return true
+  // 단어 경계 매칭 — kw가 독립적인 토큰으로 등장해야 매칭 (r, c 등 단문자 오탐 방지)
+  const escaped = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  return new RegExp(`(?:^|[\\s/,.(\\[])${escaped}(?:$|[\\s/,.)\\]])`, 'i').test(skillLower)
+}
+
 function categorizeSkills(skills: string[]): { label: string; skills: string[] }[] {
   const used = new Set<string>()
   const result: { label: string; skills: string[] }[] = []
@@ -54,7 +61,7 @@ function categorizeSkills(skills: string[]): { label: string; skills: string[] }
     const matched = skills.filter(s => {
       if (used.has(s)) return false
       const lower = s.toLowerCase()
-      return cat.keywords.some(kw => lower.includes(kw))
+      return cat.keywords.some(kw => matchesSkillKeyword(lower, kw))
     })
     matched.forEach(s => used.add(s))
     if (matched.length > 0) result.push({ label: cat.label, skills: matched })
