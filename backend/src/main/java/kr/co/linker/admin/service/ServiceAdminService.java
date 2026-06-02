@@ -759,6 +759,17 @@ public class ServiceAdminService {
         log.info("[SERVICE_ADMIN] 멤버 투입 확정 projectId={} memberId={}", projectId, memberId);
     }
 
+    @Transactional
+    public void rejectMember(UUID projectId, UUID memberId) {
+        ProjectMember member = projectMemberRepository.findById(memberId)
+                .orElseThrow(() -> new LinkerException(HttpStatus.NOT_FOUND, "MEMBER_NOT_FOUND", "배정 정보를 찾을 수 없습니다."));
+        if (!member.getProjectId().equals(projectId)) {
+            throw new LinkerException(HttpStatus.BAD_REQUEST, "INVALID_REQUEST", "잘못된 요청입니다.");
+        }
+        member.reject();
+        log.info("[SERVICE_ADMIN] 멤버 탈락 처리 projectId={} memberId={}", projectId, memberId);
+    }
+
     private List<ProjectMemberResponse> buildMemberResponses(UUID projectId) {
         return projectMemberRepository.findByProjectId(projectId).stream()
                 .map(m -> {
@@ -776,6 +787,7 @@ public class ServiceAdminService {
                             skills,
                             m.getAssignedAt() != null ? m.getAssignedAt().toString() : null,
                             m.isConfirmed(),
+                            m.isRejected(),
                             m.getProposedPrice(),
                             m.getTalentSalary()
                     );

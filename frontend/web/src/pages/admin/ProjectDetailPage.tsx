@@ -306,16 +306,31 @@ function MemberRow({ member, projectId }: { member: ProjectMember; projectId: st
     onError: () => addToast('확정 처리에 실패했습니다.', 'error'),
   })
 
+  const reject = useMutation({
+    mutationFn: () => serviceAdminApi.rejectMember(projectId, member.memberId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['project-detail', projectId] })
+      addToast(`${member.talentName} 탈락 처리되었습니다.`, 'info')
+    },
+    onError: () => addToast('탈락 처리에 실패했습니다.', 'error'),
+  })
+
+  const borderStyle = member.confirmed
+    ? 'border-emerald-200 bg-emerald-50/40 hover:border-emerald-300'
+    : member.rejected
+    ? 'border-red-200 bg-red-50/30 hover:border-red-300'
+    : 'border-border/20 bg-surface/30 hover:border-border/50'
+
+  const avatarStyle = member.confirmed
+    ? 'bg-emerald-100 text-emerald-700'
+    : member.rejected
+    ? 'bg-red-100 text-red-500'
+    : 'bg-primary/10 text-primary'
+
   return (
-    <div className={`flex h-full flex-col justify-between gap-4 rounded-2xl border p-5 shadow-sm transition-all ${
-      member.confirmed
-        ? 'border-emerald-200 bg-emerald-50/40 hover:border-emerald-300'
-        : 'border-border/20 bg-surface/30 hover:border-border/50'
-    }`}>
+    <div className={`flex h-full flex-col justify-between gap-4 rounded-2xl border p-5 shadow-sm transition-all ${borderStyle}`}>
       <div className="flex items-start gap-4">
-        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-black shrink-0 ${
-          member.confirmed ? 'bg-emerald-100 text-emerald-700' : 'bg-primary/10 text-primary'
-        }`}>
+        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-black shrink-0 ${avatarStyle}`}>
           {member.talentName.slice(0, 1)}
         </div>
         <div className="flex-1 min-w-0">
@@ -323,6 +338,9 @@ function MemberRow({ member, projectId }: { member: ProjectMember; projectId: st
             <p className="text-sm font-bold text-primary">{member.talentName}</p>
             {member.confirmed && (
               <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700">확정</span>
+            )}
+            {member.rejected && !member.confirmed && (
+              <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full bg-red-100 text-red-500">탈락</span>
             )}
           </div>
           <p className="text-xs text-primary/50 truncate">
@@ -355,15 +373,25 @@ function MemberRow({ member, projectId }: { member: ProjectMember; projectId: st
           </span>
         ) : <div />}
         <div className="flex items-center gap-1.5">
-          {!member.confirmed && (
-            <button
-              onClick={() => confirm.mutate()}
-              disabled={confirm.isPending}
-              className="px-2.5 py-1 text-[10px] font-black rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 disabled:opacity-40 transition-all"
-              title="투입 확정"
-            >
-              확정
-            </button>
+          {!member.confirmed && !member.rejected && (
+            <>
+              <button
+                onClick={() => confirm.mutate()}
+                disabled={confirm.isPending}
+                className="px-2.5 py-1 text-[10px] font-black rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 disabled:opacity-40 transition-all"
+                title="투입 확정"
+              >
+                확정
+              </button>
+              <button
+                onClick={() => reject.mutate()}
+                disabled={reject.isPending}
+                className="px-2.5 py-1 text-[10px] font-black rounded-lg bg-red-100 text-red-500 hover:bg-red-200 disabled:opacity-40 transition-all"
+                title="탈락 처리 (삭제되지 않음)"
+              >
+                탈락
+              </button>
+            </>
           )}
           <button
             onClick={() => remove.mutate()}

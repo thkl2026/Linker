@@ -36,6 +36,12 @@ public class ProjectMember {
 
     private OffsetDateTime confirmedAt;
 
+    /** 탈락 여부 — 삭제 없이 결과를 보존한다 */
+    @Column(nullable = false)
+    private boolean rejected = false;
+
+    private OffsetDateTime rejectedAt;
+
     /** 주사업자 제안 가격 (원/월) */
     private java.math.BigDecimal proposedPrice;
 
@@ -56,5 +62,10 @@ public class ProjectMember {
     public void confirm() {
         this.confirmed = true;
         this.confirmedAt = OffsetDateTime.now();
+    }
+
+    public void reject() {
+        this.rejected = true;
+        this.rejectedAt = OffsetDateTime.now();
     }
 }

@@ -30,6 +30,7 @@ export interface ProjectMember {
   skills: string
   assignedAt: string | null
   confirmed: boolean
+  rejected: boolean
   proposedPrice: number | null
   talentSalary: number | null
 }
@@ -488,6 +489,9 @@ export const serviceAdminApi = {
 
   confirmMember: (projectId: string, memberId: string) =>
     axiosInstance.patch(`/api/v1/service-admin/projects/${projectId}/members/${memberId}/confirm`),
+
+  rejectMember: (projectId: string, memberId: string) =>
+    axiosInstance.patch(`/api/v1/service-admin/projects/${projectId}/members/${memberId}/reject`),
 
   updateProjectSkills: (projectId: string, requiredSkills: string) =>
     axiosInstance.patch(`/api/v1/service-admin/projects/${projectId}/skills`, { requiredSkills }),

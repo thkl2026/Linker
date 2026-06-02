@@ -16,6 +16,7 @@ public record ProjectMemberResponse(
         String skills,
         String assignedAt,
         boolean confirmed,
+        boolean rejected,
         BigDecimal proposedPrice,
         BigDecimal talentSalary
 ) {}
