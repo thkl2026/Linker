@@ -9,8 +9,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
+import org.apache.poi.hwpf.HWPFDocument;
+import org.apache.poi.hwpf.extractor.WordExtractor;
+import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
@@ -55,8 +60,11 @@ public class ResumeParseService {
 
                 if (lower.endsWith(".pdf")) {
                     return extractPdf(bytes);
+                } else if (lower.endsWith(".docx")) {
+                    return extractDocx(bytes);
+                } else if (lower.endsWith(".doc")) {
+                    return extractDoc(bytes);
                 }
-                // DOCX 및 기타 텍스트 기반 포맷
                 return new String(bytes, StandardCharsets.UTF_8);
             }
         } catch (Exception e) {
@@ -65,7 +73,6 @@ public class ResumeParseService {
         }
     }
 
-    // §1.2 PDFBox 기반 텍스트 추출 — 위치 정렬 포함
     private String extractPdf(byte[] bytes) {
         try (PDDocument doc = Loader.loadPDF(bytes)) {
             PDFTextStripper stripper = new PDFTextStripper();
@@ -73,9 +80,31 @@ public class ResumeParseService {
             String text = stripper.getText(doc);
             if (text != null && !text.isBlank()) { return text; }
         } catch (Exception e) {
-            log.warn("[RESUME_PDF_EXTRACT_FAILED] PDFBox 실패: {}", e.getMessage());
+            log.warn("[RESUME_PDF_EXTRACT_FAILED] {}", e.getMessage());
         }
         return "(PDF 텍스트 추출 실패)";
+    }
+
+    private String extractDocx(byte[] bytes) {
+        try (XWPFDocument doc = new XWPFDocument(new ByteArrayInputStream(bytes));
+             XWPFWordExtractor extractor = new XWPFWordExtractor(doc)) {
+            String text = extractor.getText();
+            if (text != null && !text.isBlank()) return text;
+        } catch (Exception e) {
+            log.warn("[RESUME_DOCX_EXTRACT_FAILED] {}", e.getMessage());
+        }
+        return "(DOCX 텍스트 추출 실패)";
+    }
+
+    private String extractDoc(byte[] bytes) {
+        try (HWPFDocument doc = new HWPFDocument(new ByteArrayInputStream(bytes));
+             WordExtractor extractor = new WordExtractor(doc)) {
+            String text = extractor.getText();
+            if (text != null && !text.isBlank()) return text;
+        } catch (Exception e) {
+            log.warn("[RESUME_DOC_EXTRACT_FAILED] {}", e.getMessage());
+        }
+        return "(DOC 텍스트 추출 실패)";
     }
 
     @SuppressWarnings("unchecked")
