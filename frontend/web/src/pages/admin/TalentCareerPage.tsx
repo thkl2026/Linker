@@ -1877,13 +1877,14 @@ function TalentDetailModal({
                               </td>
                               <td className="w-[15%] p-1 border-b border-r border-border/50 text-center align-middle">
                                 <div className="space-y-1">
-                                  <input type="month" className="w-full text-center text-primary/80 bg-transparent hover:bg-white px-1 py-1 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none text-xs transition-all" 
-                                    defaultValue={exp.startDate.substring(0,7)} 
+                                  <input type="month" className="w-full text-center text-primary/80 bg-transparent hover:bg-white px-1 py-1 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none text-xs transition-all"
+                                    defaultValue={exp.startDate.substring(0,7)}
                                     onBlur={e => { const val = e.target.value ? e.target.value + '-01' : ''; if (val !== exp.startDate) handleExpUpdate(exp.id, exp, { startDate: val }) }} />
                                   <div className="text-primary/40 text-[10px]">~</div>
-                                  <input type="month" className="w-full text-center text-primary/80 bg-transparent hover:bg-white px-1 py-1 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none text-xs transition-all" 
-                                    defaultValue={exp.endDate?.substring(0,7) || ''} 
+                                  <input type="month" className="w-full text-center text-primary/80 bg-transparent hover:bg-white px-1 py-1 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none text-xs transition-all"
+                                    defaultValue={exp.endDate?.substring(0,7) || ''}
                                     onBlur={e => { const val = e.target.value ? e.target.value + '-01' : null; if (val !== exp.endDate) handleExpUpdate(exp.id, exp, { endDate: val }) }} />
+                                  <div className="text-[11px] font-bold text-secondary/70">{fmtDuration(expMonths(exp))}</div>
                                 </div>
                               </td>
                               <td className="w-[15%] p-1 border-b border-r border-border/50 text-center align-middle">

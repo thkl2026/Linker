@@ -14,4 +14,6 @@ public interface TalentExperienceRepository extends JpaRepository<TalentExperien
     Optional<TalentExperience> findByIdAndTalentProfileId(UUID id, UUID talentId);
 
     void deleteByTalentProfileId(UUID talentId);
+
+    void deleteByTalentProfileIdAndExperienceType(UUID talentId, String experienceType);
 }

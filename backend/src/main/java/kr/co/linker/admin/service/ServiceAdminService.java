@@ -196,10 +196,11 @@ public class ServiceAdminService {
         talentProfileRepository.save(profile);
 
         // 경험치 일괄 저장 로직
-        saveExperiences(profile, "EDUCATION", req.educations());
-        saveExperiences(profile, "COMPANY", req.companyExps());
-        saveExperiences(profile, "PROJECT", req.projectExps());
+        saveExperiences(profile, "EDUCATION",     req.educations());
+        saveExperiences(profile, "COMPANY",       req.companyExps());
+        saveExperiences(profile, "PROJECT",       req.projectExps());
         saveExperiences(profile, "CERTIFICATION", req.certifications());
+        saveExperiences(profile, "TRAINING",      req.trainings());
 
         try {
             gradeCalculationService.recalculate(profile.getId());
@@ -391,13 +392,22 @@ public class ServiceAdminService {
     @Transactional
     public void replaceExperiences(UUID talentId, CreateTalentRequest req) {
         TalentProfile profile = requireTalent(talentId);
-        experienceRepository.deleteByTalentProfileId(talentId);
-        saveExperiences(profile, "EDUCATION",      req.educations());
-        saveExperiences(profile, "COMPANY",        req.companyExps());
-        saveExperiences(profile, "PROJECT",        req.projectExps());
-        saveExperiences(profile, "CERTIFICATION",  req.certifications());
+        replaceByType(profile, talentId, "EDUCATION",     req.educations());
+        replaceByType(profile, talentId, "COMPANY",       req.companyExps());
+        replaceByType(profile, talentId, "PROJECT",       req.projectExps());
+        replaceByType(profile, talentId, "CERTIFICATION", req.certifications());
+        replaceByType(profile, talentId, "TRAINING",      req.trainings());
         gradeCalculationService.recalculate(talentId);
         log.info("[SERVICE_ADMIN] 경력 일괄 교체 talentId={}", talentId);
+    }
+
+    private void replaceByType(TalentProfile profile, UUID talentId, String type,
+                               List<CreateTalentRequest.ExpReq> reqs) {
+        if (reqs == null) return;
+        experienceRepository.deleteByTalentProfileIdAndExperienceType(talentId, type);
+        if (!reqs.isEmpty()) {
+            saveExperiences(profile, type, reqs);
+        }
     }
 
     @Transactional
