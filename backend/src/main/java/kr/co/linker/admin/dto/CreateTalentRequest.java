@@ -34,6 +34,7 @@ public record CreateTalentRequest(
         List<ExpReq> educations,
         List<ExpReq> companyExps,
         List<ExpReq> projectExps,
+        List<ExpReq> trainings,
         List<ExpReq> certifications
 ) {
     public record ExpReq(
