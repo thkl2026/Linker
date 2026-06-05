@@ -12,7 +12,7 @@ export function LoginPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const from = (location.state as { from?: string })?.from ?? '/app'
-  const { setAuth } = useAuthStore()
+  const { setAuth, user, isAuthenticated } = useAuthStore()
   const { addToast } = useUiStore()
 
   const [email, setEmail] = useState('')
@@ -20,6 +20,13 @@ export function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    // 이미 로그인된 사용자면 앱으로 리다이렉트
+    if (isAuthenticated && user) {
+      navigate(from, { replace: true })
+    }
+  }, [isAuthenticated, user, navigate, from])
 
   useEffect(() => {
     try {
