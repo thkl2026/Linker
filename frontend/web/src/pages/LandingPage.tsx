@@ -13,11 +13,6 @@ export function LandingPage() {
             <img src={linkerLogo} alt="Linker" className="h-6 object-contain" />
           </div>
 
-          <div className="hidden md:flex items-center gap-10">
-            <Link to="/auth/login" state={{ from: '/app/projects/register' }} className="text-sm font-bold hover:text-secondary transition-colors">프로젝트 등록</Link>
-            <Link to="/auth/login" state={{ from: '/app/evaluations' }} className="text-sm font-bold hover:text-secondary transition-colors">전문가 평가</Link>
-            <Link to="/auth/login" state={{ from: '/app/admin' }} className="text-sm font-bold hover:text-secondary transition-colors">시스템 관리</Link>
-          </div>
 
           <div className="flex items-center gap-3">
             <Link to="/auth/login" className="text-sm font-black px-6 py-2.5 bg-primary text-white rounded-xl shadow-xl hover:bg-black transition-all transform hover:-translate-y-0.5">
@@ -63,14 +58,6 @@ export function LandingPage() {
               인력 소싱 및 관리 플랫폼, Linker
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-5">
-              <Link
-                to="/auth/login"
-                className="px-12 py-6 bg-primary text-white rounded-2xl font-black text-xl shadow-2xl hover:bg-black transition-all text-center hover:-translate-y-0.5 transform"
-              >
-                서비스 시작하기
-              </Link>
-            </div>
           </div>
 
           {/* Floating Dashboard Mockup */}
