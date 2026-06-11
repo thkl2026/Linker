@@ -3391,10 +3391,16 @@ export function TalentCareerPage() {
   const [dropdownPos, setDropdownPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 })
   const dropdownRef = useRef<HTMLDivElement>(null)
 
+  const [gridActionMenuOpen, setGridActionMenuOpen] = useState(false)
+  const gridActionMenuRef = useRef<HTMLDivElement>(null)
+
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setOpenDropdownId(null)
+      }
+      if (gridActionMenuRef.current && !gridActionMenuRef.current.contains(e.target as Node)) {
+        setGridActionMenuOpen(false)
       }
     }
     document.addEventListener('mousedown', handler)
@@ -3573,6 +3579,60 @@ export function TalentCareerPage() {
           className="w-28 py-2.5 rounded-xl border border-border text-sm font-semibold text-primary/70 hover:bg-surface disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
           상세조회
         </button>
+        <div className="relative" ref={gridActionMenuRef}>
+          <button
+            onClick={() => setGridActionMenuOpen(o => !o)}
+            disabled={selectedIds.length !== 1}
+            className="w-28 py-2.5 rounded-xl border border-border text-sm font-semibold text-primary/70 hover:bg-surface disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-1 cursor-pointer"
+          >
+            추가 작업 <span className="text-[10px] opacity-60">▾</span>
+          </button>
+          {gridActionMenuOpen && selectedTalent && (
+            <div className="absolute right-0 mt-2 w-44 bg-white rounded-2xl shadow-xl border border-border/30 overflow-hidden z-20 py-1">
+              <button
+                onClick={() => {
+                  setDetailTarget(selectedTalent)
+                  setGridActionMenuOpen(false)
+                }}
+                className="w-full text-left px-4 py-2.5 text-xs text-primary hover:bg-surface transition-colors flex items-center gap-2 font-bold cursor-pointer"
+              >
+                <span>🔍</span> 상세조회
+              </button>
+              <button
+                onClick={() => {
+                  setEvaluationTarget(selectedTalent)
+                  setGridActionMenuOpen(false)
+                }}
+                className="w-full text-left px-4 py-2.5 text-xs text-primary hover:bg-surface transition-colors flex items-center gap-2 font-bold cursor-pointer"
+              >
+                <span>✏️</span> 평가등록
+              </button>
+              <button
+                onClick={() => {
+                  setAssignTarget(selectedTalent)
+                  setGridActionMenuOpen(false)
+                }}
+                className="w-full text-left px-4 py-2.5 text-xs text-primary hover:bg-surface transition-colors flex items-center gap-2 font-bold cursor-pointer"
+              >
+                <span>📋</span> 프로젝트 배정
+              </button>
+              <div className="border-t border-border/30 my-1" />
+              <button
+                onClick={() => {
+                  setGridActionMenuOpen(false)
+                  serviceAdminApi.listExperiences(selectedTalent.id).then(r => {
+                    const exps = r.data
+                    const months = selectedTalent.itCareerMonths ?? calcItCareerMonths(exps)
+                    void printCareerCard(selectedTalent, exps, months)
+                  })
+                }}
+                className="w-full text-left px-4 py-2.5 text-xs text-primary hover:bg-surface transition-colors flex items-center gap-2 font-bold cursor-pointer"
+              >
+                <span>📄</span> PDF 출력
+              </button>
+            </div>
+          )}
+        </div>
         <button onClick={handleDelete}
           disabled={selectedIds.length === 0 || deleteMutation.isPending}
           className="w-28 py-2.5 rounded-xl border border-red-200 text-sm font-semibold text-red-500 hover:bg-red-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
