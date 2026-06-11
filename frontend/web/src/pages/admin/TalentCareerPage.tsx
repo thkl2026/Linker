@@ -1321,7 +1321,7 @@ function TalentDetailModal({
                       <div className="border-r border-b border-border/50 bg-white text-[13px]">
                         {editingField === 'birthDate' ? (
                           <div className="p-0.5"><input autoFocus type="date"
-                            className="w-full bg-blue-50 px-2.5 py-1.5 outline-none ring-1 ring-blue-400 rounded-sm text-primary/80"
+                            className="w-full bg-blue-50 px-2.5 py-1.5 outline-none ring-1 ring-blue-400 rounded-sm text-primary/80 text-[13px]"
                             value={form.birthDate ?? ''}
                             onChange={e => setForm(f => ({ ...f, birthDate: e.target.value }))}
                             onBlur={() => { setHasChanges(true); setEditingField(null) }}
@@ -1329,7 +1329,7 @@ function TalentDetailModal({
                           /></div>
                         ) : (
                           <div onDoubleClick={() => setEditingField('birthDate')}
-                            className="px-3 py-2 cursor-default group flex items-center gap-1 min-h-[38px] select-none">
+                            className="px-3 py-2 cursor-default group flex items-center gap-1 min-h-[38px] select-none text-[13px]">
                             <span className="text-primary/80">{form.birthDate || '—'}</span>
                             <span className="text-[10px] text-primary/20 opacity-0 group-hover:opacity-100 transition-opacity">✎</span>
                           </div>
@@ -1345,7 +1345,7 @@ function TalentDetailModal({
                       <div className="border-b border-border/50 bg-white text-[13px]">
                         {editingField === 'title' ? (
                           <div className="p-0.5"><input autoFocus type="text"
-                            className="w-full bg-blue-50 px-2.5 py-1.5 outline-none ring-1 ring-blue-400 rounded-sm text-primary/80"
+                            className="w-full bg-blue-50 px-2.5 py-1.5 outline-none ring-1 ring-blue-400 rounded-sm text-primary/80 text-[13px]"
                             value={form.title ?? ''}
                             onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
                             onBlur={() => { setHasChanges(true); setEditingField(null) }}
@@ -1353,7 +1353,7 @@ function TalentDetailModal({
                           /></div>
                         ) : (
                           <div onDoubleClick={() => setEditingField('title')}
-                            className="px-3 py-2 cursor-default group flex items-center gap-1 min-h-[38px] select-none">
+                            className="px-3 py-2 cursor-default group flex items-center gap-1 min-h-[38px] select-none text-[13px]">
                             <span className="text-primary/80">{form.title || '—'}</span>
                             <span className="text-[10px] text-primary/20 opacity-0 group-hover:opacity-100 transition-opacity">✎</span>
                           </div>
@@ -1363,7 +1363,7 @@ function TalentDetailModal({
                       {/* ── 기술 분류 | 근무 형태 ── */}
                       <div className="bg-surface px-3 py-2 text-center text-[13px] font-bold text-primary border-r border-b border-border/50 flex items-center justify-center">기술 분류</div>
                       <div className="border-r border-b border-border/50 bg-white p-0.5 text-[13px] flex items-center gap-1">
-                        <select className="flex-1 bg-transparent hover:bg-surface/50 px-1 py-1.5 outline-none transition-all rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 text-primary/80"
+                        <select className="flex-1 bg-transparent hover:bg-surface/50 px-1 py-1.5 outline-none transition-all rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 text-primary/80 text-[13px]"
                           value={form.category || ''}
                           onChange={e => handleBasicUpdate({ category: (e.target.value as TalentCategory) || undefined, field: undefined })}>
                           <option value="">분류 선택</option>
@@ -1371,8 +1371,8 @@ function TalentDetailModal({
                             <option key={c} value={c}>{TALENT_CATEGORY_LABELS[c]}</option>
                           ))}
                         </select>
-                        <span className="text-primary/20 shrink-0">/</span>
-                        <select className="flex-1 bg-transparent hover:bg-surface/50 px-1 py-1.5 outline-none transition-all rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 text-primary/80"
+                        <span className="text-primary/20 shrink-0 text-[13px]">/</span>
+                        <select className="flex-1 bg-transparent hover:bg-surface/50 px-1 py-1.5 outline-none transition-all rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 text-primary/80 text-[13px]"
                           value={form.field || ''}
                           disabled={!form.category}
                           onChange={e => handleBasicUpdate({ field: (e.target.value as TalentField) || undefined })}>
@@ -1384,7 +1384,7 @@ function TalentDetailModal({
                       </div>
                       <div className="bg-surface px-3 py-2 text-center text-[13px] font-bold text-primary border-r border-b border-border/50 flex items-center justify-center">근무 형태</div>
                       <div className="border-b border-border/50 bg-white p-0.5 text-[13px]">
-                        <select className="w-full h-full bg-transparent hover:bg-surface/50 px-2.5 py-1.5 outline-none transition-all rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 text-primary/80"
+                        <select className="w-full h-full bg-transparent hover:bg-surface/50 px-2.5 py-1.5 outline-none transition-all rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 text-primary/80 text-[13px]"
                           defaultValue={talent.workType}
                           onChange={e => handleBasicUpdate({ workType: e.target.value as WorkType })}>
                           <option value="ONSITE">상주</option>
@@ -1398,7 +1398,7 @@ function TalentDetailModal({
                       <div className="border-r border-b border-border/50 bg-white text-[13px]">
                         {editingField === 'phone' ? (
                           <div className="p-0.5"><input autoFocus type="text"
-                            className="w-full bg-blue-50 px-2.5 py-1.5 outline-none ring-1 ring-blue-400 rounded-sm text-primary/80"
+                            className="w-full bg-blue-50 px-2.5 py-1.5 outline-none ring-1 ring-blue-400 rounded-sm text-primary/80 text-[13px]"
                             value={formatPhone(form.phone)}
                             onChange={e => setForm(f => ({ ...f, phone: e.target.value.replace(/\D/g, '') }))}
                             onBlur={() => { setHasChanges(true); setEditingField(null) }}
@@ -1406,7 +1406,7 @@ function TalentDetailModal({
                           /></div>
                         ) : (
                           <div onDoubleClick={() => setEditingField('phone')}
-                            className="px-3 py-2 cursor-default group flex items-center gap-1 min-h-[38px] select-none">
+                            className="px-3 py-2 cursor-default group flex items-center gap-1 min-h-[38px] select-none text-[13px]">
                             <span className="text-primary/80">{form.phone ? formatPhone(form.phone) : '—'}</span>
                             <span className="text-[10px] text-primary/20 opacity-0 group-hover:opacity-100 transition-opacity">✎</span>
                           </div>
@@ -1416,7 +1416,7 @@ function TalentDetailModal({
                       <div className="border-b border-border/50 bg-white text-[13px]">
                         {editingField === 'email' ? (
                           <div className="p-0.5"><input autoFocus type="email"
-                            className="w-full bg-blue-50 px-2.5 py-1.5 outline-none ring-1 ring-blue-400 rounded-sm text-primary/80"
+                            className="w-full bg-blue-50 px-2.5 py-1.5 outline-none ring-1 ring-blue-400 rounded-sm text-primary/80 text-[13px]"
                             value={form.email ?? ''}
                             onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
                             onBlur={() => { setHasChanges(true); setEditingField(null) }}
@@ -1424,7 +1424,7 @@ function TalentDetailModal({
                           /></div>
                         ) : (
                           <div onDoubleClick={() => setEditingField('email')}
-                            className="px-3 py-2 cursor-default group flex items-center gap-1 min-h-[38px] select-none">
+                            className="px-3 py-2 cursor-default group flex items-center gap-1 min-h-[38px] select-none text-[13px]">
                             <span className="text-primary/80">{form.email || '—'}</span>
                             <span className="text-[10px] text-primary/20 opacity-0 group-hover:opacity-100 transition-opacity">✎</span>
                           </div>
@@ -1436,7 +1436,7 @@ function TalentDetailModal({
                       <div className="border-r border-b border-border/50 bg-white text-[13px]">
                         {editingField === 'address' ? (
                           <div className="p-0.5"><input autoFocus type="text"
-                            className="w-full bg-blue-50 px-2.5 py-1.5 outline-none ring-1 ring-blue-400 rounded-sm text-primary/80"
+                            className="w-full bg-blue-50 px-2.5 py-1.5 outline-none ring-1 ring-blue-400 rounded-sm text-primary/80 text-[13px]"
                             value={form.address ?? ''}
                             onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
                             onBlur={() => { setHasChanges(true); setEditingField(null) }}
@@ -1444,7 +1444,7 @@ function TalentDetailModal({
                           /></div>
                         ) : (
                           <div onDoubleClick={() => setEditingField('address')}
-                            className="px-3 py-2 cursor-default group flex items-center gap-1 min-h-[38px] select-none">
+                            className="px-3 py-2 cursor-default group flex items-center gap-1 min-h-[38px] select-none text-[13px]">
                             <span className="text-primary/80">{form.address || '—'}</span>
                             <span className="text-[10px] text-primary/20 opacity-0 group-hover:opacity-100 transition-opacity">✎</span>
                           </div>
@@ -1454,8 +1454,8 @@ function TalentDetailModal({
                       <div className="border-b border-border/50 bg-white text-[13px]">
                         <div className="px-3 py-2 flex items-center gap-1.5 min-h-[38px]">
                           {form.skillGrade
-                            ? <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">{form.skillGrade}</span>
-                            : <span className="text-primary/30 text-xs">자격증·경력 기반 자동산정</span>}
+                            ? <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[13px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">{form.skillGrade}</span>
+                            : <span className="text-primary/30 text-[13px]">자격증·경력 기반 자동산정</span>}
                         </div>
                       </div>
 
@@ -1464,7 +1464,7 @@ function TalentDetailModal({
                         {editingField === 'projectRole' ? (
                           <div className="p-0.5">
                             <select autoFocus
-                              className="w-full bg-blue-50 px-2.5 py-1.5 outline-none ring-1 ring-blue-400 rounded-sm text-primary/80"
+                              className="w-full bg-blue-50 px-2.5 py-1.5 outline-none ring-1 ring-blue-400 rounded-sm text-primary/80 text-[13px]"
                               value={form.projectRole ?? ''}
                               onChange={e => { setForm(f => ({ ...f, projectRole: e.target.value })); setHasChanges(true) }}
                               onBlur={() => { setHasChanges(true); setEditingField(null) }}
@@ -1475,7 +1475,7 @@ function TalentDetailModal({
                           </div>
                         ) : (
                           <div onDoubleClick={() => setEditingField('projectRole')}
-                            className="px-3 py-2 cursor-default group flex items-center gap-1 min-h-[38px] select-none">
+                            className="px-3 py-2 cursor-default group flex items-center gap-1 min-h-[38px] select-none text-[13px]">
                             <span className="text-primary/80">{form.projectRole || '—'}</span>
                             <span className="text-[10px] text-primary/20 opacity-0 group-hover:opacity-100 transition-opacity">✎</span>
                           </div>
@@ -1498,7 +1498,7 @@ function TalentDetailModal({
                                       setForm(f => ({ ...f, industryExperience: next.join(',') }))
                                       setHasChanges(true)
                                     }}
-                                    className={`px-2 py-0.5 rounded-full text-xs font-semibold border transition-colors ${active ? 'bg-secondary text-white border-secondary' : 'border-border/60 text-primary/50 hover:border-secondary/50 hover:text-secondary'}`}>
+                                    className={`px-2 py-0.5 rounded-full text-[13px] font-semibold border transition-colors ${active ? 'bg-secondary text-white border-secondary' : 'border-border/60 text-primary/50 hover:border-secondary/50 hover:text-secondary'}`}>
                                     {opt}
                                   </button>
                                 )
@@ -1511,7 +1511,7 @@ function TalentDetailModal({
                       {/* ── 추천 소스 (전체 너비) ── */}
                       <div className="bg-surface px-3 py-2 text-center text-[13px] font-bold text-primary border-r border-b border-border/50 flex items-center justify-center">추천 소스</div>
                       <div className="border-b border-border/50 bg-white p-0.5 text-[13px]" style={{ gridColumn: 'span 3' }}>
-                        <select className="w-full h-full bg-transparent hover:bg-surface/50 px-2.5 py-1.5 outline-none transition-all rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 text-primary/80"
+                        <select className="w-full h-full bg-transparent hover:bg-surface/50 px-2.5 py-1.5 outline-none transition-all rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 text-primary/80 text-[13px]"
                           defaultValue={talent.referralSource || ''}
                           onChange={e => handleBasicUpdate({ referralSource: e.target.value || undefined })}>
                           <option value="">선택 안 함</option>
@@ -1543,14 +1543,14 @@ function TalentDetailModal({
                             <tr key={exp.id} className="group bg-white hover:bg-surface/50 transition-colors">
                               <td className="w-1/4 p-1 border-b border-r border-border/50 text-center align-middle">
                                 <input
-                                  className="w-full text-center font-bold text-primary bg-transparent hover:bg-white px-2 py-1.5 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none transition-all"
+                                  className="w-full text-center font-bold text-primary bg-transparent hover:bg-white px-2 py-1.5 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none transition-all text-[13px]"
                                   defaultValue={exp.companyName || ''} placeholder="학교명"
                                   onBlur={e => { if (e.target.value !== (exp.companyName || '')) handleExpUpdate(exp.id, exp, { companyName: e.target.value }) }}
                                 />
                               </td>
                               <td className="w-1/4 p-1 border-b border-r border-border/50 text-center align-middle">
                                 <input
-                                  className="w-full text-center text-primary/80 bg-transparent hover:bg-white px-2 py-1.5 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none transition-all"
+                                  className="w-full text-center text-primary/80 bg-transparent hover:bg-white px-2 py-1.5 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none transition-all text-[13px]"
                                   defaultValue={exp.projectName || ''} placeholder="전공"
                                   onBlur={e => { if (e.target.value !== (exp.projectName || '')) handleExpUpdate(exp.id, exp, { projectName: e.target.value }) }}
                                 />
@@ -1558,7 +1558,7 @@ function TalentDetailModal({
                               <td className="w-1/4 p-1 border-b border-r border-border/50 text-center align-middle">
                                 <input
                                   type="month"
-                                  className="w-full text-center text-primary/80 bg-transparent hover:bg-white px-2 py-1.5 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none transition-all"
+                                  className="w-full text-center text-primary/80 bg-transparent hover:bg-white px-2 py-1.5 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none transition-all text-[13px]"
                                   defaultValue={exp.endDate?.substring(0, 7) || ''}
                                   onBlur={e => { 
                                     const val = e.target.value ? e.target.value + '-01' : null;
@@ -1568,7 +1568,7 @@ function TalentDetailModal({
                               </td>
                               <td className="w-1/4 p-1 border-b border-r border-border/50 align-middle relative group/btn">
                                 <select
-                                  className="w-[calc(100%-24px)] text-center text-primary/80 bg-transparent hover:bg-white px-1 py-1.5 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none transition-all appearance-none cursor-pointer"
+                                  className="w-[calc(100%-24px)] text-center text-primary/80 bg-transparent hover:bg-white px-1 py-1.5 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none transition-all appearance-none cursor-pointer text-[13px]"
                                   defaultValue={exp.role || ''}
                                   onChange={e => { if (e.target.value !== (exp.role || '')) handleExpUpdate(exp.id, exp, { role: e.target.value }) }}
                                 >
@@ -1622,7 +1622,7 @@ function TalentDetailModal({
                             <tr key={exp.id} className="group bg-white hover:bg-surface/50 transition-colors">
                               <td className="w-1/4 p-1 border-b border-r border-border/50 text-center align-middle">
                                 <input
-                                  className="w-full text-center font-bold text-primary bg-transparent hover:bg-white px-2 py-1.5 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none transition-all"
+                                  className="w-full text-center font-bold text-primary bg-transparent hover:bg-white px-2 py-1.5 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none transition-all text-[13px]"
                                   defaultValue={exp.companyName || ''} placeholder="직장명"
                                   onBlur={e => { if (e.target.value !== (exp.companyName || '')) handleExpUpdate(exp.id, exp, { companyName: e.target.value }) }}
                                 />
@@ -1631,13 +1631,13 @@ function TalentDetailModal({
                                 <div className="space-y-1">
                                   <input
                                     placeholder="부서"
-                                    className="w-full text-center bg-transparent hover:bg-white px-1 py-1 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none text-xs"
+                                    className="w-full text-center bg-transparent hover:bg-white px-1 py-1 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none text-[13px]"
                                     defaultValue={exp.department || ''}
                                     onBlur={e => { if (e.target.value !== (exp.department || '')) handleExpUpdate(exp.id, exp, { department: e.target.value }) }}
                                   />
                                   <input
                                     placeholder="직위"
-                                    className="w-full text-center bg-transparent hover:bg-white px-1 py-1 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none text-xs"
+                                    className="w-full text-center bg-transparent hover:bg-white px-1 py-1 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none text-[13px]"
                                     defaultValue={exp.role || ''}
                                     onBlur={e => { if (e.target.value !== (exp.role || '')) handleExpUpdate(exp.id, exp, { role: e.target.value }) }}
                                   />
@@ -1645,10 +1645,10 @@ function TalentDetailModal({
                               </td>
                               <td className="w-1/4 p-1 border-b border-r border-border/50 text-center align-middle">
                                 <div className="space-y-1">
-                                  <input type="month" className="w-full text-center bg-transparent hover:bg-white px-1 py-1 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none text-xs" 
+                                  <input type="month" className="w-full text-center bg-transparent hover:bg-white px-1 py-1 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none text-[13px]" 
                                     defaultValue={exp.startDate.substring(0,7)} 
                                     onBlur={e => { const val = e.target.value ? e.target.value + '-01' : ''; if (val !== exp.startDate) handleExpUpdate(exp.id, exp, { startDate: val }) }} />
-                                  <input type="month" className="w-full text-center bg-transparent hover:bg-white px-1 py-1 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none text-xs" 
+                                  <input type="month" className="w-full text-center bg-transparent hover:bg-white px-1 py-1 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none text-[13px]" 
                                     defaultValue={exp.endDate?.substring(0,7) || ''} 
                                     onBlur={e => { const val = e.target.value ? e.target.value + '-01' : null; if (val !== exp.endDate) handleExpUpdate(exp.id, exp, { endDate: val }) }} />
                                 </div>
@@ -1657,7 +1657,7 @@ function TalentDetailModal({
                                 <textarea
                                   rows={2}
                                   placeholder="담당 업무"
-                                  className="w-[calc(100%-24px)] bg-transparent hover:bg-white px-2 py-1.5 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none text-xs resize-none transition-all"
+                                  className="w-[calc(100%-24px)] bg-transparent hover:bg-white px-2 py-1.5 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none text-[13px] resize-none transition-all"
                                   defaultValue={exp.description || ''}
                                   onBlur={e => { if (e.target.value !== (exp.description || '')) handleExpUpdate(exp.id, exp, { description: e.target.value }) }}
                                 />
@@ -1703,24 +1703,24 @@ function TalentDetailModal({
                             <tr key={exp.id} className="group bg-white hover:bg-surface/50 transition-colors">
                               <td className="w-1/3 p-1 border-b border-r border-border/50 text-center align-middle">
                                 <input
-                                  className="w-full text-center font-bold text-primary bg-transparent hover:bg-white px-2 py-1.5 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none transition-all"
+                                  className="w-full text-center font-bold text-primary bg-transparent hover:bg-white px-2 py-1.5 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none transition-all text-[13px]"
                                   defaultValue={exp.projectName || ''} placeholder="교육명"
                                   onBlur={e => { if (e.target.value !== (exp.projectName || '')) handleExpUpdate(exp.id, exp, { projectName: e.target.value }) }}
                                 />
                               </td>
                               <td className="w-1/4 p-1 border-b border-r border-border/50 text-center align-middle">
-                                <input type="month" className="w-full text-center bg-transparent hover:bg-white px-1 py-1 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none text-xs"
+                                <input type="month" className="w-full text-center bg-transparent hover:bg-white px-1 py-1 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none text-[13px]"
                                   defaultValue={exp.startDate.substring(0,7)}
                                   onBlur={e => { const val = e.target.value ? e.target.value + '-01' : ''; if (val !== exp.startDate) handleExpUpdate(exp.id, exp, { startDate: val }) }} />
                               </td>
                               <td className="w-1/4 p-1 border-b border-r border-border/50 text-center align-middle">
-                                <input type="month" className="w-full text-center bg-transparent hover:bg-white px-1 py-1 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none text-xs"
+                                <input type="month" className="w-full text-center bg-transparent hover:bg-white px-1 py-1 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none text-[13px]"
                                   defaultValue={exp.endDate?.substring(0,7) || ''}
                                   onBlur={e => { const val = e.target.value ? e.target.value + '-01' : null; if (val !== exp.endDate) handleExpUpdate(exp.id, exp, { endDate: val }) }} />
                               </td>
                               <td className="w-1/4 p-1 border-b border-r border-border/50 text-center align-middle relative group/btn">
                                 <input
-                                  className="w-[calc(100%-24px)] text-center text-primary/80 bg-transparent hover:bg-white px-2 py-1.5 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none transition-all text-xs"
+                                  className="w-[calc(100%-24px)] text-center text-primary/80 bg-transparent hover:bg-white px-2 py-1.5 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none transition-all text-[13px]"
                                   defaultValue={exp.companyName || ''} placeholder="교육기관"
                                   onBlur={e => { if (e.target.value !== (exp.companyName || '')) handleExpUpdate(exp.id, exp, { companyName: e.target.value }) }}
                                 />
@@ -1765,14 +1765,14 @@ function TalentDetailModal({
                             <tr key={exp.id} className="group bg-white hover:bg-surface/50 transition-colors">
                               <td className="w-1/2 p-1 border-b border-r border-border/50 text-center align-middle">
                                 <input
-                                  className="w-full text-center font-bold text-primary bg-transparent hover:bg-white px-2 py-1.5 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none transition-all"
+                                  className="w-full text-center font-bold text-primary bg-transparent hover:bg-white px-2 py-1.5 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none transition-all text-[13px]"
                                   defaultValue={exp.projectName || ''} placeholder="자격증명 및 점수"
                                   onBlur={e => { if (e.target.value !== (exp.projectName || '')) handleExpUpdate(exp.id, exp, { projectName: e.target.value }) }}
                                 />
                               </td>
                               <td className="w-1/4 p-1 border-b border-r border-border/50 text-center align-middle">
                                 <input
-                                  className="w-full text-center text-primary/80 bg-transparent hover:bg-white px-2 py-1.5 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none transition-all"
+                                  className="w-full text-center text-primary/80 bg-transparent hover:bg-white px-2 py-1.5 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none transition-all text-[13px]"
                                   defaultValue={exp.companyName || ''} placeholder="발급기관"
                                   onBlur={e => { if (e.target.value !== (exp.companyName || '')) handleExpUpdate(exp.id, exp, { companyName: e.target.value }) }}
                                 />
@@ -1780,7 +1780,7 @@ function TalentDetailModal({
                               <td className="w-1/4 p-1 border-b border-r border-border/50 text-center align-middle relative group/btn">
                                 <input
                                   type="month"
-                                  className="w-[calc(100%-24px)] text-center text-primary/80 bg-transparent hover:bg-white px-1 py-1.5 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none transition-all"
+                                  className="w-[calc(100%-24px)] text-center text-primary/80 bg-transparent hover:bg-white px-1 py-1.5 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none transition-all text-[13px]"
                                   defaultValue={exp.startDate.substring(0, 7)}
                                   onBlur={e => { const val = e.target.value ? e.target.value + '-01' : ''; if (val !== exp.startDate) handleExpUpdate(exp.id, exp, { startDate: val }) }}
                                 />
@@ -1854,7 +1854,7 @@ function TalentDetailModal({
                                 <div className="space-y-1">
                                   <input
                                     placeholder="프로젝트명"
-                                    className="w-full font-bold text-sm text-primary bg-transparent hover:bg-white px-2 py-1.5 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none transition-all"
+                                    className="w-full font-bold text-[13px] text-primary bg-transparent hover:bg-white px-2 py-1.5 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none transition-all"
                                     defaultValue={exp.projectName || ''}
                                     onBlur={e => { if (e.target.value !== (exp.projectName || '')) handleExpUpdate(exp.id, exp, { projectName: e.target.value }) }}
                                   />
@@ -1871,18 +1871,18 @@ function TalentDetailModal({
                               </td>
                               <td className="w-[15%] p-1 border-b border-r border-border/50 text-center align-middle">
                                 <div className="space-y-1">
-                                  <input type="month" className="w-full text-center text-primary/80 bg-transparent hover:bg-white px-1 py-1 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none text-xs transition-all" 
+                                  <input type="month" className="w-full text-center text-primary/80 bg-transparent hover:bg-white px-1 py-1 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none text-[13px] transition-all" 
                                     defaultValue={exp.startDate.substring(0,7)} 
                                     onBlur={e => { const val = e.target.value ? e.target.value + '-01' : ''; if (val !== exp.startDate) handleExpUpdate(exp.id, exp, { startDate: val }) }} />
                                   <div className="text-primary/40 text-[10px]">~</div>
-                                  <input type="month" className="w-full text-center text-primary/80 bg-transparent hover:bg-white px-1 py-1 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none text-xs transition-all" 
+                                  <input type="month" className="w-full text-center text-primary/80 bg-transparent hover:bg-white px-1 py-1 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none text-[13px] transition-all" 
                                     defaultValue={exp.endDate?.substring(0,7) || ''} 
                                     onBlur={e => { const val = e.target.value ? e.target.value + '-01' : null; if (val !== exp.endDate) handleExpUpdate(exp.id, exp, { endDate: val }) }} />
                                 </div>
                               </td>
                               <td className="w-[15%] p-1 border-b border-r border-border/50 text-center align-middle">
                                 <input
-                                  className="w-full text-center text-primary/80 bg-transparent hover:bg-white px-2 py-1.5 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none font-medium transition-all"
+                                  className="w-full text-center text-primary/80 bg-transparent hover:bg-white px-2 py-1.5 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none font-medium text-[13px] transition-all"
                                   defaultValue={exp.role || ''} placeholder="역할"
                                   onBlur={e => { if (e.target.value !== (exp.role || '')) handleExpUpdate(exp.id, exp, { role: e.target.value }) }}
                                 />
@@ -1894,7 +1894,7 @@ function TalentDetailModal({
                                     <span className="text-xs font-bold text-primary/60 shrink-0">Skills:</span>
                                     <input
                                       placeholder="기술 스택 (쉼표 구분)"
-                                      className="flex-1 text-xs bg-transparent hover:bg-white px-1 py-1 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none transition-all"
+                                      className="flex-1 text-[13px] bg-transparent hover:bg-white px-1 py-1 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none transition-all"
                                       defaultValue={exp.techStack.join(', ')}
                                       onBlur={e => {
                                         const newTech = e.target.value.split(',').map(s=>s.trim()).filter(Boolean);
@@ -1906,7 +1906,7 @@ function TalentDetailModal({
                                   <textarea
                                     rows={2}
                                     placeholder="상세 업무 내용을 입력하세요."
-                                    className="w-full flex-1 text-xs text-primary/80 bg-transparent hover:bg-white px-2 py-1.5 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none resize-none transition-all"
+                                    className="w-full flex-1 text-[13px] text-primary/80 bg-transparent hover:bg-white px-2 py-1.5 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none resize-none transition-all"
                                     defaultValue={exp.description || ''}
                                     onBlur={e => { if (e.target.value !== (exp.description || '')) handleExpUpdate(exp.id, exp, { description: e.target.value }) }}
                                   />

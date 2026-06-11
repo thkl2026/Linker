@@ -3,16 +3,17 @@ package kr.co.linker;
 import kr.co.linker.admin.service.ServiceAdminService;
 import kr.co.linker.talent.domain.TalentProfile;
 import kr.co.linker.talent.repository.TalentProfileRepository;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @SpringBootTest
 @ActiveProfiles("local")
+@Disabled("Developer tool for local database checking")
 public class DbCheckTest {
 
     @Autowired
