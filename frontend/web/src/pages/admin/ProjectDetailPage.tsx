@@ -834,6 +834,8 @@ export function ProjectDetailPage() {
   const [modalTechStack, setModalTechStack] = useState<string>('')
   const [statusMenuOpen, setStatusMenuOpen] = useState(false)
   const statusMenuRef = useRef<HTMLDivElement>(null)
+  const [awardMenuOpen, setAwardMenuOpen] = useState(false)
+  const awardMenuRef = useRef<HTMLDivElement>(null)
   // null = 닫힘, -1 = 신규 추가, 0+ = 편집 대상 인덱스
   const [skillEditIndex, setSkillEditIndex] = useState<number | null>(null)
   const [showEditModal, setShowEditModal] = useState(false)
@@ -842,10 +844,18 @@ export function ProjectDetailPage() {
     const handler = (e: MouseEvent) => {
       if (statusMenuRef.current && !statusMenuRef.current.contains(e.target as Node))
         setStatusMenuOpen(false)
+      if (awardMenuRef.current && !awardMenuRef.current.contains(e.target as Node))
+        setAwardMenuOpen(false)
     }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
   }, [])
+
+  const { data: project, isLoading } = useQuery({
+    queryKey: ['project-detail', id],
+    queryFn: () => serviceAdminApi.getProjectDetail(id!).then(r => r.data),
+    enabled: !!id,
+  })
 
   const changeStatus = useMutation({
     mutationFn: (status: ProjectStatus) => serviceAdminApi.changeProjectStatus(id!, status),
@@ -854,6 +864,34 @@ export function ProjectDetailPage() {
       qc.invalidateQueries({ queryKey: ['admin-projects'] })
       setStatusMenuOpen(false)
     },
+  })
+
+  const updateAwardStatus = useMutation({
+    mutationFn: (newStatus: string | null) =>
+      serviceAdminApi.updateProject(id!, {
+        title: project!.title,
+        clientCompany: project!.clientCompany,
+        mainContractor: project!.mainContractor,
+        startDate: project!.startDate,
+        endDate: project!.endDate,
+        requiredHeadcount: project!.requiredHeadcount,
+        workType: project!.workType ?? 'ONSITE',
+        description: project!.description,
+        budgetMin: project!.budgetMin,
+        budgetMax: project!.budgetMax,
+        awardAmount: project!.awardAmount,
+        contractDate: project!.contractDate,
+        awardNote: project!.awardNote,
+        contractorContact: project!.contractorContact,
+        awardStatus: newStatus || null,
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['project-detail', id] })
+      qc.invalidateQueries({ queryKey: ['admin-projects'] })
+      addToast('수주 상태가 변경되었습니다.', 'success')
+      setAwardMenuOpen(false)
+    },
+    onError: () => addToast('수주 상태 변경에 실패했습니다.', 'error'),
   })
 
   const saveSkills = useMutation({
@@ -865,12 +903,6 @@ export function ProjectDetailPage() {
       setSkillEditIndex(null)
     },
     onError: () => addToast('저장에 실패했습니다.', 'error'),
-  })
-
-  const { data: project, isLoading } = useQuery({
-    queryKey: ['project-detail', id],
-    queryFn: () => serviceAdminApi.getProjectDetail(id!).then(r => r.data),
-    enabled: !!id,
   })
 
   if (isLoading) {
@@ -993,13 +1025,39 @@ export function ProjectDetailPage() {
             </button>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-4">
-            <div>
+            <div className="relative" ref={awardMenuRef}>
               <p className="text-[11px] font-bold text-primary/30 uppercase mb-0.5">수주 상태</p>
-              {project.awardStatus ? (
-                <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold ${AWARD_BADGE[project.awardStatus] ?? 'bg-slate-100 text-slate-600'}`}>
-                  {AWARD_STATUS_LABELS[project.awardStatus] ?? project.awardStatus}
-                </span>
-              ) : <p className="text-sm font-semibold text-primary">-</p>}
+              <button
+                onClick={() => setAwardMenuOpen(o => !o)}
+                className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold transition-all hover:ring-2 hover:ring-offset-1 hover:ring-current cursor-pointer ${
+                  project.awardStatus ? AWARD_BADGE[project.awardStatus] ?? 'bg-slate-100 text-slate-600 border border-slate-200' : 'bg-slate-50 text-slate-500 border border-dashed border-slate-200'
+                }`}
+              >
+                {project.awardStatus ? AWARD_STATUS_LABELS[project.awardStatus] ?? project.awardStatus : '미정'}
+                <span className="opacity-50 text-[10px]">▾</span>
+              </button>
+              {awardMenuOpen && (
+                <div className="absolute left-0 mt-2 w-36 bg-white rounded-2xl shadow-xl border border-border/30 overflow-hidden z-20">
+                  {([['', '미정'], ...Object.entries(AWARD_STATUS_LABELS)] as [string, string][]).map(([code, label]) => (
+                    <button
+                      key={code}
+                      onClick={() => {
+                        if (code !== (project.awardStatus ?? '')) {
+                          updateAwardStatus.mutate(code || null)
+                        } else {
+                          setAwardMenuOpen(false)
+                        }
+                      }}
+                      className={`w-full text-left px-4 py-2.5 text-xs font-bold hover:bg-surface transition-colors flex items-center justify-between ${
+                        (project.awardStatus ?? '') === code ? 'text-secondary bg-secondary/5' : 'text-primary'
+                      }`}
+                    >
+                      {label}
+                      {(project.awardStatus ?? '') === code && <span>✓</span>}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
             <InfoRow label="수주 금액" value={project.awardAmount != null ? `${project.awardAmount.toLocaleString()}원` : '-'} />
             <InfoRow label="계약일" value={fmt(project.contractDate)} />
