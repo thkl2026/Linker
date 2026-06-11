@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(npm run *)"
+    ]
+  },
+  "model": "claude-sonnet-4-6"
+}

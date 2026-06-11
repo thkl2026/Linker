@@ -239,6 +239,7 @@ export function ProjectManagementPage() {
                   <td className="px-4 py-5 text-center" onClick={e => { e.stopPropagation(); toggleSelect(p.id) }}>
                     <input type="checkbox" className="w-4 h-4 accent-secondary cursor-pointer"
                       checked={selectedIds.has(p.id)}
+                      onClick={e => e.stopPropagation()}
                       onChange={() => toggleSelect(p.id)} />
                   </td>
                   <td className="px-8 py-5">
@@ -280,6 +281,9 @@ export function ProjectManagementPage() {
                     )}
                     {p.awardStatus === 'REVIEWING' && (
                       <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-700">검토중</span>
+                    )}
+                    {p.awardStatus === 'WITHDRAWN' && (
+                      <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200">철회</span>
                     )}
                     {!p.awardStatus && <span className="text-primary/20">—</span>}
                   </td>

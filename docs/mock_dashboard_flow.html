@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>대시보드 동선 Mock</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+         background: #f5f0ea; color: #451a03; min-height: 100vh; }
+
+  /* ── 색상 토큰 ── */
+  :root {
+    --primary:   #451a03;
+    --secondary: #b45309;
+    --surface:   #fdf8f2;
+    --border:    #e8ddd0;
+    --success:   #16a34a;
+    --warning:   #d97706;
+    --danger:    #dc2626;
+    --neutral:   #6b7280;
+  }
+
+  /* ── 공통 레이아웃 ── */
+  .screen { display: none; flex-direction: column; height: 100vh; }
+  .screen.active { display: flex; }
+
+  /* ── 탑바 ── */
+  .topbar {
+    background: var(--primary); color: white;
+    padding: 0 24px; height: 52px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .topbar-logo { font-size: 16px; font-weight: 900; letter-spacing: -0.5px; }
+  .topbar-nav { display: flex; gap: 8px; }
+  .nav-btn {
+    padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 700;
+    border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.7);
+    cursor: pointer; background: transparent; transition: all 0.15s;
+  }
+  .nav-btn:hover, .nav-btn.active { background: rgba(255,255,255,0.15); color: white; }
+
+  /* ── 메인 콘텐츠 영역 ── */
+  .main { flex: 1; overflow-y: auto; padding: 24px; }
+
+  /* ── 카드 ── */
+  .card {
+    background: white; border: 1px solid var(--border);
+    border-radius: 16px; box-shadow: 0 1px 4px rgba(69,26,3,0.06);
+  }
+  .card-header {
+    padding: 16px 20px; border-bottom: 1px solid var(--border);
+    font-size: 13px; font-weight: 900; display: flex; align-items: center;
+    justify-content: space-between;
+  }
+
+  /* ══════════════════════════════════════
+     SCREEN 1 — Dashboard (신)
+  ══════════════════════════════════════ */
+  #s-dashboard .greeting { margin-bottom: 20px; }
+  #s-dashboard .greeting h2 { font-size: 18px; font-weight: 900; }
+  #s-dashboard .greeting p  { font-size: 11px; color: var(--neutral); margin-top: 4px; }
+
+  .status-cards {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+    margin-bottom: 24px;
+  }
+  .status-card {
+    background: white; border: 1px solid var(--border);
+    border-radius: 16px; padding: 20px; cursor: pointer;
+    transition: all 0.18s; box-shadow: 0 1px 4px rgba(69,26,3,0.06);
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .status-card:hover { box-shadow: 0 4px 16px rgba(69,26,3,0.14); transform: translateY(-2px); }
+  .status-card .sc-top { display: flex; align-items: center; justify-content: space-between; }
+  .status-card .sc-icon {
+    width: 40px; height: 40px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center; font-size: 20px;
+  }
+  .status-card .sc-badge {
+    font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 20px;
+  }
+  .status-card .sc-value { font-size: 30px; font-weight: 900; line-height: 1; }
+  .status-card .sc-label { font-size: 11px; color: var(--neutral); font-weight: 600; margin-top: 2px; }
+  .status-card .sc-hint  { font-size: 10px; color: var(--neutral); opacity: 0.6; }
+
+  .sc-all     .sc-icon { background: #f5f0ea; }
+  .sc-normal  .sc-icon { background: #f0fdf4; }
+  .sc-warning .sc-icon { background: #fffbeb; }
+  .sc-danger  .sc-icon { background: #fef2f2; }
+
+  .sc-all    .sc-value { color: var(--primary); }
+  .sc-normal .sc-value { color: var(--success); }
+  .sc-warning .sc-value { color: var(--warning); }
+  .sc-danger .sc-value  { color: var(--danger); }
+
+  .sc-all    .sc-badge { background: #f5f0ea; color: var(--primary); }
+  .sc-normal .sc-badge { background: #f0fdf4; color: var(--success); }
+  .sc-warning .sc-badge { background: #fffbeb; color: var(--warning); }
+  .sc-danger .sc-badge  { background: #fef2f2; color: var(--danger); }
+
+  /* 하단 차트 영역 */
+  .charts-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .chart-placeholder {
+    height: 200px; border-radius: 12px;
+    background: repeating-linear-gradient(
+      45deg, #f5f0ea 0, #f5f0ea 4px, #fdf8f2 4px, #fdf8f2 20px
+    );
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; color: var(--neutral);
+  }
+
+  /* ══════════════════════════════════════
+     SCREEN 2 — 대시보드(구)
+  ══════════════════════════════════════ */
+  #s-old-dashboard .page-header {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+  }
+  #s-old-dashboard .back-btn {
+    padding: 7px 14px; border-radius: 10px; font-size: 12px; font-weight: 700;
+    border: 1px solid var(--border); cursor: pointer; background: white;
+    color: var(--primary); transition: all 0.15s;
+  }
+  #s-old-dashboard .back-btn:hover { background: var(--surface); }
+  #s-old-dashboard .page-title { font-size: 16px; font-weight: 900; }
+
+  /* 2단 레이아웃: 좌(테이블) + 우(이벤트) */
+  .old-layout {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 16px;
+    align-items: start;
+  }
+
+  /* 좌측 — 필터 탭 + 테이블 */
+  .filter-tabs {
+    display: flex; gap: 6px; margin-bottom: 14px;
+  }
+  .tab-btn {
+    padding: 7px 16px; border-radius: 10px; font-size: 12px; font-weight: 700;
+    border: 1px solid var(--border); cursor: pointer; background: white;
+    color: var(--neutral); transition: all 0.15s;
+  }
+  .tab-btn:hover { border-color: var(--secondary); color: var(--secondary); }
+  .tab-btn.active-tab { color: white; border-color: transparent; }
+  .tab-btn.tab-all    { background: var(--primary); }
+  .tab-btn.tab-normal { background: var(--success); }
+  .tab-btn.tab-warn   { background: var(--warning); }
+  .tab-btn.tab-danger { background: var(--danger); }
+
+  .tab-count {
+    display: inline-block; font-size: 10px; font-weight: 900;
+    background: rgba(255,255,255,0.3); border-radius: 20px;
+    padding: 1px 6px; margin-left: 4px;
+  }
+
+  /* 테이블 */
+  .talent-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .talent-table th {
+    padding: 10px 14px; text-align: left; font-size: 10px; font-weight: 900;
+    color: var(--neutral); letter-spacing: 0.05em; text-transform: uppercase;
+    border-bottom: 2px solid var(--border); background: var(--surface);
+  }
+  .talent-table th:first-child { border-radius: 8px 0 0 0; }
+  .talent-table th:last-child  { border-radius: 0 8px 0 0; }
+  .talent-table td {
+    padding: 12px 14px; border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  .talent-table tr:hover td { background: var(--surface); }
+  .talent-table tr:last-child td { border-bottom: none; }
+
+  .name-cell { font-weight: 800; }
+  .name-sub  { font-size: 10px; color: var(--neutral); font-weight: 500; margin-top: 2px; }
+
+  .status-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;
+  }
+  .pill-available { background: #f0fdf4; color: var(--success); }
+  .pill-busy      { background: #fffbeb; color: var(--warning); }
+  .pill-rest      { background: #f3f4f6; color: var(--neutral); }
+
+  .score-badge {
+    font-size: 13px; font-weight: 900;
+  }
+  .score-high   { color: var(--success); }
+  .score-mid    { color: var(--warning); }
+  .score-low    { color: var(--danger); }
+
+  .alert-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;
+  }
+  .alert-none    { background: #f0fdf4; color: var(--success); }
+  .alert-warning { background: #fffbeb; color: var(--warning); }
+  .alert-danger  { background: #fef2f2; color: var(--danger); }
+
+  /* 우측 — 최근 이벤트 */
+  .events-panel { position: sticky; top: 0; }
+  .event-list   { max-height: 540px; overflow-y: auto; }
+  .event-item {
+    display: flex; gap: 10px; padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .event-item:last-child { border-bottom: none; }
+  .event-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    flex-shrink: 0; margin-top: 5px;
+  }
+  .evt-info    { background: #3b82f6; }
+  .evt-warn    { background: var(--warning); }
+  .evt-danger  { background: var(--danger); }
+  .evt-success { background: var(--success); }
+
+  .event-body  { flex: 1; }
+  .event-title { font-size: 12px; font-weight: 700; line-height: 1.4; }
+  .event-meta  { font-size: 10px; color: var(--neutral); margin-top: 3px; }
+
+  /* ── 기타 유틸 ── */
+  .tag {
+    display: inline-block; font-size: 10px; font-weight: 700;
+    padding: 2px 8px; border-radius: 6px;
+    background: #f5f0ea; color: var(--secondary);
+  }
+  .empty-row td {
+    text-align: center; padding: 40px;
+    font-size: 12px; color: var(--neutral);
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN 1 — 대시보드 (신)
+══════════════════════════════════════════════ -->
+<div id="s-dashboard" class="screen active">
+  <div class="topbar">
+    <span class="topbar-logo">🔗 Linker</span>
+    <div class="topbar-nav">
+      <button class="nav-btn active">대시보드</button>
+      <button class="nav-btn">전문가 관리</button>
+      <button class="nav-btn">프로젝트</button>
+      <button class="nav-btn">평가</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="greeting">
+      <h2>안녕하세요, 서비스 운영 현황입니다. 👋</h2>
+      <p>2026년 6월 11일 수요일 · <span style="color:var(--secondary);font-weight:700;">운영 중인 서버: 정상</span></p>
+    </div>
+
+    <!-- 4개 상태 카드 — 클릭하면 대시보드(구)로 이동 -->
+    <div class="status-cards">
+
+      <div class="status-card sc-all" onclick="goOld('all')">
+        <div class="sc-top">
+          <div class="sc-icon">📊</div>
+          <span class="sc-badge">전체</span>
+        </div>
+        <div>
+          <div class="sc-value">51</div>
+          <div class="sc-label">전체 전문가</div>
+        </div>
+        <div class="sc-hint">클릭하면 목록으로 →</div>
+      </div>
+
+      <div class="status-card sc-normal" onclick="goOld('normal')">
+        <div class="sc-top">
+          <div class="sc-icon">✅</div>
+          <span class="sc-badge">정상</span>
+        </div>
+        <div>
+          <div class="sc-value">38</div>
+          <div class="sc-label">정상 운영 중</div>
+        </div>
+        <div class="sc-hint">평가점수 3.5점 이상</div>
+      </div>
+
+      <div class="status-card sc-warning" onclick="goOld('warning')">
+        <div class="sc-top">
+          <div class="sc-icon">⚠️</div>
+          <span class="sc-badge">경고</span>
+        </div>
+        <div>
+          <div class="sc-value">9</div>
+          <div class="sc-label">경고 대상</div>
+        </div>
+        <div class="sc-hint">평가점수 2.0~3.5점</div>
+      </div>
+
+      <div class="status-card sc-danger" onclick="goOld('danger')">
+        <div class="sc-top">
+          <div class="sc-icon">🚨</div>
+          <span class="sc-badge">심각</span>
+        </div>
+        <div>
+          <div class="sc-value">4</div>
+          <div class="sc-label">심각 대상</div>
+        </div>
+        <div class="sc-hint">평가점수 2.0점 미만</div>
+      </div>
+
+    </div>
+
+    <!-- 차트 영역 (기존 유지) -->
+    <div class="charts-row">
+      <div class="card">
+        <div class="card-header">직무별 인력 구성</div>
+        <div class="chart-placeholder">도넛 차트 (기존 유지)</div>
+      </div>
+      <div class="card">
+        <div class="card-header">기술 등급별 분포</div>
+        <div class="chart-placeholder">도넛 차트 (기존 유지)</div>
+      </div>
+      <div class="card">
+        <div class="card-header">최근 등록된 전문가</div>
+        <div class="chart-placeholder">리스트 (기존 유지)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     SCREEN 2 — 대시보드 (구) — 2단 레이아웃
+══════════════════════════════════════════════ -->
+<div id="s-old-dashboard" class="screen">
+  <div class="topbar">
+    <span class="topbar-logo">🔗 Linker</span>
+    <div class="topbar-nav">
+      <button class="nav-btn" onclick="goOld('all')">대시보드</button>
+      <button class="nav-btn">전문가 관리</button>
+      <button class="nav-btn">프로젝트</button>
+      <button class="nav-btn">평가</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="page-header">
+      <button class="back-btn" onclick="goBack()">← 대시보드</button>
+      <span class="page-title" id="page-title">전체 전문가 현황</span>
+    </div>
+
+    <div class="old-layout">
+
+      <!-- ── 좌측: 필터 탭 + 테이블 ── -->
+      <div>
+        <div class="filter-tabs">
+          <button class="tab-btn active-tab tab-all"    onclick="setTab('all')"    id="tab-all">전체 <span class="tab-count">51</span></button>
+          <button class="tab-btn"                       onclick="setTab('normal')" id="tab-normal">정상 <span class="tab-count">38</span></button>
+          <button class="tab-btn"                       onclick="setTab('warning')" id="tab-warning">경고 <span class="tab-count">9</span></button>
+          <button class="tab-btn"                       onclick="setTab('danger')" id="tab-danger">심각 <span class="tab-count">4</span></button>
+        </div>
+
+        <div class="card" style="overflow:hidden">
+          <table class="talent-table" id="talent-table">
+            <thead>
+              <tr>
+                <th>전문가</th>
+                <th>직무 / 분야</th>
+                <th>기술 스택</th>
+                <th>가용 상태</th>
+                <th>평가 점수</th>
+                <th>알림 상태</th>
+              </tr>
+            </thead>
+            <tbody id="table-body">
+              <!-- JS로 채워짐 -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── 우측: 최근 이벤트 (기존 위치에서 이동) ── -->
+      <div class="events-panel">
+        <div class="card">
+          <div class="card-header">
+            <span>최근 이벤트</span>
+            <span style="font-size:10px;color:var(--neutral);font-weight:500;">실시간</span>
+          </div>
+          <div class="event-list">
+
+            <div class="event-item">
+              <div class="event-dot evt-danger"></div>
+              <div class="event-body">
+                <div class="event-title">김재원 전문가 평가점수 1.8 기록</div>
+                <div class="event-meta">심각 임계치 초과 · 3분 전</div>
+              </div>
+            </div>
+
+            <div class="event-item">
+              <div class="event-dot evt-warn"></div>
+              <div class="event-body">
+                <div class="event-title">이민아 전문가 계약 만료 D-7</div>
+                <div class="event-meta">계약 종료 예정 · 15분 전</div>
+              </div>
+            </div>
+
+            <div class="event-item">
+              <div class="event-dot evt-success"></div>
+              <div class="event-body">
+                <div class="event-title">박성현 전문가 신규 등록</div>
+                <div class="event-meta">백엔드 개발자 · 32분 전</div>
+              </div>
+            </div>
+
+            <div class="event-item">
+              <div class="event-dot evt-warn"></div>
+              <div class="event-body">
+                <div class="event-title">최우진 가용상태 → 수행 중 변경</div>
+                <div class="event-meta">프로젝트 투입 · 1시간 전</div>
+              </div>
+            </div>
+
+            <div class="event-item">
+              <div class="event-dot evt-info"></div>
+              <div class="event-body">
+                <div class="event-title">물류 시스템 고도화 프로젝트 매칭 완료</div>
+                <div class="event-meta">PM: 홍길동 · 2시간 전</div>
+              </div>
+            </div>
+
+            <div class="event-item">
+              <div class="event-dot evt-danger"></div>
+              <div class="event-body">
+                <div class="event-title">정우영 전문가 연속 3회 미평가</div>
+                <div class="event-meta">후속 조치 필요 · 3시간 전</div>
+              </div>
+            </div>
+
+            <div class="event-item">
+              <div class="event-dot evt-success"></div>
+              <div class="event-body">
+                <div class="event-title">임헌진 이력서 AI 분석 완료</div>
+                <div class="event-meta">프로젝트 21건 추출 · 4시간 전</div>
+              </div>
+            </div>
+
+            <div class="event-item">
+              <div class="event-dot evt-info"></div>
+              <div class="event-body">
+                <div class="event-title">정산 처리 완료 — 5월분 12건</div>
+                <div class="event-meta">자동 정산 · 어제 18:00</div>
+              </div>
+            </div>
+
+            <div class="event-item">
+              <div class="event-dot evt-warn"></div>
+              <div class="event-body">
+                <div class="event-title">안두리 희망단가 변경 요청</div>
+                <div class="event-meta">검토 대기 · 어제 14:22</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end old-layout -->
+  </div>
+</div>
+
+
+<script>
+// ── Mock 데이터 ──────────────────────────────────────────────────────────────
+const TALENTS = [
+  { name: '임헌진', nameEn: 'LIM HEON JIN', job: '백엔드 개발자', field: 'Java / Spring', skills: ['Java', 'Spring', 'Oracle'], avail: 'available', score: 4.8, alert: 'none' },
+  { name: '김종현', nameEn: 'KIM JONG HYUN', job: '프론트엔드 개발자', field: 'React / TypeScript', skills: ['React', 'TypeScript', 'Vue'], avail: 'available', score: 4.3, alert: 'none' },
+  { name: '최문기', nameEn: 'CHOI MUN GI', job: '아키텍트', field: '시스템 설계', skills: ['MSA', 'K8s', 'AWS'], avail: 'busy', score: 4.6, alert: 'none' },
+  { name: '백승태', nameEn: 'BAEK SEUNG TAE', job: '데이터 엔지니어', field: 'AI / ML', skills: ['Python', 'Spark', 'Hadoop'], avail: 'available', score: 3.9, alert: 'none' },
+  { name: '정우영', nameEn: 'JUNG WOO YOUNG', job: '백엔드 개발자', field: 'Node.js', skills: ['Node.js', 'MongoDB', 'Redis'], avail: 'rest', score: 3.2, alert: 'warning' },
+  { name: '안두리', nameEn: 'AN DU RI', job: '풀스택 개발자', field: 'React / Django', skills: ['React', 'Django', 'PostgreSQL'], avail: 'available', score: 3.6, alert: 'none' },
+  { name: '반용태', nameEn: 'BAN YONG TAE', job: '모바일 개발자', field: 'iOS / Android', skills: ['Swift', 'Kotlin', 'React Native'], avail: 'busy', score: 2.8, alert: 'warning' },
+  { name: '이현우', nameEn: 'LEE HYUN WOO', job: '백엔드 개발자', field: 'MSA / DevOps', skills: ['Java', 'Docker', 'Kubernetes'], avail: 'available', score: 4.1, alert: 'none' },
+  { name: '김동환', nameEn: 'KIM DONG HWAN', job: '데이터 분석가', field: 'BI / Analytics', skills: ['Python', 'Tableau', 'SQL'], avail: 'available', score: 1.9, alert: 'danger' },
+  { name: '유동오', nameEn: 'YU DONG OH', job: '보안 전문가', field: 'Network / Security', skills: ['Firewall', 'ISMS', 'Splunk'], avail: 'rest', score: 2.4, alert: 'warning' },
+  { name: '장재현', nameEn: 'JANG JAE HYUN', job: '백엔드 개발자', field: 'Python / FastAPI', skills: ['Python', 'FastAPI', 'Redis'], avail: 'available', score: 1.5, alert: 'danger' },
+  { name: '조원희', nameEn: 'JO WON HEE', job: '프론트엔드 개발자', field: 'Vue / Nuxt', skills: ['Vue', 'Nuxt', 'Figma'], avail: 'busy', score: 3.8, alert: 'none' },
+  { name: '박성현', nameEn: 'PARK SUNG HYUN', job: '백엔드 개발자', field: 'Java / JPA', skills: ['Java', 'JPA', 'MySQL'], avail: 'available', score: 4.0, alert: 'none' },
+  { name: '이민아', nameEn: 'LEE MIN A', job: 'UX 디자이너', field: 'Design System', skills: ['Figma', 'Notion', 'Zeplin'], avail: 'busy', score: 4.5, alert: 'warning' },
+  { name: '김재원', nameEn: 'KIM JAE WON', job: '인프라 엔지니어', field: 'Cloud / DevOps', skills: ['AWS', 'Terraform', 'Jenkins'], avail: 'available', score: 1.8, alert: 'danger' },
+]
+
+const AVAIL_LABEL = { available: '투입 가능', busy: '수행 중', rest: '투입대기' }
+const AVAIL_CLASS = { available: 'pill-available', busy: 'pill-busy', rest: 'pill-rest' }
+const ALERT_LABEL = { none: '정상', warning: '경고', danger: '심각' }
+const ALERT_CLASS = { none: 'alert-none', warning: 'alert-warning', danger: 'alert-danger' }
+
+let currentTab = 'all'
+let currentFilter = 'all'
+
+function getFiltered(tab) {
+  if (tab === 'all')     return TALENTS
+  if (tab === 'normal')  return TALENTS.filter(t => t.alert === 'none')
+  if (tab === 'warning') return TALENTS.filter(t => t.alert === 'warning')
+  if (tab === 'danger')  return TALENTS.filter(t => t.alert === 'danger')
+  return TALENTS
+}
+
+function scoreClass(s) {
+  if (s >= 3.5) return 'score-high'
+  if (s >= 2.0) return 'score-mid'
+  return 'score-low'
+}
+
+function renderTable(tab) {
+  const rows = getFiltered(tab)
+  const tbody = document.getElementById('table-body')
+
+  if (rows.length === 0) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="6">해당 상태의 전문가가 없습니다.</td></tr>'
+    return
+  }
+
+  tbody.innerHTML = rows.map(t => `
+    <tr>
+      <td>
+        <div class="name-cell">${t.name}</div>
+        <div class="name-sub">${t.nameEn}</div>
+      </td>
+      <td>
+        <div style="font-size:12px;font-weight:700;">${t.job}</div>
+        <div class="name-sub">${t.field}</div>
+      </td>
+      <td>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;">
+          ${t.skills.slice(0,3).map(s => `<span class="tag">${s}</span>`).join('')}
+        </div>
+      </td>
+      <td><span class="status-pill ${AVAIL_CLASS[t.avail]}">${AVAIL_LABEL[t.avail]}</span></td>
+      <td><span class="score-badge ${scoreClass(t.score)}">${t.score.toFixed(1)}점</span></td>
+      <td><span class="alert-pill ${ALERT_CLASS[t.alert]}">${ALERT_LABEL[t.alert]}</span></td>
+    </tr>
+  `).join('')
+}
+
+function setTab(tab) {
+  currentTab = tab
+  const tabs = ['all', 'normal', 'warning', 'danger']
+  const activeClasses = { all: 'tab-all', normal: 'tab-normal', warning: 'tab-warn', danger: 'tab-danger' }
+
+  tabs.forEach(t => {
+    const el = document.getElementById('tab-' + t)
+    el.className = 'tab-btn'
+    if (t === tab) {
+      el.classList.add('active-tab', activeClasses[t])
+    }
+  })
+
+  const titles = { all: '전체 전문가 현황', normal: '정상 전문가 현황', warning: '경고 대상 현황', danger: '심각 대상 현황' }
+  document.getElementById('page-title').textContent = titles[tab]
+  renderTable(tab)
+}
+
+function goOld(filter) {
+  document.getElementById('s-dashboard').classList.remove('active')
+  document.getElementById('s-old-dashboard').classList.add('active')
+  setTab(filter)
+}
+
+function goBack() {
+  document.getElementById('s-old-dashboard').classList.remove('active')
+  document.getElementById('s-dashboard').classList.add('active')
+}
+
+// 초기 렌더
+renderTable('all')
+</script>
+</body>
+</html>

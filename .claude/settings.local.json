@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh run *)",
+      "Bash(git push *)",
+      "Bash(./gradlew test *)",
+      "Bash(cd /e/linker && ls backend/src/main/resources/db/migration/ | sed -E 's/^\\(V[0-9]+\\)__.*/\\\\1/' | sort | uniq -d)",
+      "Read(//e/e/linker/backend/src/main/resources/db/**)",
+      "Bash(xargs grep -l \"service-admin/talents\")"
+    ]
+  }
+}

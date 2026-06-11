@@ -33,12 +33,13 @@ const CAT_LABELS: Record<string, string> = {
   PM: 'PM/PL', ANALYST: 'DA', DESIGNER: '디자이너',
 }
 const AWARD_STATUS_LABELS: Record<string, string> = {
-  REVIEWING: '검토중', WON: '수주확정', LOST: '실주',
+  REVIEWING: '검토중', WON: '수주확정', LOST: '실주', WITHDRAWN: '철회',
 }
 const AWARD_BADGE: Record<string, string> = {
   REVIEWING: 'bg-amber-50 text-amber-700',
   WON:       'bg-emerald-50 text-emerald-700',
   LOST:      'bg-red-50 text-red-600',
+  WITHDRAWN: 'bg-slate-100 text-slate-600 border border-slate-200',
 }
 
 type SkillRow = { role: string; headcount: number; mm?: number; techStack?: string; roleStart?: string; roleEnd?: string; workLocation?: string }
@@ -613,6 +614,7 @@ function ProjectEditModal({ project, onClose }: { project: ProjectDetail; onClos
                   <option value="REVIEWING">검토중</option>
                   <option value="WON">수주확정</option>
                   <option value="LOST">실주</option>
+                  <option value="WITHDRAWN">철회</option>
                 </select>
               </div>
               <div>

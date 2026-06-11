@@ -23,7 +23,7 @@ export function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center pt-24 overflow-hidden">
+      <section className="relative py-16 flex items-center overflow-hidden">
         {/* Background gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-amber-50 via-background to-orange-50 opacity-60" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/50 to-background" />
@@ -32,7 +32,7 @@ export function LandingPage() {
         <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-secondary/10 rounded-full blur-3xl -z-0 pointer-events-none" />
         <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-accent/30 rounded-full blur-3xl -z-0 pointer-events-none" />
 
-        <div className="max-w-[1440px] mx-auto px-10 relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
+        <div className="max-w-[1440px] mx-auto px-10 relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="animate-fade-in-up">
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-secondary/10 border border-secondary/20 text-secondary text-xs font-black uppercase tracking-widest mb-10">
@@ -96,7 +96,7 @@ export function LandingPage() {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-32 bg-white relative overflow-hidden">
+      <section id="features" className="py-20 bg-white relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center max-w-3xl mx-auto mb-20">
             <h2 className="text-4xl md:text-5xl font-black mb-6 tracking-tight">
@@ -139,8 +139,8 @@ export function LandingPage() {
       </section>
 
       {/* Role-based Sections */}
-      <section id="business" className="py-32 bg-primary text-white overflow-hidden relative">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-20">
+      <section id="business" className="py-20 bg-primary text-white overflow-hidden relative">
+        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12">
 
           {/* Business Side */}
           <div className="space-y-10 lg:border-r lg:border-white/10 lg:pr-20">
@@ -207,7 +207,7 @@ export function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="py-20 bg-surface border-t border-border/20">
+      <footer className="py-12 bg-surface border-t border-border/20">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-10">
             <div className="flex items-center gap-2">
