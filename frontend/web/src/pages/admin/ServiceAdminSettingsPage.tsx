@@ -1136,7 +1136,31 @@ function ContractorsTab({ initial }: { initial: MasterData }) {
                     placeholder="계좌번호" />
                 </div>
               </td>
-              <td className="px-2 py-2"><span className="text-xs text-primary/30">추가 후 수정에서 첨부</span></td>
+              <td className="px-2 py-2">
+                <AttachmentCell
+                  attachments={newItem.attachments ?? []}
+                  uploading={uploadingIdx === -1}
+                  onUpload={async (file, name) => {
+                    setUploadingIdx(-1)
+                    try {
+                      const res = await settingsApi.analyzeContractorDocument(file, name)
+                      const att = { key: res.data.key, name: res.data.name }
+                      const patch: Record<string, any> = { attachments: [...(newItem.attachments ?? []), att] }
+                      if (res.data.registrationNo) patch.registrationNo = res.data.registrationNo
+                      if (res.data.phone) patch.phone = res.data.phone
+                      if (res.data.bankName || res.data.bankAccount) {
+                        patch.bankAccount = combineBankAccount(res.data.bankName ?? '', res.data.bankAccount ?? '')
+                      }
+                      setNewItem(r => ({ ...r, ...patch }))
+                      const filled = [res.data.registrationNo, res.data.phone, res.data.bankAccount].filter(Boolean)
+                      if (filled.length > 0) addToast('AI가 문서에서 정보를 자동 입력했습니다.', 'success')
+                    } catch { addToast('파일 업로드에 실패했습니다.', 'error') }
+                    finally { setUploadingIdx(null) }
+                  }}
+                  onDelete={att => setNewItem(r => ({ ...r, attachments: (r.attachments ?? []).filter(a => a.key !== att.key) }))}
+                  onDownload={async att => { const res = await settingsApi.getAttachmentDownloadUrl(att.key); window.open(res.data.url, '_blank') }}
+                />
+              </td>
               <td className="px-2 py-2"></td>
               <td className="px-2 py-2 text-center">
                 <button onClick={addItem} disabled={!newItem.name.trim()}
@@ -1482,7 +1506,21 @@ function ReferralTab({ initial }: { initial: MasterData }) {
                     placeholder="계좌번호" />
                 </div>
               </td>
-              <td className="px-2 py-2"><span className="text-xs text-primary/30">추가 후 수정에서 첨부</span></td>
+              <td className="px-2 py-2">
+                <AttachmentCell
+                  attachments={newRef.attachments ?? []}
+                  uploading={uploadingIdx === -1}
+                  onUpload={async (file, name) => {
+                    setUploadingIdx(-1)
+                    try {
+                      const res = await settingsApi.uploadReferralAttachment(file, name)
+                      setNewRef(r => ({ ...r, attachments: [...(r.attachments ?? []), res.data] }))
+                    } finally { setUploadingIdx(null) }
+                  }}
+                  onDelete={att => setNewRef(r => ({ ...r, attachments: (r.attachments ?? []).filter(a => a.key !== att.key) }))}
+                  onDownload={async att => { const res = await settingsApi.getAttachmentDownloadUrl(att.key); window.open(res.data.url, '_blank') }}
+                />
+              </td>
               <td className="px-2 py-2 text-center">
                 <button onClick={addSource} disabled={!newRef.name.trim()}
                   className="px-3 py-1.5 bg-secondary/5 border border-secondary/20 text-secondary text-xs font-black rounded-xl hover:bg-secondary hover:text-white transition-all disabled:opacity-30">
