@@ -21,7 +21,8 @@ public record ProjectAnalysisResult(
         String roleStart,
         String roleEnd,
         String techStack,
-        String roleDescription
+        String roleDescription,
+        String skillGrade
     ) {}
 
     public static ProjectAnalysisResult empty() {

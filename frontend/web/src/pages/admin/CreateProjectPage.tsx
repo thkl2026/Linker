@@ -24,6 +24,7 @@ interface RoleRow {
   roleStart: string
   roleEnd: string
   techStack: string
+  skillGrade?: string
 }
 
 function genId(): string {
@@ -32,7 +33,7 @@ function genId(): string {
 }
 
 function initRole(): RoleRow {
-  return { id: genId(), role: '프론트엔드 개발자', roleDescription: '', headcount: 1, mm: 1, roleStart: '', roleEnd: '', techStack: '' }
+  return { id: genId(), role: '프론트엔드 개발자', roleDescription: '', headcount: 1, mm: 1, roleStart: '', roleEnd: '', techStack: '', skillGrade: '' }
 }
 
 function initials(name: string | null): string {
@@ -136,6 +137,7 @@ export function CreateProjectPage() {
           roleStart: r.roleStart || startDate || '',
           roleEnd: r.roleEnd || endDate || '',
           techStack: r.techStack || '',
+          skillGrade: r.skillGrade || '',
         }));
         setRoles(newRoles);
       } else if (result.data.title) { // If title is present but no roles, reset to default role
@@ -164,7 +166,7 @@ export function CreateProjectPage() {
       startDate: startDate || undefined,
       endDate: endDate || undefined,
       requiredSkills: roles.length > 0
-        ? JSON.stringify(roles.map(r => ({ role: r.role, roleDescription: r.role === '기타' ? r.roleDescription : undefined, headcount: r.headcount, mm: r.mm, roleStart: r.roleStart, roleEnd: r.roleEnd, techStack: r.techStack })))
+        ? JSON.stringify(roles.map(r => ({ role: r.role, roleDescription: r.role === '기타' ? r.roleDescription : undefined, headcount: r.headcount, mm: r.mm, roleStart: r.roleStart, roleEnd: r.roleEnd, techStack: r.techStack, skillGrade: r.skillGrade || undefined })))
         : undefined,
       requiredHeadcount: totalHeadcount || undefined,
       pmId: selectedPmId || undefined,
@@ -430,9 +432,9 @@ export function CreateProjectPage() {
               <div className="space-y-3">
                 {roles.map(row => (
                   <div key={row.id} className="p-4 bg-surface/30 rounded-2xl border border-border/20 space-y-3">
-                    {/* Row 1: 역할 / 인원 / MM / 삭제 */}
+                    {/* Row 1: 역할 / 기술등급 / 인원 / MM / 삭제 */}
                     <div className="grid grid-cols-12 gap-3 items-center">
-                      <div className="col-span-5">
+                      <div className="col-span-4">
                         <select
                           value={row.role}
                           onChange={e => updateRole(row.id, { role: e.target.value })}
@@ -442,6 +444,19 @@ export function CreateProjectPage() {
                         </select>
                       </div>
                       <div className="col-span-3">
+                        <select
+                          value={row.skillGrade ?? ''}
+                          onChange={e => updateRole(row.id, { skillGrade: e.target.value })}
+                          className="w-full bg-white border border-border/50 rounded-xl px-4 py-2.5 text-sm font-bold focus:outline-none focus:border-secondary transition-all bg-white"
+                        >
+                          <option value="">등급 선택 안 함</option>
+                          <option value="초급">초급</option>
+                          <option value="중급">중급</option>
+                          <option value="고급">고급</option>
+                          <option value="특급">특급</option>
+                        </select>
+                      </div>
+                      <div className="col-span-2">
                         <div className="flex items-center bg-white border border-border/50 rounded-xl px-3 py-2">
                           <input
                             type="number"
@@ -454,7 +469,7 @@ export function CreateProjectPage() {
                           <span className="text-[10px] font-bold text-primary/30 ml-1 shrink-0">명</span>
                         </div>
                       </div>
-                      <div className="col-span-3">
+                      <div className="col-span-2">
                         <div className="flex items-center bg-white border border-border/50 rounded-xl px-3 py-2">
                           <input
                             type="number"

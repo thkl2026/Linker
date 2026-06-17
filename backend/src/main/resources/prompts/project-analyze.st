@@ -30,6 +30,7 @@
   UI/UX 디자이너 | UI/UX 기획자 | 웹 디자이너 | QA 엔지니어 | DevOps 엔지니어 |
   데이터 엔지니어 | AI/ML 엔지니어 | IT 컨설턴트 | 비즈니스 컨설턴트 | ERP 컨설턴트 |
   시스템 운영 엔지니어 | 네트워크 엔지니어 | 보안 엔지니어 | 클라우드 엔지니어 | 기타
+- skillGrade: "초급" | "중급" | "고급" | "특급" 중 하나 선택 (명시된 경우만, 없으면 null)
 - roleDescription: role이 "기타"인 경우 실제 역할명 기재, 나머지는 null
 - 값을 알 수 없거나 불확실하면 null — 절대 추측 금지
 
@@ -39,13 +40,13 @@
 주사업자: (주)씽클레어
 프로젝트 기간: 2024년 8월 ~ 2025년 2월 (7개월)
 투입 인력:
-- Java 백엔드 개발자 3명 (Spring Boot, Oracle, 7M/M)
-- 프론트엔드 개발자 1명 (React, TypeScript, 5M/M, 2024.10~2025.02)
+- Java 고급 백엔드 개발자 3명 (Spring Boot, Oracle, 7M/M)
+- 초급 프론트엔드 개발자 1명 (React, TypeScript, 5M/M, 2024.10~2025.02)
 - PM 1명 (전 기간)
 빠른 회신 부탁드립니다.
 
 ### EXAMPLE OUTPUT:
-{"title":"B은행 차세대 뱅킹 시스템 구축","clientCompany":"B은행","mainContractor":"(주)씽클레어","startDate":"2024-08-01","endDate":"2025-02-28","roles":[{"role":"백엔드 개발자","headcount":3,"mm":7.0,"roleStart":"2024-08-01","roleEnd":"2025-02-28","techStack":"Java, Spring Boot, Oracle","roleDescription":null},{"role":"프론트엔드 개발자","headcount":1,"mm":5.0,"roleStart":"2024-10-01","roleEnd":"2025-02-28","techStack":"React, TypeScript","roleDescription":null},{"role":"PM/PL","headcount":1,"mm":7.0,"roleStart":"2024-08-01","roleEnd":"2025-02-28","techStack":null,"roleDescription":null}]}
+{"title":"B은행 차세대 뱅킹 시스템 구축","clientCompany":"B은행","mainContractor":"(주)씽클레어","startDate":"2024-08-01","endDate":"2025-02-28","roles":[{"role":"백엔드 개발자","headcount":3,"mm":7.0,"roleStart":"2024-08-01","roleEnd":"2025-02-28","techStack":"Java, Spring Boot, Oracle","roleDescription":null,"skillGrade":"고급"},{"role":"프론트엔드 개발자","headcount":1,"mm":5.0,"roleStart":"2024-10-01","roleEnd":"2025-02-28","techStack":"React, TypeScript","roleDescription":null,"skillGrade":"초급"},{"role":"PM/PL","headcount":1,"mm":7.0,"roleStart":"2024-08-01","roleEnd":"2025-02-28","techStack":null,"roleDescription":null,"skillGrade":null}]}
 
 ### OUTPUT FORMAT (ONLY JSON, no markdown, no explanation):
 {"title":null,"clientCompany":null,"mainContractor":null,"startDate":null,"endDate":null,"roles":[]}

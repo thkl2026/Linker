@@ -42,7 +42,7 @@ const AWARD_BADGE: Record<string, string> = {
   WITHDRAWN: 'bg-slate-100 text-slate-600 border border-slate-200',
 }
 
-type SkillRow = { role: string; headcount: number; mm?: number; techStack?: string; roleStart?: string; roleEnd?: string; workLocation?: string }
+type SkillRow = { role: string; headcount: number; mm?: number; techStack?: string; roleStart?: string; roleEnd?: string; workLocation?: string; skillGrade?: string }
 
 function fmt(d: string | null | undefined) {
   return d ? d.slice(0, 10).replace(/-/g, '.') : '-'
@@ -680,10 +680,23 @@ function SkillEditModal({ initial, onSave, onClose }: {
           {initial.role ? '역할 수정' : '역할 추가'}
         </h3>
         <div className="space-y-3">
-          <div>
-            <label className="block text-[11px] font-black text-primary/40 uppercase mb-1">역할명 *</label>
-            <input value={form.role} onChange={e => set('role', e.target.value)}
-              className="w-full border border-border/50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary" placeholder="예: 보안 엔지니어" />
+          <div className="flex gap-3">
+            <div className="flex-[2]">
+              <label className="block text-[11px] font-black text-primary/40 uppercase mb-1">역할명 *</label>
+              <input value={form.role} onChange={e => set('role', e.target.value)}
+                className="w-full border border-border/50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary" placeholder="예: 보안 엔지니어" />
+            </div>
+            <div className="flex-[1]">
+              <label className="block text-[11px] font-black text-primary/40 uppercase mb-1">기술등급</label>
+              <select value={form.skillGrade ?? ''} onChange={e => set('skillGrade', e.target.value)}
+                className="w-full border border-border/50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary bg-white">
+                <option value="">선택 안 함</option>
+                <option value="초급">초급</option>
+                <option value="중급">중급</option>
+                <option value="고급">고급</option>
+                <option value="특급">특급</option>
+              </select>
+            </div>
           </div>
           <div className="flex gap-3">
             <div className="flex-1">
@@ -755,6 +768,11 @@ function SkillRowItem({ skill, positionMembers, onAssign, onEdit, onDelete }: {
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-3 flex-wrap">
           <span className="text-sm font-bold text-primary">{skill.role}</span>
+          {skill.skillGrade && (
+            <span className="px-2 py-0.5 bg-secondary/10 text-secondary border border-secondary/20 rounded-lg text-[10px] font-semibold">
+              {skill.skillGrade}
+            </span>
+          )}
           {/* 배정 현황 뱃지 */}
           <span className={`text-xs font-black px-2 py-0.5 rounded-full ${
             isFull ? 'bg-emerald-50 text-emerald-600' :

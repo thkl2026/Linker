@@ -942,7 +942,7 @@ function ContractorsTab({ initial }: { initial: MasterData }) {
   const qc = useQueryClient()
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { setItems(initial.contractors) }, [initial.contractors.length])
+  useEffect(() => { setItems(initial.contractors) }, [JSON.stringify(initial.contractors)])
 
   const { mutate, isPending } = useMutation({
     mutationFn: () => settingsApi.saveMasterData({ ...initial, contractors: items }),
@@ -953,8 +953,12 @@ function ContractorsTab({ initial }: { initial: MasterData }) {
     onError: () => addToast('저장에 실패했습니다.', 'error'),
   })
 
-  function update(idx: number, patch: Partial<Contractor>) {
-    setItems(s => s.map((r, i) => i === idx ? { ...r, ...patch } : r))
+  function update(idx: number, patchOrFn: Partial<Contractor> | ((prev: Contractor) => Partial<Contractor>)) {
+    setItems(s => s.map((r, i) => {
+      if (i !== idx) return r
+      const patch = typeof patchOrFn === 'function' ? patchOrFn(r) : patchOrFn
+      return { ...r, ...patch }
+    }))
   }
 
   function remove(idx: number) {
@@ -1020,7 +1024,7 @@ function ContractorsTab({ initial }: { initial: MasterData }) {
                     <td className="px-2 py-1.5">
                       <div className="flex flex-row gap-1">
                         <select className={inputCls} value={parseBankAccount(r.bankAccount).bank}
-                          onChange={e => update(idx, { bankAccount: combineBankAccount(e.target.value, parseBankAccount(r.bankAccount).account) })}>
+                          onChange={e => update(idx, prev => ({ bankAccount: combineBankAccount(e.target.value, parseBankAccount(prev.bankAccount).account) }))}>
                           <option value="">은행 선택</option>
                           {BANK_LIST.map(g => (
                             <optgroup key={g.group} label={g.group}>
@@ -1029,7 +1033,7 @@ function ContractorsTab({ initial }: { initial: MasterData }) {
                           ))}
                         </select>
                         <input className={inputCls} value={parseBankAccount(r.bankAccount).account}
-                          onChange={e => update(idx, { bankAccount: combineBankAccount(parseBankAccount(r.bankAccount).bank, e.target.value) })}
+                          onChange={e => update(idx, prev => ({ bankAccount: combineBankAccount(parseBankAccount(prev.bankAccount).bank, e.target.value) }))}
                           placeholder="계좌번호" />
                       </div>
                     </td>
@@ -1259,7 +1263,7 @@ function ReferralTab({ initial }: { initial: MasterData }) {
   const qc = useQueryClient()
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { setSources(initial.referralSources ?? []) }, [initial.referralSources?.length])
+  useEffect(() => { setSources(initial.referralSources ?? []) }, [JSON.stringify(initial.referralSources)])
 
   const { mutate, isPending } = useMutation({
     mutationFn: () => settingsApi.saveMasterData({ ...initial, referralSources: sources }),
@@ -1270,8 +1274,12 @@ function ReferralTab({ initial }: { initial: MasterData }) {
     onError: () => addToast('저장에 실패했습니다.', 'error'),
   })
 
-  function update(idx: number, patch: Partial<ReferralSource>) {
-    setSources(s => s.map((r, i) => i === idx ? { ...r, ...patch } : r))
+  function update(idx: number, patchOrFn: Partial<ReferralSource> | ((prev: ReferralSource) => Partial<ReferralSource>)) {
+    setSources(s => s.map((r, i) => {
+      if (i !== idx) return r
+      const patch = typeof patchOrFn === 'function' ? patchOrFn(r) : patchOrFn
+      return { ...r, ...patch }
+    }))
   }
 
   function removeSelected() {
@@ -1389,7 +1397,7 @@ function ReferralTab({ initial }: { initial: MasterData }) {
                     <td className="px-2 py-1.5">
                       <div className="flex flex-row gap-1">
                         <select className={refInputCls} value={parseBankAccount(r.bankAccount).bank}
-                          onChange={e => update(idx, { bankAccount: combineBankAccount(e.target.value, parseBankAccount(r.bankAccount).account) })}>
+                          onChange={e => update(idx, prev => ({ bankAccount: combineBankAccount(e.target.value, parseBankAccount(prev.bankAccount).account) }))}>
                           <option value="">은행 선택</option>
                           {BANK_LIST.map(g => (
                             <optgroup key={g.group} label={g.group}>
@@ -1398,7 +1406,7 @@ function ReferralTab({ initial }: { initial: MasterData }) {
                           ))}
                         </select>
                         <input className={refInputCls} value={parseBankAccount(r.bankAccount).account}
-                          onChange={e => update(idx, { bankAccount: combineBankAccount(parseBankAccount(r.bankAccount).bank, e.target.value) })}
+                          onChange={e => { const v = e.target.value; update(idx, prev => ({ bankAccount: combineBankAccount(parseBankAccount(prev.bankAccount).bank, v) })) }}
                           placeholder="계좌번호" />
                       </div>
                     </td>
@@ -1410,10 +1418,10 @@ function ReferralTab({ initial }: { initial: MasterData }) {
                           setUploadingIdx(idx)
                           try {
                             const res = await settingsApi.uploadReferralAttachment(file, name)
-                            update(idx, { attachments: [...(r.attachments ?? []), res.data] })
+                            update(idx, prev => ({ attachments: [...(prev.attachments ?? []), res.data] }))
                           } finally { setUploadingIdx(null) }
                         }}
-                        onDelete={att => update(idx, { attachments: (r.attachments ?? []).filter(a => a.key !== att.key) })}
+                        onDelete={att => update(idx, prev => ({ attachments: (prev.attachments ?? []).filter(a => a.key !== att.key) }))}
                         onDownload={async att => { const res = await settingsApi.getAttachmentDownloadUrl(att.key); window.open(res.data.url, '_blank') }}
                       />
                     </td>

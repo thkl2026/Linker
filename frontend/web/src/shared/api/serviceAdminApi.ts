@@ -387,6 +387,7 @@ export interface ProjectAnalysisResult {
     roleEnd?: string
     techStack?: string
     roleDescription?: string
+    skillGrade?: string
   }[]
 }
 
