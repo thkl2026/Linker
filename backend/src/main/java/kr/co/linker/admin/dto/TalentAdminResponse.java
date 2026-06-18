@@ -18,6 +18,7 @@ public record TalentAdminResponse(
         String name,
         String nameEn,
         String phone,
+        String email,
         TalentCategory category,
         TalentField field,
         List<TalentField> secondaryFields,
@@ -40,7 +41,7 @@ public record TalentAdminResponse(
 ) {
     private static final Logger log = LoggerFactory.getLogger(TalentAdminResponse.class);
 
-    public static TalentAdminResponse from(TalentProfile p, String decryptedPhone, String photoUrl, String resumeUrl) {
+    public static TalentAdminResponse from(TalentProfile p, String decryptedPhone, String decryptedEmail, String photoUrl, String resumeUrl) {
         List<String> skillNames;
         try {
             skillNames = p.getSkills().stream().map(s -> s.getSkillName()).toList();
@@ -60,6 +61,7 @@ public record TalentAdminResponse(
         return new TalentAdminResponse(
                 p.getId(), p.getUserId(), p.getName(), p.getNameEn(),
                 decryptedPhone,
+                decryptedEmail,
                 p.getCategory(), p.getField(),
                 secondaryFields,
                 p.getAvailabilityStatus(), p.getWorkType(),

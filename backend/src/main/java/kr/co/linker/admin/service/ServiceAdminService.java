@@ -96,7 +96,7 @@ public class ServiceAdminService {
                     ? fileStorageService.generateDownloadUrl(p.getPhotoKey(),  java.time.Duration.ofHours(1)) : null;
             String resumeUrl = p.getResumeKey() != null
                     ? fileStorageService.generateDownloadUrl(p.getResumeKey(), java.time.Duration.ofHours(1)) : null;
-            return TalentAdminResponse.from(p, decryptPhone(p), photoUrl, resumeUrl);
+            return TalentAdminResponse.from(p, decryptPhone(p), decryptEmail(p), photoUrl, resumeUrl);
         });
     }
 
@@ -162,8 +162,13 @@ public class ServiceAdminService {
             try { birth = java.time.LocalDate.parse(req.birthDate()); } catch (Exception ignored) {}
         }
         
+        String encryptedEmail = null;
+        if (req.email() != null && !req.email().isBlank()) {
+            encryptedEmail = encryptionService.encrypt(req.email());
+        }
+        
         profile.updateProfile(req.name(), trunc(req.nameEn(), 100), req.desiredRate(),
-                              req.category(), req.field(), workType, birth, req.email(),
+                              req.category(), req.field(), workType, birth, encryptedEmail,
                               trunc(req.address(), 200), trunc(req.title(), 50), trunc(req.projectRole(), 100));
 
         if (req.skills() != null) {
@@ -265,7 +270,7 @@ public class ServiceAdminService {
         profile.updateProfile(req.name(),
                               trunc(req.nameEn() != null ? req.nameEn() : profile.getNameEn(), 100),
                               req.desiredRate(), category, field, workType, birth,
-                              req.email() != null ? req.email() : profile.getEmail(),
+                              req.email() != null ? (req.email().isBlank() ? null : encryptionService.encrypt(req.email())) : profile.getEmail(),
                               trunc(req.address() != null ? req.address() : profile.getAddress(), 200),
                               trunc(req.title() != null ? req.title() : profile.getTitle(), 50),
                               trunc(req.projectRole() != null ? req.projectRole() : profile.getProjectRole(), 100));
@@ -836,6 +841,12 @@ public class ServiceAdminService {
         if (p.getPhone() == null) return null;
         try { return encryptionService.decrypt(p.getPhone()); }
         catch (Exception e) { return "***"; }
+    }
+
+    private String decryptEmail(TalentProfile p) {
+        if (p.getEmail() == null) return null;
+        try { return encryptionService.decrypt(p.getEmail()); }
+        catch (Exception e) { return p.getEmail(); }
     }
 
     private String decryptSafe(String encrypted) {
