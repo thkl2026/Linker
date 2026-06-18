@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useUiStore } from '@/store/uiStore'
 import { HelpPanel, HelpButton } from '@/shared/components/HelpPanel'
+import { ContractorRegisterModal } from '@/shared/components/ContractorRegisterModal'
 import { helpServiceAdminSettings } from '@/shared/help/helpContent'
 import {
   settingsApi,
@@ -926,12 +927,11 @@ function MasterDataTab({ initial }: { initial: MasterData }) {
 }
 
 // ─── Contractors tab ──────────────────────────────────────────────────────────
-const EMPTY_CONTRACTOR: Contractor = { name: '', registrationNo: '', phone: '', bankAccount: '', attachments: [] }
 const EMPTY_CONTACT: Contact = { name: '', position: '', email: '', phone: '', role: '' }
 
 function ContractorsTab({ initial }: { initial: MasterData }) {
   const [items, setItems]             = useState<Contractor[]>(initial.contractors)
-  const [newItem, setNewItem]         = useState<Contractor>(EMPTY_CONTRACTOR)
+  const [showRegister, setShowRegister] = useState(false)
   const [editingIdx, setEditingIdx]   = useState<number | null>(null)
   const [expandedIdx, setExpandedIdx] = useState<number | null>(null)
   const [newContact, setNewContact]   = useState<Contact>(EMPTY_CONTACT)
@@ -967,12 +967,6 @@ function ContractorsTab({ initial }: { initial: MasterData }) {
     else if (expandedIdx !== null && expandedIdx > idx) setExpandedIdx(expandedIdx - 1)
   }
 
-  function addItem() {
-    if (!newItem.name.trim()) return
-    setItems(s => [...s, { ...newItem, name: newItem.name.trim(), contacts: [] }])
-    setNewItem(EMPTY_CONTRACTOR)
-  }
-
   function addContact(idx: number) {
     if (!newContact.name.trim()) return
     update(idx, { contacts: [...(items[idx].contacts ?? []), { ...newContact }] })
@@ -999,7 +993,19 @@ function ContractorsTab({ initial }: { initial: MasterData }) {
   const inputCls = 'bg-background border border-dashed border-border/50 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-secondary transition-all w-full'
 
   return (
-    <Section title="주사업자" sub="프로젝트에 참여하는 주사업자(원도급) 회사 정보 및 담당자를 관리합니다.">
+    <Section
+      title="주사업자"
+      sub="프로젝트에 참여하는 주사업자(원도급) 회사 정보 및 담당자를 관리합니다."
+      action={
+        <button
+          type="button"
+          onClick={() => setShowRegister(true)}
+          className="px-5 py-2.5 bg-secondary text-white text-xs font-black rounded-xl hover:bg-secondary/90 shadow-md shadow-secondary/15 transition-all"
+        >
+          + 주사업자 등록
+        </button>
+      }
+    >
       <div className="border border-border/30 rounded-2xl overflow-hidden mb-6">
         <table className="w-full text-sm">
           <thead className="bg-surface text-[11px] font-black text-primary/40 uppercase tracking-wider">
@@ -1014,7 +1020,13 @@ function ContractorsTab({ initial }: { initial: MasterData }) {
             </tr>
           </thead>
           <tbody>
-            {items.map((r, idx) => (
+            {items.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="px-4 py-8 text-center text-primary/30 text-xs">
+                  등록된 주사업자가 없습니다. 우측 상단의 '+ 주사업자 등록' 버튼을 이용해 등록해주세요.
+                </td>
+              </tr>
+            ) : items.map((r, idx) => (
               <tr key={idx} className={`border-b border-border/10 transition-colors ${expandedIdx === idx ? 'bg-primary/5' : 'hover:bg-surface/50'}`}>
                 {editingIdx === idx ? (
                   <>
@@ -1115,60 +1127,6 @@ function ContractorsTab({ initial }: { initial: MasterData }) {
                 )}
               </tr>
             ))}
-            {/* 신규 입력 행 */}
-            <tr className="bg-surface/30">
-              <td className="px-2 py-2"><input className={inputCls} value={newItem.name} onChange={e => setNewItem(r => ({ ...r, name: e.target.value }))} onKeyDown={e => e.key === 'Enter' && addItem()} placeholder="회사명 *" /></td>
-              <td className="px-2 py-2"><input className={inputCls} value={newItem.registrationNo} onChange={e => setNewItem(r => ({ ...r, registrationNo: formatBizNo(e.target.value) }))} placeholder="000-00-00000" /></td>
-              <td className="px-2 py-2"><input className={inputCls} value={newItem.phone} onChange={e => setNewItem(r => ({ ...r, phone: e.target.value }))} placeholder="02-1234-5678" /></td>
-              <td className="px-2 py-2">
-                <div className="flex flex-row gap-1">
-                  <select className={inputCls} value={parseBankAccount(newItem.bankAccount).bank}
-                    onChange={e => setNewItem(r => ({ ...r, bankAccount: combineBankAccount(e.target.value, parseBankAccount(r.bankAccount).account) }))}>
-                    <option value="">은행 선택</option>
-                    {BANK_LIST.map(g => (
-                      <optgroup key={g.group} label={g.group}>
-                        {g.banks.map(b => <option key={b} value={b}>{b}</option>)}
-                      </optgroup>
-                    ))}
-                  </select>
-                  <input className={inputCls} value={parseBankAccount(newItem.bankAccount).account}
-                    onChange={e => setNewItem(r => ({ ...r, bankAccount: combineBankAccount(parseBankAccount(r.bankAccount).bank, e.target.value) }))}
-                    placeholder="계좌번호" />
-                </div>
-              </td>
-              <td className="px-2 py-2">
-                <AttachmentCell
-                  attachments={newItem.attachments ?? []}
-                  uploading={uploadingIdx === -1}
-                  onUpload={async (file, name) => {
-                    setUploadingIdx(-1)
-                    try {
-                      const res = await settingsApi.analyzeContractorDocument(file, name)
-                      const att = { key: res.data.key, name: res.data.name }
-                      const patch: Record<string, any> = { attachments: [...(newItem.attachments ?? []), att] }
-                      if (res.data.registrationNo) patch.registrationNo = res.data.registrationNo
-                      if (res.data.phone) patch.phone = res.data.phone
-                      if (res.data.bankName || res.data.bankAccount) {
-                        patch.bankAccount = combineBankAccount(res.data.bankName ?? '', res.data.bankAccount ?? '')
-                      }
-                      setNewItem(r => ({ ...r, ...patch }))
-                      const filled = [res.data.registrationNo, res.data.phone, res.data.bankAccount].filter(Boolean)
-                      if (filled.length > 0) addToast('AI가 문서에서 정보를 자동 입력했습니다.', 'success')
-                    } catch { addToast('파일 업로드에 실패했습니다.', 'error') }
-                    finally { setUploadingIdx(null) }
-                  }}
-                  onDelete={att => setNewItem(r => ({ ...r, attachments: (r.attachments ?? []).filter(a => a.key !== att.key) }))}
-                  onDownload={async att => { const res = await settingsApi.getAttachmentDownloadUrl(att.key); window.open(res.data.url, '_blank') }}
-                />
-              </td>
-              <td className="px-2 py-2"></td>
-              <td className="px-2 py-2 text-center">
-                <button onClick={addItem} disabled={!newItem.name.trim()}
-                  className="px-3 py-1.5 bg-secondary/5 border border-secondary/20 text-secondary text-xs font-black rounded-xl hover:bg-secondary hover:text-white transition-all disabled:opacity-30">
-                  + 추가
-                </button>
-              </td>
-            </tr>
           </tbody>
         </table>
       </div>
@@ -1268,6 +1226,15 @@ function ContractorsTab({ initial }: { initial: MasterData }) {
           {isPending ? '저장 중...' : '변경 사항 저장'}
         </button>
       </div>
+
+      <ContractorRegisterModal
+        open={showRegister}
+        onClose={() => setShowRegister(false)}
+        masterData={initial}
+        onSuccess={(newContractor) => {
+          setItems(prev => [...prev, newContractor])
+        }}
+      />
     </Section>
   )
 }

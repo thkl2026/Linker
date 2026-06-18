@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { serviceAdminApi, type AdminCreateProjectRequest, type PmUser } from '@/shared/api/serviceAdminApi'
 import { settingsApi } from '@/shared/api/settingsApi'
+import { ContractorRegisterModal } from '@/shared/components/ContractorRegisterModal'
 import { useUiStore } from '@/store/uiStore'
 
 const FALLBACK_ROLE_OPTIONS = [
@@ -78,6 +79,7 @@ export function CreateProjectPage() {
   const [aiInputText, setAiInputText] = useState('')
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [error, setError] = useState('')
+  const [showRegisterModal, setShowRegisterModal] = useState(false)
   const { addToast } = useUiStore()
 
   const { data: pmUsers = [] } = useQuery<PmUser[]>({
@@ -274,7 +276,16 @@ export function CreateProjectPage() {
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-black text-primary/40 uppercase mb-2 ml-1">주사업자</label>
+                <div className="flex justify-between items-center mb-2">
+                  <label className="block text-[11px] font-black text-primary/40 uppercase ml-1">주사업자</label>
+                  <button
+                    type="button"
+                    onClick={() => setShowRegisterModal(true)}
+                    className="text-[11px] font-black text-secondary hover:underline"
+                  >
+                    + 신규 등록
+                  </button>
+                </div>
                 <select
                   value={mainContractor}
                   onChange={e => setMainContractor(e.target.value)}
@@ -633,6 +644,17 @@ export function CreateProjectPage() {
       </div>
 
       <div className="h-20" />
+
+      {settingsData && (
+        <ContractorRegisterModal
+          open={showRegisterModal}
+          onClose={() => setShowRegisterModal(false)}
+          masterData={settingsData.masterData}
+          onSuccess={(newContractor) => {
+            setMainContractor(newContractor.name)
+          }}
+        />
+      )}
     </div>
   )
 }
