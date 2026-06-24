@@ -1,3 +1,4 @@
+$env:JAVA_HOME = "C:\Users\jayje\.antigravity-ide\extensions\redhat.java-1.54.0-win32-x64\jre\21.0.10-win32-x86_64"
 Write-Host "[Linker] 백엔드 재시작 중..."
 
 # 기존 프로세스 종료
@@ -50,8 +51,8 @@ $logFile = Join-Path $backendDir "bootrun.log"
 $errFile = Join-Path $backendDir "bootrun_err.log"
 
 Start-Process `
-    -FilePath "cmd.exe" `
-    -ArgumentList "/c `"$gradlew`" bootRun" `
+    -FilePath "$gradlew" `
+    -ArgumentList "bootRun" `
     -RedirectStandardOutput $logFile `
     -RedirectStandardError  $errFile `
     -WindowStyle Hidden `

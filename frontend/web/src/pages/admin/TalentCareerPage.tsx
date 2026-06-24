@@ -2111,12 +2111,12 @@ function TalentDetailModal({
                     {analyzing ? `AI 분석 중... (${uploadedFileName})` : uploadedFileName ? uploadedFileName : '이력서 업로드로 자동 입력'}
                   </p>
                   <p className="text-xs text-primary/40 mt-0.5">
-                    {uploadedFileName && !analyzing ? '분석 완료 · 다른 파일을 올려 재분석' : 'PDF · DOCX · TXT · 드래그 앤 드롭 가능'}
+                    {uploadedFileName && !analyzing ? '분석 완료 · 다른 파일을 올려 재분석' : 'PDF · DOCX · TXT · 이미지(JPG/PNG/WEBP) · 드래그 앤 드롭 가능'}
                   </p>
                 </div>
                 {!analyzing && <span className="text-xs font-semibold text-secondary shrink-0">{uploadedFileName ? '재선택' : '파일 선택'}</span>}
               </div>
-              <input ref={fileInputRef} type="file" accept=".pdf,.docx,.txt" className="hidden"
+              <input ref={fileInputRef} type="file" accept=".pdf,.docx,.txt,.jpg,.jpeg,.png,.webp" className="hidden"
                 onChange={async e => { const f = e.target.files?.[0]; if (!f) return; e.target.value = ''; await processFile(f) }} />
 
               {talent.resumeUrl && (
@@ -2751,12 +2751,12 @@ function TalentCreateModal({ onClose, onSave, isPending }: {
                 ? '분석 실패 · 다시 시도하거나 다른 파일을 올려주세요'
                 : uploadedFileName
                 ? '분석 완료 · 다른 파일을 올려 재분석'
-                : 'PDF · DOCX · TXT · 드래그 앤 드롭 가능'}
+                : 'PDF · DOCX · TXT · 이미지(JPG/PNG/WEBP) · 드래그 앤 드롭 가능'}
             </p>
           </div>
           {!analyzing && !dragging && <span className="text-xs font-semibold text-secondary shrink-0">{uploadedFileName ? '재선택' : '파일 선택'}</span>}
         </div>
-        <input ref={fileInputRef} type="file" accept=".pdf,.docx,.txt" className="hidden"
+        <input ref={fileInputRef} type="file" accept=".pdf,.docx,.txt,.jpg,.jpeg,.png,.webp" className="hidden"
           onChange={async e => { const f = e.target.files?.[0]; if (!f) return; e.target.value = ''; await processFile(f) }} />
           
         {uploadedFileName && !analyzing && (

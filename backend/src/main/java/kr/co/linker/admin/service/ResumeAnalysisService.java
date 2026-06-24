@@ -40,6 +40,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -333,11 +334,19 @@ public class ResumeAnalysisService {
     private String extractText(MultipartFile file, byte[] fileBytes) throws IOException {
         String name = Objects.requireNonNullElse(file.getOriginalFilename(), "").toLowerCase();
         if (name.endsWith(".pdf")) {
-            return extractPdf(fileBytes);
+            String text = extractPdf(fileBytes);
+            if (text == null || text.trim().length() < 50) {
+                log.info("[AI_RESUME] PDF 텍스트가 없거나 매우 적음 (scanned PDF 의심), OCR/Vision 추출 시도");
+                return extractTextFromImageOrPdf(fileBytes, "application/pdf");
+            }
+            return text;
         } else if (name.endsWith(".docx")) {
             return extractDocx(file);
         } else if (name.endsWith(".doc")) {
             return extractDoc(fileBytes);
+        } else if (name.endsWith(".jpg") || name.endsWith(".jpeg") || name.endsWith(".png") || name.endsWith(".webp")) {
+            log.info("[AI_RESUME] 이미지 파일 감지, OCR/Vision 추출 시도");
+            return extractTextFromImageOrPdf(fileBytes, file.getContentType());
         } else {
             return new String(fileBytes, StandardCharsets.UTF_8);
         }
@@ -479,6 +488,63 @@ public class ResumeAnalysisService {
         } catch (Exception e) {
             log.error("[AI_RESUME] Gemini API 호출 또는 파싱 실패", e);
             return emptyResult();
+        }
+    }
+
+    private String extractTextFromImageOrPdf(byte[] bytes, String mimeType) {
+        try {
+            String base64 = Base64.getEncoder().encodeToString(bytes);
+            String mt = mimeType != null ? mimeType : "image/jpeg";
+            String prompt = promptLoader.load("resume-ocr", Map.of());
+
+            Map<String, Object> requestBody = Map.of(
+                    "contents", List.of(Map.of("parts", List.of(
+                            Map.of("text", prompt),
+                            Map.of("inlineData", Map.of("mimeType", mt, "data", base64))
+                    ))));
+
+            String text = callGeminiApiForText(requestBody);
+            return text != null ? text : "";
+        } catch (Exception e) {
+            log.error("[AI_RESUME] 이미지/PDF OCR Vision 추출 실패", e);
+            return "";
+        }
+    }
+
+    private String callGeminiApiForText(Map<String, Object> requestBody) {
+        try {
+            SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+            factory.setConnectTimeout(10000);
+            factory.setReadTimeout(180000);
+            RestTemplate restTemplate = new RestTemplate(factory);
+            restTemplate.getMessageConverters().add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
+
+            String url = "https://generativelanguage.googleapis.com/v1beta/models/"
+                    + llmModel + ":generateContent?key=" + geminiApiKey;
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Content-Type", "application/json; charset=utf-8");
+            headers.setAccept(List.of(org.springframework.http.MediaType.APPLICATION_JSON));
+
+            ResponseEntity<String> response = restTemplate.exchange(
+                    url, HttpMethod.POST, new HttpEntity<>(requestBody, headers), String.class);
+            String responseBody = response.getBody();
+            if (responseBody == null) return null;
+
+            @SuppressWarnings("unchecked")
+            Map<String, Object> body = objectMapper.readValue(responseBody, Map.class);
+            if (!body.containsKey("candidates")) return null;
+
+            @SuppressWarnings("unchecked")
+            List<Map<String, Object>> candidates = (List<Map<String, Object>>) body.get("candidates");
+            @SuppressWarnings("unchecked")
+            Map<String, Object> content = (Map<String, Object>) candidates.get(0).get("content");
+            @SuppressWarnings("unchecked")
+            List<Map<String, Object>> parts = (List<Map<String, Object>>) content.get("parts");
+            return (String) parts.get(0).get("text");
+        } catch (Exception e) {
+            log.error("[AI_RESUME] Gemini API 텍스트 추출 호출 실패", e);
+            return null;
         }
     }
 
