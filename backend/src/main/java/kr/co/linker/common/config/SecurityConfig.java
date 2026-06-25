@@ -1,5 +1,6 @@
 package kr.co.linker.common.config;
 
+import jakarta.servlet.http.HttpServletResponse;
 import kr.co.linker.common.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,6 +55,13 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .exceptionHandling(exceptions -> exceptions
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.getWriter().write("{\"status\":401,\"message\":\"인증이 필요합니다.\"}");
+                })
+            )
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                     "/api/v1/auth/**",

@@ -627,16 +627,6 @@ th{font-size:9px;font-weight:900;color:rgba(69,26,3,.3);text-transform:uppercase
     const summaryHtml = ins.summary ? `
       <p style="font-size:12px;line-height:1.8;color:#475569;font-weight:500;margin-bottom:16px;">${ins.summary}</p>` : ''
 
-    const riskHtml = ins.riskFlags && ins.riskFlags.length > 0 ? `
-      <div style="margin-bottom:16px;page-break-inside:avoid;break-inside:avoid;">
-        <div style="font-size:10px;font-weight:800;color:#7c3aed;letter-spacing:.05em;margin-bottom:6px;page-break-after:avoid;break-after:avoid;">RISK FLAGS</div>
-        ${ins.riskFlags.map(r => `
-          <div style="display:flex;align-items:flex-start;gap:6px;margin-bottom:4px;">
-            ${badge(r.severity)}
-            <span style="font-size:11px;color:#475569;">${r.description}</span>
-          </div>`).join('')}
-      </div>` : ''
-
     const careerHtml = ins.careerPattern ? `
       <div style="margin-bottom:16px;page-break-inside:avoid;break-inside:avoid;">
         <div style="font-size:10px;font-weight:800;color:#0369a1;letter-spacing:.05em;margin-bottom:6px;page-break-after:avoid;break-after:avoid;">CAREER PATTERN</div>
@@ -672,7 +662,7 @@ th{font-size:9px;font-weight:900;color:rgba(69,26,3,.3);text-transform:uppercase
     return `<section style="margin-bottom:36px;">
       <div class="sec-head"><div class="sec-title">2. Linker AI Expert Analysis</div><div style="height:1px;"></div></div>
       <div style="font-size:10px;color:#94a3b8;margin-bottom:12px;">※ 본 분석은 생성형 AI에 의해 작성되었으며, 일부 오정보가 포함될 수 있습니다.</div>
-      ${summaryHtml}${riskHtml}${careerHtml}${techHtml}${domainHtml}
+      ${summaryHtml}${careerHtml}${techHtml}${domainHtml}
     </section>`
   })() : ''}
 
