@@ -2643,6 +2643,48 @@ function TalentCreateModal({ onClose, onSave, isPending }: {
   const [dragging, setDragging] = useState(false)
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [activeTab, setActiveTab] = useState<'file' | 'text'>('file')
+  const [pastedText, setPastedText] = useState('')
+
+  const processText = async () => {
+    if (!pastedText.trim()) return
+    setAnalyzing(true)
+    setAnalysisError(false)
+    try {
+      const { data } = await serviceAdminApi.analyzeResumeText(pastedText)
+      setForm(f => ({
+        ...f,
+        name:        normalizeKoreanName(data.name) ?? f.name,
+        nameEn:      data.nameEn ?? f.nameEn,
+        phone:       data.phone ? data.phone.replace(/\D/g, '') : f.phone,
+        workType:    data.workType    ?? f.workType,
+        desiredRate: data.desiredRate ?? f.desiredRate,
+        category:    data.category    ?? f.category,
+        field:       data.field       ?? f.field,
+        skills:      data.skills.length > 0 ? data.skills : f.skills,
+        birthDate:   data.birthDate   ?? f.birthDate,
+        email:       data.email       ?? f.email,
+        address:     data.address     ?? f.address,
+        skillGrade:  data.skillGrade  ?? f.skillGrade,
+        title:       data.title       ?? f.title,
+        educations:     data.educations?.length ? data.educations : f.educations,
+        companyExps:    data.companyExps?.length ? data.companyExps : f.companyExps,
+        projectExps:    data.projectExps?.length ? data.projectExps : f.projectExps,
+        certifications: data.certifications?.length ? data.certifications : f.certifications,
+        trainings:      data.trainings?.length      ? data.trainings      : f.trainings,
+        itCareerMonths: data.itCareerMonths ?? f.itCareerMonths,
+        photoKey:       data.photoKey ?? f.photoKey,
+        resumeKey:      data.resumeKey ?? f.resumeKey,
+      }))
+      setUploadedFileName('직접 입력한 텍스트')
+      addToast('이력서 텍스트 분석 완료. 내용을 확인하세요.', 'success')
+    } catch {
+      setAnalysisError(true)
+      addToast('텍스트 분석에 실패했습니다. 다시 시도해 주세요.', 'error')
+    } finally {
+      setAnalyzing(false)
+    }
+  }
 
   const processFile = async (file: File) => {
     setAnalyzing(true)
@@ -2712,42 +2754,112 @@ function TalentCreateModal({ onClose, onSave, isPending }: {
           </div>
         </div>
 
-        {/* 이력서 AI 분석 */}
-        <div
-          onClick={() => !analyzing && fileInputRef.current?.click()}
-          onDragOver={e => { e.preventDefault(); if (!analyzing) setDragging(true) }}
-          onDragLeave={e => { e.preventDefault(); setDragging(false) }}
-          onDrop={async e => { e.preventDefault(); setDragging(false); const f = e.dataTransfer.files?.[0]; if (f && !analyzing) await processFile(f) }}
-          className={`mb-5 flex items-center gap-3 px-4 py-3 rounded-xl border-2 border-dashed transition-colors cursor-pointer
-            ${analyzing ? 'border-secondary/40 bg-secondary/5 cursor-not-allowed' : dragging ? 'border-secondary bg-secondary/10' : 'border-border hover:border-secondary/60 hover:bg-secondary/5'}`}
-        >
-          <span className="text-xl">
-            {analyzing ? '⏳' : dragging ? '📥' : analysisError ? '❌' : uploadedFileName ? '✅' : '📄'}
-          </span>
-          <div className="flex-1 min-w-0">
-            <p className={`text-sm font-semibold truncate ${analysisError ? 'text-red-500' : 'text-primary'}`}>
-              {analyzing
-                ? `AI 분석 중... (${uploadedFileName})`
-                : dragging
-                ? '여기에 놓으세요'
-                : uploadedFileName
-                ? uploadedFileName
-                : '이력서 업로드로 자동 입력'}
-            </p>
-            <p className={`text-xs mt-0.5 ${analysisError ? 'text-red-400' : 'text-primary/40'}`}>
-              {analyzing
-                ? ''
-                : analysisError
-                ? '분석 실패 · 다시 시도하거나 다른 파일을 올려주세요'
-                : uploadedFileName
-                ? '분석 완료 · 다른 파일을 올려 재분석'
-                : 'PDF · DOCX · TXT · 이미지(JPG/PNG/WEBP) · 드래그 앤 드롭 가능'}
-            </p>
-          </div>
-          {!analyzing && !dragging && <span className="text-xs font-semibold text-secondary shrink-0">{uploadedFileName ? '재선택' : '파일 선택'}</span>}
+        {/* 입력 방식 탭 */}
+        <div className="flex bg-slate-100 p-1 rounded-xl mb-5 w-fit">
+          <button
+            type="button"
+            onClick={() => setActiveTab('file')}
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+              activeTab === 'file'
+                ? 'bg-white text-primary shadow-sm'
+                : 'text-primary/60 hover:text-primary'
+            }`}
+          >
+            📎 파일 업로드로 입력
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('text')}
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+              activeTab === 'text'
+                ? 'bg-white text-primary shadow-sm'
+                : 'text-primary/60 hover:text-primary'
+            }`}
+          >
+            ✍️ 텍스트 붙여넣기로 입력
+          </button>
         </div>
-        <input ref={fileInputRef} type="file" accept=".pdf,.docx,.txt,.jpg,.jpeg,.png,.webp" className="hidden"
-          onChange={async e => { const f = e.target.files?.[0]; if (!f) return; e.target.value = ''; await processFile(f) }} />
+
+        {activeTab === 'file' ? (
+          <>
+            {/* 이력서 AI 분석 */}
+            <div
+              onClick={() => !analyzing && fileInputRef.current?.click()}
+              onDragOver={e => { e.preventDefault(); if (!analyzing) setDragging(true) }}
+              onDragLeave={e => { e.preventDefault(); setDragging(false) }}
+              onDrop={async e => { e.preventDefault(); setDragging(false); const f = e.dataTransfer.files?.[0]; if (f && !analyzing) await processFile(f) }}
+              className={`mb-5 flex items-center gap-3 px-4 py-3 rounded-xl border-2 border-dashed transition-colors cursor-pointer
+                ${analyzing ? 'border-secondary/40 bg-secondary/5 cursor-not-allowed' : dragging ? 'border-secondary bg-secondary/10' : 'border-border hover:border-secondary/60 hover:bg-secondary/5'}`}
+            >
+              <span className="text-xl">
+                {analyzing ? '⏳' : dragging ? '📥' : analysisError ? '❌' : uploadedFileName ? '✅' : '📄'}
+              </span>
+              <div className="flex-1 min-w-0">
+                <p className={`text-sm font-semibold truncate ${analysisError ? 'text-red-500' : 'text-primary'}`}>
+                  {analyzing
+                    ? `AI 분석 중... (${uploadedFileName})`
+                    : dragging
+                    ? '여기에 놓으세요'
+                    : uploadedFileName
+                    ? uploadedFileName
+                    : '이력서 업로드로 자동 입력'}
+                </p>
+                <p className={`text-xs mt-0.5 ${analysisError ? 'text-red-400' : 'text-primary/40'}`}>
+                  {analyzing
+                    ? ''
+                    : analysisError
+                    ? '분석 실패 · 다시 시도하거나 다른 파일을 올려주세요'
+                    : uploadedFileName
+                    ? '분석 완료 · 다른 파일을 올려 재분석'
+                    : 'PDF · DOCX · TXT · 이미지(JPG/PNG/WEBP) · 드래그 앤 드롭 가능'}
+                </p>
+              </div>
+              {!analyzing && !dragging && <span className="text-xs font-semibold text-secondary shrink-0">{uploadedFileName ? '재선택' : '파일 선택'}</span>}
+            </div>
+            <input ref={fileInputRef} type="file" accept=".pdf,.docx,.txt,.jpg,.jpeg,.png,.webp" className="hidden"
+              onChange={async e => { const f = e.target.files?.[0]; if (!f) return; e.target.value = ''; await processFile(f) }} />
+          </>
+        ) : (
+          <div className="mb-5 space-y-3">
+            <div className="relative">
+              <textarea
+                value={pastedText}
+                onChange={e => setPastedText(e.target.value)}
+                placeholder="이력서 텍스트 또는 자기소개, 경력 사항을 여기에 복사하여 붙여넣으세요.&#10;예:&#10;홍길동&#10;010-1234-5678&#10;gildong@naver.com&#10;2020.03 ~ 2023.05 (주)한국IT 대리&#10;..."
+                rows={6}
+                disabled={analyzing}
+                className="w-full border border-border rounded-2xl px-4 py-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50 resize-none bg-surface/30 placeholder:text-primary/30"
+              />
+              {pastedText && !analyzing && (
+                <button
+                  type="button"
+                  onClick={() => setPastedText('')}
+                  className="absolute top-3 right-3 text-xs text-primary/40 hover:text-red-500 font-medium bg-white/80 px-2 py-1 rounded-lg border border-border shadow-sm transition-all"
+                >
+                  초기화
+                </button>
+              )}
+            </div>
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={processText}
+                disabled={analyzing || !pastedText.trim()}
+                className="flex items-center gap-1.5 px-4 py-2.5 bg-secondary text-white rounded-xl text-xs font-bold hover:bg-secondary/90 disabled:opacity-50 transition-all shadow-md shadow-secondary/10"
+              >
+                {analyzing ? (
+                  <>
+                    <span className="animate-spin mr-1.5">⏳</span> AI 분석 중...
+                  </>
+                ) : (
+                  <>
+                    <span className="mr-1.5">✨</span> AI 분석 및 자동 입력
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
           
         {uploadedFileName && !analyzing && (
           <div className="mb-5 flex flex-wrap gap-2">

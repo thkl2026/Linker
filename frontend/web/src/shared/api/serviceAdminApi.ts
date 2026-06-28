@@ -426,6 +426,12 @@ export const serviceAdminApi = {
     )
   },
 
+  analyzeResumeText: (text: string) =>
+    axiosInstance.post<ResumeAnalysisResult>(
+      '/api/v1/service-admin/talents/analyze-text',
+      { text }
+    ),
+
   getPhotoUrl: (key: string) =>
     axiosInstance.get<{ url: string }>('/api/v1/service-admin/talents/photo-url', { params: { key } }),
 

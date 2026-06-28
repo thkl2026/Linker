@@ -170,6 +170,35 @@ public class ResumeAnalysisService {
         return validated;
     }
 
+    public ResumeAnalysisResult analyzeText(String text) {
+        if (text == null || text.isBlank()) {
+            log.warn("[AI_RESUME] 빈 텍스트 입력");
+            return emptyResult();
+        }
+        log.info("[AI_RESUME] 텍스트 직접 분석 시작 ({}자)", text.length());
+
+        String truncated = text.length() > 15000 ? text.substring(0, 15000) : text;
+
+        CompletableFuture<ResumeAnalysisResult> basicFuture   = CompletableFuture.supplyAsync(() -> parseBasicInfo(truncated),  executor);
+        CompletableFuture<ResumeAnalysisResult> eduCertFuture = CompletableFuture.supplyAsync(() -> parseEduCert(truncated),    executor);
+        CompletableFuture<ResumeAnalysisResult> companyFuture = CompletableFuture.supplyAsync(() -> parseCompanyExp(truncated), executor);
+        CompletableFuture<ResumeAnalysisResult> projectFuture = CompletableFuture.supplyAsync(() -> parseProjectExp(truncated), executor);
+
+        CompletableFuture.allOf(basicFuture, eduCertFuture, companyFuture, projectFuture).join();
+
+        ResumeAnalysisResult basic   = getSafe(basicFuture);
+        ResumeAnalysisResult eduCert = getSafe(eduCertFuture);
+        ResumeAnalysisResult company = getSafe(companyFuture);
+        ResumeAnalysisResult project = getSafe(projectFuture);
+
+        ResumeAnalysisResult merged    = mergeResults(basic, eduCert, company, project, null, null);
+        ResumeAnalysisResult validated = validator.validate(normalizeDates(merged));
+
+        saveToLog("Pasted Text", null, validated);
+
+        return validated;
+    }
+
     // ─── Parsing methods ──────────────────────────────────────────────────────
 
     private ResumeAnalysisResult parseBasicInfo(String text) {

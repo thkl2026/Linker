@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import kr.co.linker.admin.dto.AdminCreateProjectRequest;
 import kr.co.linker.admin.dto.AnalyzeProjectTextRequest;
+import kr.co.linker.admin.dto.AnalyzeResumeTextRequest;
 import kr.co.linker.admin.dto.ProjectAnalysisResult;
 import kr.co.linker.admin.dto.UpdateProjectRequest;
 import kr.co.linker.admin.dto.AssignMemberRequest;
@@ -309,6 +310,13 @@ public class ServiceAdminController {
     public ResponseEntity<ResumeAnalysisResult> analyzeResume(@RequestPart("file") MultipartFile file)
             throws IOException {
         return ResponseEntity.ok(resumeAnalysisService.analyze(file));
+    }
+
+    @Operation(summary = "이력서 텍스트 AI 분석 — 복사 붙여넣기로 폼 자동 입력용")
+    @PostMapping("/talents/analyze-text")
+    public ResponseEntity<ResumeAnalysisResult> analyzeResumeText(
+            @Valid @RequestBody AnalyzeResumeTextRequest req) {
+        return ResponseEntity.ok(resumeAnalysisService.analyzeText(req.text()));
     }
 
     @Operation(summary = "전문가 사진 다운로드 URL 발급")
