@@ -1195,7 +1195,47 @@ function TalentDetailModal({
                   <h2 className="text-lg font-bold text-primary flex items-center gap-2">
                     <span className="text-secondary">🏆</span> 경력 관리
                   </h2>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 items-center">
+                    {talent.resumeUrl ? (
+                      <div className="flex gap-2">
+                        <a
+                          href={talent.resumeUrl}
+                          download
+                          target="_blank"
+                          rel="noreferrer"
+                          className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white transition-colors rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm"
+                        >
+                          📥 이력서 다운로드
+                        </a>
+                        <button
+                          onClick={() => resumeUploadRef.current?.click()}
+                          disabled={uploadingResume}
+                          className="px-4 py-2 bg-white border border-border/50 hover:bg-surface hover:border-secondary transition-colors rounded-xl text-xs font-bold text-primary flex items-center gap-2 shadow-sm disabled:opacity-50"
+                        >
+                          🔄 {uploadingResume ? '변경 중...' : '이력서 변경'}
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => resumeUploadRef.current?.click()}
+                        disabled={uploadingResume}
+                        className="px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white transition-colors rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm disabled:opacity-50"
+                      >
+                        📎 {uploadingResume ? '업로드 중...' : '이력서 업로드'}
+                      </button>
+                    )}
+                    <input
+                      ref={resumeUploadRef}
+                      type="file"
+                      accept=".pdf,.docx,.doc,.txt,.jpg,.jpeg,.png,.gif,.webp"
+                      className="hidden"
+                      onChange={async e => {
+                        const f = e.target.files?.[0]
+                        if (!f) return
+                        e.target.value = ''
+                        await uploadResumeOnly(f)
+                      }}
+                    />
                     <button
                       onClick={() => void printCareerCard(talent, sortedExps, totalMonths, analysisResult ?? undefined, displayInsight ?? undefined)}
                       className="px-4 py-2 bg-primary text-white hover:bg-primary/90 transition-colors rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm">
