@@ -782,7 +782,30 @@ public class ServiceAdminService {
             throw new LinkerException(HttpStatus.BAD_REQUEST, "INVALID_REQUEST", "잘못된 요청입니다.");
         }
         member.reject();
+        
+        TalentProfile talent = talentProfileRepository.findById(member.getTalentId()).orElse(null);
+        if (talent != null) {
+            talent.updateAvailability(AvailabilityStatus.AVAILABLE, null);
+        }
+        
         log.info("[SERVICE_ADMIN] 멤버 탈락 처리 projectId={} memberId={}", projectId, memberId);
+    }
+
+    @Transactional
+    public void giveUpMember(UUID projectId, UUID memberId) {
+        ProjectMember member = projectMemberRepository.findById(memberId)
+                .orElseThrow(() -> new LinkerException(HttpStatus.NOT_FOUND, "MEMBER_NOT_FOUND", "배정 정보를 찾을 수 없습니다."));
+        if (!member.getProjectId().equals(projectId)) {
+            throw new LinkerException(HttpStatus.BAD_REQUEST, "INVALID_REQUEST", "잘못된 요청입니다.");
+        }
+        member.giveUp();
+        
+        TalentProfile talent = talentProfileRepository.findById(member.getTalentId()).orElse(null);
+        if (talent != null) {
+            talent.updateAvailability(AvailabilityStatus.AVAILABLE, null);
+        }
+        
+        log.info("[SERVICE_ADMIN] 멤버 포기 처리 projectId={} memberId={}", projectId, memberId);
     }
 
     private List<ProjectMemberResponse> buildMemberResponses(UUID projectId) {
@@ -803,6 +826,7 @@ public class ServiceAdminService {
                             m.getAssignedAt() != null ? m.getAssignedAt().toString() : null,
                             m.isConfirmed(),
                             m.isRejected(),
+                            m.isGivenUp(),
                             m.getProposedPrice(),
                             m.getTalentSalary()
                     );

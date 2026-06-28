@@ -316,16 +316,29 @@ function MemberRow({ member, projectId }: { member: ProjectMember; projectId: st
     onError: () => addToast('탈락 처리에 실패했습니다.', 'error'),
   })
 
+  const giveUp = useMutation({
+    mutationFn: () => serviceAdminApi.giveUpMember(projectId, member.memberId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['project-detail', projectId] })
+      addToast(`${member.talentName} 포기 처리되었습니다.`, 'info')
+    },
+    onError: () => addToast('포기 처리에 실패했습니다.', 'error'),
+  })
+
   const borderStyle = member.confirmed
     ? 'border-emerald-200 bg-emerald-50/40 hover:border-emerald-300'
     : member.rejected
     ? 'border-red-200 bg-red-50/30 hover:border-red-300'
+    : member.givenUp
+    ? 'border-amber-200 bg-amber-50/20 hover:border-amber-300'
     : 'border-border/20 bg-surface/30 hover:border-border/50'
 
   const avatarStyle = member.confirmed
     ? 'bg-emerald-100 text-emerald-700'
     : member.rejected
     ? 'bg-red-100 text-red-500'
+    : member.givenUp
+    ? 'bg-amber-100 text-amber-600'
     : 'bg-primary/10 text-primary'
 
   return (
@@ -342,6 +355,9 @@ function MemberRow({ member, projectId }: { member: ProjectMember; projectId: st
             )}
             {member.rejected && !member.confirmed && (
               <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full bg-red-100 text-red-500">탈락</span>
+            )}
+            {member.givenUp && !member.confirmed && !member.rejected && (
+              <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-600">포기</span>
             )}
           </div>
           <p className="text-xs text-primary/50 truncate">
@@ -374,7 +390,7 @@ function MemberRow({ member, projectId }: { member: ProjectMember; projectId: st
           </span>
         ) : <div />}
         <div className="flex items-center gap-1.5">
-          {!member.confirmed && !member.rejected && (
+          {!member.confirmed && !member.rejected && !member.givenUp && (
             <>
               <button
                 onClick={() => confirm.mutate()}
@@ -391,6 +407,14 @@ function MemberRow({ member, projectId }: { member: ProjectMember; projectId: st
                 title="탈락 처리 (삭제되지 않음)"
               >
                 탈락
+              </button>
+              <button
+                onClick={() => giveUp.mutate()}
+                disabled={giveUp.isPending}
+                className="px-2.5 py-1 text-[10px] font-black rounded-lg bg-amber-100 text-amber-600 hover:bg-amber-200 disabled:opacity-40 transition-all"
+                title="포기 처리 (삭제되지 않음)"
+              >
+                포기
               </button>
             </>
           )}
@@ -758,10 +782,11 @@ function SkillRowItem({ skill, positionMembers, onAssign, onEdit, onDelete }: {
   onEdit: () => void
   onDelete: () => void
 }) {
-  const filled = positionMembers.length
+  const confirmedCount = positionMembers.filter(m => m.confirmed).length
+  const activeCount = positionMembers.filter(m => !m.rejected && !m.givenUp).length
   const total = skill.headcount
-  const isFull = filled >= total
-  const hasConfirmed = positionMembers.some(m => m.confirmed)
+  const isFull = activeCount >= total
+  const isAllConfirmed = confirmedCount >= total
 
   return (
     <div className="flex items-start gap-4 p-4 rounded-2xl bg-surface/50 border border-border/20 hover:border-border/40 transition-all group">
@@ -775,11 +800,11 @@ function SkillRowItem({ skill, positionMembers, onAssign, onEdit, onDelete }: {
           )}
           {/* 배정 현황 뱃지 */}
           <span className={`text-xs font-black px-2 py-0.5 rounded-full ${
-            isFull ? 'bg-emerald-50 text-emerald-600' :
-            filled > 0 ? 'bg-amber-50 text-amber-600' :
+            isAllConfirmed ? 'bg-emerald-50 text-emerald-600' :
+            activeCount > 0 ? 'bg-amber-50 text-amber-600' :
             'bg-gray-100 text-gray-400'
           }`}>
-            {filled}/{total}명
+            {confirmedCount}/{total}명 확정{activeCount > confirmedCount && ` (대기 ${activeCount - confirmedCount}명)`}
           </span>
           {skill.mm != null && skill.mm > 0 && <span className="text-xs text-primary/40">{skill.mm} MM</span>}
           {skill.roleStart && (
@@ -798,7 +823,12 @@ function SkillRowItem({ skill, positionMembers, onAssign, onEdit, onDelete }: {
           <div className="flex items-center gap-1.5 mt-2 flex-wrap">
             {positionMembers.map(m => (
               <span key={m.memberId}
-                className="flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 bg-secondary/10 text-secondary rounded-full">
+                className={`flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full ${
+                  m.confirmed ? 'bg-emerald-100 text-emerald-700' :
+                  m.rejected ? 'bg-red-100 text-red-500 line-through' :
+                  m.givenUp ? 'bg-amber-100 text-amber-600 line-through' :
+                  'bg-secondary/10 text-secondary'
+                }`}>
                 {m.talentName}
               </span>
             ))}
@@ -818,9 +848,9 @@ function SkillRowItem({ skill, positionMembers, onAssign, onEdit, onDelete }: {
         </button>
         <button
           onClick={() => onAssign(skill.role, skill.techStack || '')}
-          disabled={hasConfirmed}
+          disabled={isAllConfirmed}
           className={`px-3 py-1.5 text-xs font-black rounded-xl border transition-all ${
-            hasConfirmed
+            isAllConfirmed
               ? 'bg-emerald-50 text-emerald-600 border-emerald-100 opacity-40 cursor-not-allowed'
               : isFull
                 ? 'bg-emerald-50 text-emerald-600 border-emerald-100 hover:bg-secondary hover:text-white hover:border-secondary'

@@ -48,6 +48,12 @@ public class ProjectMember {
     /** 후보자 월 급여 (원/월) */
     private java.math.BigDecimal talentSalary;
 
+    /** 포기 여부 — 삭제 없이 결과를 보존한다 */
+    @Column(nullable = false)
+    private boolean givenUp = false;
+
+    private OffsetDateTime givenUpAt;
+
     public static ProjectMember assign(UUID projectId, UUID talentId, String role,
                                        java.math.BigDecimal proposedPrice, java.math.BigDecimal talentSalary) {
         ProjectMember m = new ProjectMember();
@@ -67,5 +73,10 @@ public class ProjectMember {
     public void reject() {
         this.rejected = true;
         this.rejectedAt = OffsetDateTime.now();
+    }
+
+    public void giveUp() {
+        this.givenUp = true;
+        this.givenUpAt = OffsetDateTime.now();
     }
 }

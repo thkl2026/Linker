@@ -218,6 +218,13 @@ public class ServiceAdminController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "추천 멤버 포기 처리 — 삭제 없이 결과 보존")
+    @PatchMapping("/projects/{id}/members/{memberId}/giveup")
+    public ResponseEntity<Void> giveUpMember(@PathVariable UUID id, @PathVariable UUID memberId) {
+        serviceAdminService.giveUpMember(id, memberId);
+        return ResponseEntity.noContent().build();
+    }
+
     @Operation(summary = "프로젝트 삭제")
     @DeleteMapping("/projects/{id}")
     public ResponseEntity<Void> deleteProject(@PathVariable UUID id) {

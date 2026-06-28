@@ -31,6 +31,7 @@ export interface ProjectMember {
   assignedAt: string | null
   confirmed: boolean
   rejected: boolean
+  givenUp: boolean
   proposedPrice: number | null
   talentSalary: number | null
 }
@@ -499,6 +500,9 @@ export const serviceAdminApi = {
 
   rejectMember: (projectId: string, memberId: string) =>
     axiosInstance.patch(`/api/v1/service-admin/projects/${projectId}/members/${memberId}/reject`),
+
+  giveUpMember: (projectId: string, memberId: string) =>
+    axiosInstance.patch(`/api/v1/service-admin/projects/${projectId}/members/${memberId}/giveup`),
 
   updateProjectSkills: (projectId: string, requiredSkills: string) =>
     axiosInstance.patch(`/api/v1/service-admin/projects/${projectId}/skills`, { requiredSkills }),
