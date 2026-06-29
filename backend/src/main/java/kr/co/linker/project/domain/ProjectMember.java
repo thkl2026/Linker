@@ -79,4 +79,10 @@ public class ProjectMember {
         this.givenUp = true;
         this.givenUpAt = OffsetDateTime.now();
     }
+
+    public void update(String role, java.math.BigDecimal proposedPrice, java.math.BigDecimal talentSalary) {
+        this.role = role;
+        this.proposedPrice = proposedPrice;
+        this.talentSalary = talentSalary;
+    }
 }

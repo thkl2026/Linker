@@ -495,6 +495,9 @@ export const serviceAdminApi = {
   removeMember: (projectId: string, memberId: string) =>
     axiosInstance.delete(`/api/v1/service-admin/projects/${projectId}/members/${memberId}`),
 
+  updateMember: (projectId: string, memberId: string, req: { role?: string | null; proposedPrice?: number | null; talentSalary?: number | null }) =>
+    axiosInstance.put(`/api/v1/service-admin/projects/${projectId}/members/${memberId}`, req),
+
   confirmMember: (projectId: string, memberId: string) =>
     axiosInstance.patch(`/api/v1/service-admin/projects/${projectId}/members/${memberId}/confirm`),
 

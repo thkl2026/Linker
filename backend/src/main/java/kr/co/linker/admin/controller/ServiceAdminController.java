@@ -204,6 +204,16 @@ public class ServiceAdminController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "추천 멤버 역할 및 가격 정보 수정")
+    @PutMapping("/projects/{id}/members/{memberId}")
+    public ResponseEntity<Void> updateMember(
+            @PathVariable UUID id,
+            @PathVariable UUID memberId,
+            @Valid @RequestBody kr.co.linker.admin.dto.UpdateProjectMemberRequest req) {
+        serviceAdminService.updateMember(id, memberId, req);
+        return ResponseEntity.noContent().build();
+    }
+
     @Operation(summary = "추천 멤버 투입 확정")
     @PatchMapping("/projects/{id}/members/{memberId}/confirm")
     public ResponseEntity<Void> confirmMember(@PathVariable UUID id, @PathVariable UUID memberId) {

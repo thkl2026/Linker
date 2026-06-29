@@ -289,7 +289,7 @@ function AddMemberModal({ projectId, initialRole, techStack, headcount, position
 
 // ── Member Row ───────────────────────────────────────────────────────────────
 
-function MemberRow({ member, projectId }: { member: ProjectMember; projectId: string }) {
+function MemberRow({ member, projectId, onEdit }: { member: ProjectMember; projectId: string; onEdit: () => void }) {
   const qc = useQueryClient()
   const { addToast } = useUiStore()
 
@@ -418,6 +418,13 @@ function MemberRow({ member, projectId }: { member: ProjectMember; projectId: st
               </button>
             </>
           )}
+          <button
+            onClick={onEdit}
+            className="text-primary/20 hover:text-secondary transition-colors shrink-0 mr-1"
+            title="추천 정보 수정"
+          >
+            ✎
+          </button>
           <button
             onClick={() => remove.mutate()}
             disabled={remove.isPending}
@@ -887,6 +894,7 @@ export function ProjectDetailPage() {
   // null = 닫힘, -1 = 신규 추가, 0+ = 편집 대상 인덱스
   const [skillEditIndex, setSkillEditIndex] = useState<number | null>(null)
   const [showEditModal, setShowEditModal] = useState(false)
+  const [editMember, setEditMember] = useState<ProjectMember | null>(null)
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -1177,7 +1185,7 @@ export function ProjectDetailPage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {project.members.map(m => (
-                <MemberRow key={m.memberId} member={m} projectId={id!} />
+                <MemberRow key={m.memberId} member={m} projectId={id!} onEdit={() => setEditMember(m)} />
               ))}
             </div>
           )}
@@ -1232,6 +1240,14 @@ export function ProjectDetailPage() {
           onClose={() => setSkillEditIndex(null)}
         />
       )}
+
+      {editMember !== null && (
+        <EditMemberModal
+          projectId={id!}
+          member={editMember}
+          onClose={() => setEditMember(null)}
+        />
+      )}
     </div>
   )
 }
@@ -1241,6 +1257,101 @@ function InfoRow({ label, value }: { label: string; value: string | null | undef
     <div>
       <p className="text-[11px] font-bold text-primary/30 uppercase mb-0.5">{label}</p>
       <p className="text-sm font-semibold text-primary">{value ?? '-'}</p>
+    </div>
+  )
+}
+
+// ── Edit Member Modal ─────────────────────────────────────────────────────────
+
+interface EditMemberModalProps {
+  projectId: string
+  member: ProjectMember
+  onClose: () => void
+}
+
+function EditMemberModal({ projectId, member, onClose }: EditMemberModalProps) {
+  const [role, setRole] = useState(member.role || '')
+  const [proposedPrice, setProposedPrice] = useState<string>(member.proposedPrice?.toString() || '')
+  const [talentSalary, setTalentSalary] = useState<string>(member.talentSalary?.toString() || '')
+  const [saving, setSaving] = useState(false)
+  const qc = useQueryClient()
+  const { addToast } = useUiStore()
+
+  const handleSave = async () => {
+    if (!role.trim()) {
+      addToast('역할을 입력해주세요.', 'warning')
+      return
+    }
+    setSaving(true)
+    try {
+      await serviceAdminApi.updateMember(projectId, member.memberId, {
+        role: role.trim(),
+        proposedPrice: proposedPrice ? Number(proposedPrice) : null,
+        talentSalary: talentSalary ? Number(talentSalary) : null,
+      })
+      qc.invalidateQueries({ queryKey: ['project-detail', projectId] })
+      qc.invalidateQueries({ queryKey: ['admin-talents'] })
+      addToast('추천 멤버 정보가 수정되었습니다.', 'success')
+      onClose()
+    } catch {
+      addToast('정보 수정에 실패했습니다.', 'error')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+      <div className="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-sm mx-4 space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-base font-black text-primary">추천 정보 수정</h3>
+          <button onClick={onClose} className="text-primary/30 hover:text-primary text-xl leading-none">✕</button>
+        </div>
+        
+        <div className="space-y-3">
+          <div>
+            <label className="block text-[11px] font-black text-primary/40 uppercase mb-1">역할 *</label>
+            <input
+              type="text"
+              value={role}
+              onChange={e => setRole(e.target.value)}
+              placeholder="예: 백엔드 개발자"
+              className="w-full border border-border/50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary"
+            />
+          </div>
+          <div>
+            <label className="block text-[11px] font-black text-primary/40 uppercase mb-1">주사업자 제안 가격 (원/월)</label>
+            <input
+              type="number"
+              value={proposedPrice}
+              onChange={e => setProposedPrice(e.target.value)}
+              placeholder="예: 6000000"
+              className="w-full border border-border/50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary"
+            />
+          </div>
+          <div>
+            <label className="block text-[11px] font-black text-primary/40 uppercase mb-1">후보자 월 급여 (원/월)</label>
+            <input
+              type="number"
+              value={talentSalary}
+              onChange={e => setTalentSalary(e.target.value)}
+              placeholder="예: 5000000"
+              className="w-full border border-border/50 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-secondary"
+            />
+          </div>
+        </div>
+
+        <div className="flex gap-3 pt-2">
+          <button onClick={onClose}
+            className="flex-1 py-2.5 border border-border/50 rounded-2xl text-sm font-bold text-primary/50 hover:bg-surface transition-all">
+            취소
+          </button>
+          <button onClick={handleSave} disabled={saving || !role.trim()}
+            className="flex-1 py-2.5 bg-secondary text-white rounded-2xl text-sm font-black shadow-lg shadow-secondary/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-40">
+            {saving ? '저장 중...' : '저장'}
+          </button>
+        </div>
+      </div>
     </div>
   )
 }

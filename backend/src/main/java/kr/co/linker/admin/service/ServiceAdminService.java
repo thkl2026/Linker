@@ -764,6 +764,18 @@ public class ServiceAdminService {
     }
 
     @Transactional
+    public void updateMember(UUID projectId, UUID memberId, kr.co.linker.admin.dto.UpdateProjectMemberRequest req) {
+        ProjectMember member = projectMemberRepository.findById(memberId)
+                .orElseThrow(() -> new LinkerException(HttpStatus.NOT_FOUND, "MEMBER_NOT_FOUND", "배정 정보를 찾을 수 없습니다."));
+        if (!member.getProjectId().equals(projectId)) {
+            throw new LinkerException(HttpStatus.BAD_REQUEST, "INVALID_REQUEST", "잘못된 요청입니다.");
+        }
+        member.update(req.role(), req.proposedPrice(), req.talentSalary());
+        log.info("[SERVICE_ADMIN] 멤버 정보 수정 projectId={} memberId={} role={} proposedPrice={} talentSalary={}",
+                projectId, memberId, req.role(), req.proposedPrice(), req.talentSalary());
+    }
+
+    @Transactional
     public void confirmMember(UUID projectId, UUID memberId) {
         ProjectMember member = projectMemberRepository.findById(memberId)
                 .orElseThrow(() -> new LinkerException(HttpStatus.NOT_FOUND, "MEMBER_NOT_FOUND", "배정 정보를 찾을 수 없습니다."));
