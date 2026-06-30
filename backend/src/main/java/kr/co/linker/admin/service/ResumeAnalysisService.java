@@ -284,7 +284,12 @@ public class ResumeAnalysisService {
         var normalizedCompany = res.companyExps().stream().map(fixExp).toList();
         var normalizedProject = res.projectExps().stream().map(fixExp).toList();
         int computed = computeItCareerMonths(normalizedCompany, normalizedProject);
-        Integer itCareerMonths = computed > 0 ? computed : res.itCareerMonths();
+        Integer itCareerMonths;
+        if (computed > 0) {
+            itCareerMonths = computed;
+        } else {
+            itCareerMonths = res.itCareerMonths();
+        }
 
         return new ResumeAnalysisResult(
                 res.name(),
