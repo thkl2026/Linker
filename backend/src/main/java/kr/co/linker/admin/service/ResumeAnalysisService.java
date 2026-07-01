@@ -805,49 +805,4 @@ public class ResumeAnalysisService {
             log.error("[AI_RESUME] 분석 결과 DB 저장 실패", e);
         }
     }
-
-    public Map<String, Object> testGeminiCall() {
-        Map<String, Object> debug = new java.util.HashMap<>();
-        debug.put("llmModel", llmModel);
-        debug.put("apiKeyLength", geminiApiKey != null ? geminiApiKey.length() : 0);
-        debug.put("apiKeyMasked", (geminiApiKey != null && geminiApiKey.length() > 10) 
-            ? geminiApiKey.substring(0, 5) + "..." + geminiApiKey.substring(geminiApiKey.length() - 5) 
-            : "too_short_or_null");
-        
-        try {
-            SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-            factory.setConnectTimeout(5000);
-            factory.setReadTimeout(10000);
-            RestTemplate restTemplate = new RestTemplate(factory);
-            
-            String url = "https://generativelanguage.googleapis.com/v1beta/models/"
-                    + llmModel + ":generateContent?key=" + geminiApiKey;
-
-            Map<String, Object> requestBody = Map.of(
-                    "contents", List.of(Map.of("parts", List.of(Map.of("text", "Hello")))));
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Content-Type", "application/json; charset=utf-8");
-
-            ResponseEntity<String> response = restTemplate.exchange(
-                    url, HttpMethod.POST, new HttpEntity<>(requestBody, headers), String.class);
-            
-            debug.put("statusCode", response.getStatusCode().toString());
-            debug.put("responseBody", response.getBody());
-            debug.put("success", true);
-        } catch (org.springframework.web.client.HttpStatusCodeException e) {
-            debug.put("success", false);
-            debug.put("statusCode", e.getStatusCode().toString());
-            debug.put("responseBody", e.getResponseBodyAsString());
-            debug.put("exceptionMessage", e.getMessage());
-        } catch (Exception e) {
-            debug.put("success", false);
-            debug.put("exceptionClass", e.getClass().getName());
-            debug.put("exceptionMessage", e.getMessage());
-            java.io.StringWriter sw = new java.io.StringWriter();
-            e.printStackTrace(new java.io.PrintWriter(sw));
-            debug.put("stackTrace", sw.toString());
-        }
-        return debug;
-    }
 }
