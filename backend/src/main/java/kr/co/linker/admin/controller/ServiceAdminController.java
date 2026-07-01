@@ -264,6 +264,13 @@ public class ServiceAdminController {
         return ResponseEntity.ok(resumeAnalysisService.getLogs());
     }
 
+    @Operation(summary = "Gemini API 호출 테스트 (디버그용)")
+    @PreAuthorize("permitAll()")
+    @GetMapping("/debug-gemini")
+    public ResponseEntity<?> debugGemini() {
+        return ResponseEntity.ok(resumeAnalysisService.testGeminiCall());
+    }
+
     @Operation(summary = "전문가 목록 조회 (통합 검색: 이름·기술스택, 분류/분야 필터)")
     @GetMapping("/talents")
     public ResponseEntity<Page<TalentAdminResponse>> listTalents(
