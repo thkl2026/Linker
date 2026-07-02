@@ -27,7 +27,7 @@ public class ProjectAnalysisService {
     @Value("${linker.ai.gemini-api-key}")
     private String geminiApiKey;
 
-    @Value("${linker.ai.llm-model:gemini-1.5-flash}")
+    @Value("${linker.ai.llm-model:gemini-2.5-flash}")
     private String llmModel;
 
     public ProjectAnalysisResult analyze(String text) {
@@ -46,10 +46,10 @@ public class ProjectAnalysisService {
             ProjectAnalysisResult normalized = new ProjectAnalysisResult(
                     result.title(), result.clientCompany(), result.mainContractor(),
                     result.startDate(), result.endDate(), roles);
-            log.info("[AI_PROJECT] 분석 ?�료: title={}, roles={}", normalized.title(), roles.size());
+            log.info("[AI_PROJECT] 분석 완료: title={}, roles={}", normalized.title(), roles.size());
             return normalized;
         } catch (Exception e) {
-            log.error("[AI_PROJECT] 분석 ?�패", e);
+            log.error("[AI_PROJECT] 분석 실패", e);
             return ProjectAnalysisResult.empty();
         }
     }
@@ -94,10 +94,10 @@ public class ProjectAnalysisService {
             int end = clean.lastIndexOf('}');
             if (start >= 0 && end > start) clean = clean.substring(start, end + 1);
 
-            log.debug("[AI_PROJECT] Gemini ?�답: {}", clean);
+            log.debug("[AI_PROJECT] Gemini 응답: {}", clean);
             return clean;
         } catch (Exception e) {
-            log.error("[AI_PROJECT] Gemini API ?�출 ?�패", e);
+            log.error("[AI_PROJECT] Gemini API 호출 실패", e);
             return null;
         }
     }

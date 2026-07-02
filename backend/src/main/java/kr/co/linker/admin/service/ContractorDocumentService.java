@@ -43,11 +43,12 @@ public class ContractorDocumentService {
                 ? originalFilename.substring(originalFilename.lastIndexOf('.')) : "";
         String key = "contractor-docs/" + UUID.randomUUID() + ext;
 
-        // ?�토리�? ?�로??        try {
+        // 스토리지 업로드
+        try {
             String ct = file.getContentType() != null ? file.getContentType() : "application/octet-stream";
             fileStorageService.uploadBytes(key, file.getBytes(), ct);
         } catch (Exception e) {
-            log.warn("[CONTRACTOR_DOC] ?�일 ?�로???�패: {}", e.getMessage());
+            log.warn("[CONTRACTOR_DOC] 파일 업로드 실패: {}", e.getMessage());
             return new ContractorDocumentResult(null, null, null, null, key, labelName);
         }
 
@@ -64,7 +65,7 @@ public class ContractorDocumentService {
             } else {
                 String text = extractText(bytes, lowerName);
                 if (text == null || text.isBlank()) {
-                    log.warn("[CONTRACTOR_DOC] ?�스??추출 ?�패");
+                    log.warn("[CONTRACTOR_DOC] 텍스트 추출 실패");
                     return new ContractorDocumentResult(null, null, null, null, key, labelName);
                 }
                 String truncated = text.length() > 6000 ? text.substring(0, 6000) : text;
@@ -81,11 +82,11 @@ public class ContractorDocumentService {
             String bankName       = getString(result, "bankName");
             String bankAccount    = getString(result, "bankAccount");
 
-            log.info("[CONTRACTOR_DOC] 분석 ?�료 key={} regNo={} phone={}", key, registrationNo, phone);
+            log.info("[CONTRACTOR_DOC] 분석 완료 key={} regNo={} phone={}", key, registrationNo, phone);
             return new ContractorDocumentResult(registrationNo, phone, bankName, bankAccount, key, labelName);
 
         } catch (Exception e) {
-            log.error("[CONTRACTOR_DOC] AI 분석 ?�패", e);
+            log.error("[CONTRACTOR_DOC] AI 분석 실패", e);
             return new ContractorDocumentResult(null, null, null, null, key, labelName);
         }
     }
@@ -101,7 +102,7 @@ public class ContractorDocumentService {
             }
             return new String(bytes, StandardCharsets.UTF_8);
         } catch (Exception e) {
-            log.warn("[CONTRACTOR_DOC] ?�스??추출 ?�패: {}", e.getMessage());
+            log.warn("[CONTRACTOR_DOC] 텍스트 추출 실패: {}", e.getMessage());
             return null;
         }
     }
@@ -111,8 +112,8 @@ public class ContractorDocumentService {
             String base64 = Base64.getEncoder().encodeToString(imageBytes);
             String mt = mimeType != null ? mimeType : "image/jpeg";
 
-            String textPart = "??문서(?�업?�등록증 ?�는 ?�장?�본)?�서 ?�업?�등록번?? ?�화번호, ?�?�명, 계좌번호�?추출?�여 JSON?�로�?반환?�라. " +
-                    "?�식: {\"registrationNo\":null,\"phone\":null,\"bankName\":null,\"bankAccount\":null} ??JSON�?출력, ?�명 금�?.";
+            String textPart = "이 문서(사업자등록증 또는 통장사본)에서 사업자등록번호, 전화번호, 은행명, 계좌번호를 추출하여 JSON으로만 반환하라. " +
+                    "형식: {\"registrationNo\":null,\"phone\":null,\"bankName\":null,\"bankAccount\":null} — JSON만 출력, 설명 금지.";
 
             Map<String, Object> requestBody = Map.of(
                     "contents", List.of(Map.of("parts", List.of(
@@ -122,7 +123,7 @@ public class ContractorDocumentService {
 
             return callGeminiApi(requestBody);
         } catch (Exception e) {
-            log.error("[CONTRACTOR_DOC] Gemini Vision ?�패", e);
+            log.error("[CONTRACTOR_DOC] Gemini Vision 실패", e);
             return null;
         }
     }
@@ -173,7 +174,7 @@ public class ContractorDocumentService {
             if (start >= 0 && end > start) clean = clean.substring(start, end + 1);
             return clean;
         } catch (Exception e) {
-            log.error("[CONTRACTOR_DOC] Gemini API ?�패", e);
+            log.error("[CONTRACTOR_DOC] Gemini API 실패", e);
             return null;
         }
     }
