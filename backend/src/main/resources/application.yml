@@ -60,8 +60,8 @@ logging:
 linker:
   jwt:
     secret: ${JWT_SECRET}
-    access-token-expiry: 1800         # 30Î∂Ñ (Ï¥à)
-    refresh-token-expiry: 604800      # 7Ïùº (Ï¥à)
+    access-token-expiry: 1800         # 30Î∂?(Ï¥?
+    refresh-token-expiry: 604800      # 7??(Ï¥?
   mfa:
     totp-issuer: "Linker"
     otp-expiry-seconds: 300
@@ -73,7 +73,7 @@ linker:
     presigned-download-expiry-seconds: 900
     max-size-mb: 20
   ai:
-    llm-model: ${LLM_MODEL_NAME:gemini-2.5-flash}
+    llm-model: ${LLM_MODEL_NAME:gemini-1.5-flash}
     gemini-api-key: ${GEMINI_API_KEY:}
   nice:
     api-url: ${NICE_API_URL:}
