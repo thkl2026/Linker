@@ -119,6 +119,8 @@ public class ResumeAnalysisService {
                     // 캐시된 이름이 블랙리스트 단어면 재분석
                     if (r.name() != null && !r.name().isBlank() && RESUME_SECTION_HEADERS.contains(r.name())) {
                         log.info("[AI_RESUME] 캐시 이름 무효 ({}), 재분석 진행", r.name());
+                    } else if ((r.skills() == null || r.skills().isEmpty()) && r.phone() == null) {
+                        log.info("[AI_RESUME] 캐시 데이터 불충분(스킬/연락처 누락), 재분석 진행");
                     } else {
                         return new ResumeAnalysisResult(
                                 r.name(), r.nameEn(), r.phone(), r.workType(), r.desiredRate(),
@@ -521,7 +523,7 @@ public class ResumeAnalysisService {
             return objectMapper.readValue(cleanJson, ResumeAnalysisResult.class);
         } catch (Exception e) {
             log.error("[AI_RESUME] Gemini API 호출 또는 파싱 실패", e);
-            return emptyResult();
+            throw new RuntimeException("AI 분석 중 오류가 발생했습니다: " + e.getMessage(), e);
         }
     }
 
