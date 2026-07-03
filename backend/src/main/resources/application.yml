@@ -73,7 +73,7 @@ linker:
     presigned-download-expiry-seconds: 900
     max-size-mb: 20
   ai:
-    llm-model: ${LLM_MODEL_NAME:gemini-1.5-flash}
+    llm-model: ${LLM_MODEL_NAME:gemini-2.5-flash}
     gemini-api-key: ${GEMINI_API_KEY:}
   nice:
     api-url: ${NICE_API_URL:}
