@@ -73,14 +73,18 @@ public class ResumeAnalysisService {
     @PostConstruct
     public void init() {
         log.info("================================================================");
-        log.info("[AI_RESUME] 서버 기동: 최근 DB 저장된 분석 로그를 조회합니다.");
+        log.info("[AI_RESUME] 서버 기동: model={}", llmModel);
+        if (geminiApiKey == null || geminiApiKey.isBlank()) {
+            log.error("[AI_RESUME] ⚠️  GEMINI_API_KEY 가 설정되지 않았습니다 — AI 이력서 분석 비활성화");
+        } else {
+            log.info("[AI_RESUME] Gemini API key 확인됨 (길이={})", geminiApiKey.length());
+        }
         logRepository.findAll().stream()
             .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
             .findFirst()
             .ifPresent(l -> {
-                log.info("최근 분석 파일: {}", l.getFileName());
-                log.info("분석 일시: {}", l.getCreatedAt());
-                log.info("분석 원문(JSON):\n{}", l.getRawContent());
+                log.info("[AI_RESUME] 최근 분석 파일: {} / 일시: {}", l.getFileName(), l.getCreatedAt());
+                log.info("[AI_RESUME] 최근 분석 결과(JSON):\n{}", l.getRawContent());
             });
         log.info("================================================================");
     }
@@ -91,7 +95,8 @@ public class ResumeAnalysisService {
 
     public ResumeAnalysisResult analyze(MultipartFile file) throws IOException {
         String fileName = file.getOriginalFilename();
-        log.info("[AI_RESUME] 분석 시작: {}", fileName);
+        log.info("[AI_RESUME] 분석 시작: {} (model={}, apiKeySet={})", fileName, llmModel,
+                geminiApiKey != null && !geminiApiKey.isBlank());
 
         byte[] fileBytes = file.getBytes();
 
@@ -495,7 +500,10 @@ public class ResumeAnalysisService {
                     + llmModel + ":generateContent?key=" + geminiApiKey;
 
             Map<String, Object> requestBody = Map.of(
-                    "contents", List.of(Map.of("parts", List.of(Map.of("text", prompt)))));
+                    "contents", List.of(Map.of("parts", List.of(Map.of("text", prompt)))),
+                    "generationConfig", Map.of(
+                            "temperature", 0,
+                            "responseMimeType", "application/json"));
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Content-Type", "application/json; charset=utf-8");
