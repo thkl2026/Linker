@@ -522,8 +522,8 @@ public class ResumeAnalysisService {
             log.debug("[AI_RESUME] 추출 성공: {}", cleanJson);
             return objectMapper.readValue(cleanJson, ResumeAnalysisResult.class);
         } catch (Exception e) {
-            log.error("[AI_RESUME] Gemini API 호출 또는 파싱 실패", e);
-            throw new RuntimeException("AI 분석 중 오류가 발생했습니다: " + e.getMessage(), e);
+            log.error("[AI_RESUME] Gemini API 호출 또는 파싱 실패 — 빈 결과 반환", e);
+            return emptyResult();
         }
     }
 
