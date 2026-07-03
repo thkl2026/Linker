@@ -486,6 +486,10 @@ public class ResumeAnalysisService {
             factory.setReadTimeout(180000);
             RestTemplate restTemplate = new RestTemplate(factory);
             restTemplate.getMessageConverters().add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
+            // HTTP 4xx/5xx도 예외 없이 응답 바디를 읽어 원인 로깅
+            restTemplate.setErrorHandler(new org.springframework.web.client.DefaultResponseErrorHandler() {
+                @Override public boolean hasError(org.springframework.http.client.ClientHttpResponse r) { return false; }
+            });
 
             String url = "https://generativelanguage.googleapis.com/v1beta/models/"
                     + llmModel + ":generateContent?key=" + geminiApiKey;
@@ -500,11 +504,25 @@ public class ResumeAnalysisService {
             ResponseEntity<String> response = restTemplate.exchange(
                     url, HttpMethod.POST, new HttpEntity<>(requestBody, headers), String.class);
             String responseBody = response.getBody();
-            if (responseBody == null) return emptyResult();
+
+            if (responseBody == null) {
+                log.warn("[AI_RESUME] Gemini 응답 바디 없음 status={}", response.getStatusCode());
+                return emptyResult();
+            }
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                log.warn("[AI_RESUME] Gemini HTTP 오류 status={} body={}",
+                        response.getStatusCode(),
+                        responseBody.length() > 300 ? responseBody.substring(0, 300) : responseBody);
+                return emptyResult();
+            }
 
             @SuppressWarnings("unchecked")
             Map<String, Object> body = objectMapper.readValue(responseBody, Map.class);
-            if (!body.containsKey("candidates")) return emptyResult();
+            if (!body.containsKey("candidates")) {
+                log.warn("[AI_RESUME] Gemini 응답에 candidates 없음 (안전 필터·할당량 초과 등): {}",
+                        responseBody.length() > 300 ? responseBody.substring(0, 300) : responseBody);
+                return emptyResult();
+            }
 
             @SuppressWarnings("unchecked")
             List<Map<String, Object>> candidates = (List<Map<String, Object>>) body.get("candidates");
@@ -519,7 +537,7 @@ public class ResumeAnalysisService {
             int end   = cleanJson.lastIndexOf('}');
             if (start >= 0 && end > start) cleanJson = cleanJson.substring(start, end + 1);
 
-            log.debug("[AI_RESUME] 추출 성공: {}", cleanJson);
+            log.info("[AI_RESUME] Gemini 추출 성공 ({}자)", cleanJson.length());
             return objectMapper.readValue(cleanJson, ResumeAnalysisResult.class);
         } catch (Exception e) {
             log.error("[AI_RESUME] Gemini API 호출 또는 파싱 실패 — 빈 결과 반환", e);
