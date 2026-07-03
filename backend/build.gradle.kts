@@ -82,6 +82,9 @@ dependencies {
     // 이력서 파싱 — DOC(구형 Word) 텍스트 추출
     implementation("org.apache.poi:poi-scratchpad:5.3.0")
 
+    // Elasticsearch
+    implementation("org.springframework.boot:spring-boot-starter-data-elasticsearch")
+
     // Logstash Logback Encoder (logback-spring.xml에서 사용)
     implementation("net.logstash.logback:logstash-logback-encoder:7.4")
 

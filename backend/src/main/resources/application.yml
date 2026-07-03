@@ -28,6 +28,10 @@ spring:
   data:
     redis:
       timeout: 3000ms
+  elasticsearch:
+    uris: ${ELASTICSEARCH_URL:http://localhost:9200}
+    connection-timeout: 3s
+    socket-timeout: 10s
 
 springdoc:
   api-docs:

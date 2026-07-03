@@ -47,9 +47,11 @@ import kr.co.linker.notice.dto.CreateNoticeRequest;
 import kr.co.linker.notice.service.NoticeService;
 import kr.co.linker.talent.repository.TalentExperienceRepository;
 import kr.co.linker.talent.repository.TalentProfileRepository;
+import kr.co.linker.talent.service.TalentIndexService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -59,6 +61,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -78,18 +82,49 @@ public class ServiceAdminService {
     private final NoticeService noticeService;
     private final FileStorageService fileStorageService;
     private final GradeCalculationService gradeCalculationService;
+    private final TalentIndexService talentIndexService;
 
     @Transactional(readOnly = true)
     public Page<TalentAdminResponse> listTalents(String keyword, TalentCategory category,
                                                   TalentField field, Pageable pageable) {
         String kw = (keyword == null || keyword.isBlank()) ? null : keyword;
+        try {
+            Page<UUID> idsPage = talentIndexService.searchIds(
+                    kw,
+                    category != null ? category.name() : null,
+                    field != null ? field.name() : null,
+                    pageable);
+            Map<UUID, TalentProfile> profileMap = talentProfileRepository.findAllById(idsPage.getContent())
+                    .stream().collect(Collectors.toMap(TalentProfile::getId, p -> p));
+            List<TalentAdminResponse> responses = idsPage.getContent().stream()
+                    .map(profileMap::get)
+                    .filter(Objects::nonNull)
+                    .map(p -> {
+                        String photoUrl  = p.getPhotoKey()  != null
+                                ? fileStorageService.generateDownloadUrl(p.getPhotoKey(),  java.time.Duration.ofHours(1)) : null;
+                        String resumeUrl = p.getResumeKey() != null
+                                ? fileStorageService.generateDownloadUrl(p.getResumeKey(), java.time.Duration.ofHours(1)) : null;
+                        return TalentAdminResponse.from(p, decryptPhone(p), decryptEmail(p), photoUrl, resumeUrl);
+                    })
+                    .toList();
+            log.info("[SERVICE_ADMIN] listTalents [ES] keyword={} category={} field={} -> {}건",
+                    kw, category, field, idsPage.getTotalElements());
+            return new PageImpl<>(responses, pageable, idsPage.getTotalElements());
+        } catch (Exception e) {
+            log.warn("[SERVICE_ADMIN] ES 검색 실패, JPA fallback: {}", e.getMessage());
+            return listTalentsJpa(kw, category, field, pageable);
+        }
+    }
+
+    private Page<TalentAdminResponse> listTalentsJpa(String kw, TalentCategory category,
+                                                      TalentField field, Pageable pageable) {
         Page<TalentProfile> page = (kw == null && category == null && field == null)
                 ? talentProfileRepository.findAllByDeletedAtIsNull(pageable)
                 : talentProfileRepository.search(kw,
                         category != null ? category.name() : null,
                         field != null ? field.name() : null,
                         toNativePageable(pageable));
-        log.info("[SERVICE_ADMIN] listTalents keyword={} category={} field={} -> {}건",
+        log.info("[SERVICE_ADMIN] listTalents [JPA] keyword={} category={} field={} -> {}건",
                 kw, category, field, page.getTotalElements());
         return page.map(p -> {
             String photoUrl  = p.getPhotoKey()  != null
@@ -212,6 +247,7 @@ public class ServiceAdminService {
         } catch (Exception e) {
             log.warn("[SERVICE_ADMIN] 등급 재산정 실패 (등록은 계속) talentId={}: {}", profile.getId(), e.getMessage());
         }
+        talentIndexService.index(profile.getId());
         log.info("[SERVICE_ADMIN] 전문가 등록 talentId={} name={}", profile.getId(), req.name());
         try {
             notificationService.create("TALENT_REGISTERED", "새 전문가 등록",
@@ -310,6 +346,7 @@ public class ServiceAdminService {
             profile.updateSecondaryFields(req.secondaryFields());
         }
         gradeCalculationService.recalculate(talentId);
+        talentIndexService.index(talentId);
         log.info("[SERVICE_ADMIN] 전문가 수정 talentId={}", talentId);
         try {
             String displayName = profile.getName() != null ? profile.getName() : talentId.toString();
@@ -325,6 +362,7 @@ public class ServiceAdminService {
         TalentProfile profile = requireTalent(talentId);
         String displayName = profile.getName() != null ? profile.getName() : talentId.toString();
         profile.delete();
+        talentIndexService.remove(talentId);
         log.info("[SERVICE_ADMIN] 전문가 삭제 talentId={}", talentId);
         try {
             notificationService.create("TALENT_DELETED", "전문가 삭제",
@@ -391,6 +429,7 @@ public class ServiceAdminService {
                 req.department(), req.employmentType(),
                 req.startDate(), req.endDate(), req.description(), req.techStack());
         gradeCalculationService.recalculate(talentId);
+        talentIndexService.index(talentId);
         log.info("[SERVICE_ADMIN] 경력 수정 expId={}", expId);
     }
 
@@ -403,6 +442,7 @@ public class ServiceAdminService {
         replaceByType(profile, talentId, "CERTIFICATION", req.certifications());
         replaceByType(profile, talentId, "TRAINING",      req.trainings());
         gradeCalculationService.recalculate(talentId);
+        talentIndexService.index(talentId);
         log.info("[SERVICE_ADMIN] 경력 일괄 교체 talentId={}", talentId);
     }
 
@@ -421,6 +461,7 @@ public class ServiceAdminService {
                 .orElseThrow(() -> new LinkerException(HttpStatus.NOT_FOUND, "EXPERIENCE_NOT_FOUND", "프로젝트를 찾을 수 없습니다."));
         experienceRepository.delete(exp);
         gradeCalculationService.recalculate(talentId);
+        talentIndexService.index(talentId);
         log.info("[SERVICE_ADMIN] 프로젝트 삭제 expId={}", expId);
     }
 

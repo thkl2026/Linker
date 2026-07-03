@@ -77,6 +77,7 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       ENCRYPTION_KEY: ${ENCRYPTION_KEY}
       GEMINI_API_KEY: ${GEMINI_API_KEY}
+      ELASTICSEARCH_URL: http://linker-elasticsearch:9200
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
       APP_BASE_URL: ${APP_BASE_URL}
       MAIL_HOST: ${MAIL_HOST}
@@ -89,6 +90,8 @@ services:
       redis:
         condition: service_healthy
       minio:
+        condition: service_healthy
+      elasticsearch:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health || exit 1"]

@@ -35,6 +35,7 @@ import kr.co.linker.talent.domain.TalentField;
 import kr.co.linker.admin.domain.ResumeAnalysisLog;
 import kr.co.linker.admin.service.ResumeAnalysisService;
 import kr.co.linker.admin.service.ServiceAdminService;
+import kr.co.linker.talent.service.TalentIndexService;
 import kr.co.linker.common.storage.FileStorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -63,6 +64,7 @@ public class ServiceAdminController {
     private final ProjectAnalysisService projectAnalysisService;
     private final TalentInsightService talentInsightService;
     private final FileStorageService fileStorageService;
+    private final TalentIndexService talentIndexService;
 
     // ── 프로젝트 관리 ────────────────────────────────────────────────────────
 
@@ -405,5 +407,12 @@ public class ServiceAdminController {
     public ResponseEntity<Void> recalculateAllGrades() {
         serviceAdminService.recalculateAllTalentGrades();
         return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "전문가 ES 인덱스 전체 재구성 (기존 데이터 초기 인덱싱 또는 인덱스 불일치 시 사용)")
+    @PostMapping("/talents/reindex")
+    public ResponseEntity<java.util.Map<String, Object>> reindexTalents() {
+        long count = talentIndexService.reindexAll();
+        return ResponseEntity.ok(java.util.Map.of("indexed", count));
     }
 }
