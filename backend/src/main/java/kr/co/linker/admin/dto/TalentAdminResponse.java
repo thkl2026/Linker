@@ -37,7 +37,9 @@ public record TalentAdminResponse(
         String referralSource,
         Integer itCareerMonths,
         String photoUrl,
-        String resumeUrl
+        String resumeUrl,
+        boolean isBlacklisted,
+        String blacklistReason
 ) {
     private static final Logger log = LoggerFactory.getLogger(TalentAdminResponse.class);
 
@@ -77,7 +79,9 @@ public record TalentAdminResponse(
                 p.getReferralSource(),
                 p.getItCareerMonths(),
                 photoUrl,
-                resumeUrl
+                resumeUrl,
+                p.isBlacklisted(),
+                p.getBlacklistReason()
         );
     }
 }

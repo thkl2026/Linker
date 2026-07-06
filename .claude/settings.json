@@ -3,7 +3,14 @@
     "allow": [
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(git -C f:/linker log --oneline -5)",
+      "Bash(git -C f:/linker add backend/src/main/java/kr/co/linker/admin/service/ResumeAnalysisService.java)",
+      "Bash(git -C f:/linker commit -m ' *)",
+      "Bash(git -C f:/linker push origin main)",
+      "Bash(git -C f:/linker log --oneline -8)",
+      "Bash(git -C f:/linker add backend/src/main/resources/application.yml backend/src/main/resources/application-local.yml)",
+      "Bash(git -C f:/linker add backend/src/main/resources/application.yml)"
     ]
   },
   "model": "claude-sonnet-4-6"

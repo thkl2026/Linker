@@ -1,5 +1,7 @@
 package kr.co.linker.admin.controller;
 
+import kr.co.linker.admin.dto.UpdateBlacklistRequest;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -296,6 +298,15 @@ public class ServiceAdminController {
     @DeleteMapping("/talents/{id}")
     public ResponseEntity<Void> deleteTalent(@PathVariable UUID id) {
         serviceAdminService.deleteTalent(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "전문가 블랙리스트 상태 변경")
+    @PatchMapping("/talents/{id}/blacklist")
+    public ResponseEntity<Void> updateBlacklist(
+            @PathVariable UUID id,
+            @RequestBody UpdateBlacklistRequest req) {
+        serviceAdminService.updateBlacklist(id, req.isBlacklisted(), req.reason());
         return ResponseEntity.noContent().build();
     }
 

@@ -44,6 +44,9 @@ public class TalentDocument {
     @Field(type = FieldType.Boolean)
     private boolean deleted;
 
+    @Field(type = FieldType.Boolean)
+    private boolean isBlacklisted;
+
     @Field(type = FieldType.Text, analyzer = "korean_analyzer")
     private List<String> skills;
 

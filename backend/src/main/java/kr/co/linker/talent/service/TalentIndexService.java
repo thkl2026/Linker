@@ -14,7 +14,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.IndexOperations;
@@ -113,9 +115,12 @@ public class TalentIndexService {
             return b;
         }));
 
+        Sort combinedSort = Sort.by(Sort.Direction.ASC, "isBlacklisted").and(pageable.getSort());
+        PageRequest newPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), combinedSort);
+
         NativeQuery nativeQuery = NativeQuery.builder()
             .withQuery(boolQuery)
-            .withPageable(pageable)
+            .withPageable(newPageable)
             .build();
 
         SearchHits<TalentDocument> hits = elasticsearchOperations.search(nativeQuery, TalentDocument.class);
@@ -161,6 +166,7 @@ public class TalentIndexService {
             .skillGrade(profile.getSkillGrade())
             .title(profile.getTitle())
             .deleted(profile.isDeleted())
+            .isBlacklisted(profile.isBlacklisted())
             .skills(skills)
             .companyNames(companyNames)
             .projectNames(projectNames)

@@ -30,6 +30,10 @@ public interface TalentProfileRepository extends JpaRepository<TalentProfile, UU
      */
     Optional<TalentProfile> findByUserIdAndDeletedAtIsNull(UUID userId);
 
+    Optional<TalentProfile> findByPhoneAndDeletedAtIsNull(String phone);
+
+    Optional<TalentProfile> findByEmailHashAndDeletedAtIsNull(String emailHash);
+
     Page<TalentProfile> findAllByDeletedAtIsNull(Pageable pageable);
 
     long countByDeletedAtIsNull();

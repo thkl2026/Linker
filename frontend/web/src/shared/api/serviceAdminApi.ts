@@ -120,6 +120,8 @@ export interface TalentAdmin {
   itCareerMonths?: number | null
   photoUrl?: string | null
   resumeUrl?: string | null
+  isBlacklisted?: boolean
+  blacklistReason?: string | null
 }
 
 export interface CreateTalentRequest {
@@ -207,6 +209,7 @@ export interface AdminReviewRequest {
   technicalScore: number
   reliabilityScore: number
   comment?: string
+  isBlacklisted?: boolean
 }
 
 export interface LabelCount { label: string; count: number }
@@ -414,6 +417,9 @@ export const serviceAdminApi = {
 
   deleteTalent: (id: string) =>
     axiosInstance.delete(`/api/v1/service-admin/talents/${id}`),
+
+  updateBlacklist: (id: string, isBlacklisted: boolean, reason: string | null) =>
+    axiosInstance.patch(`/api/v1/service-admin/talents/${id}/blacklist`, { isBlacklisted, reason }),
 
   recalculateAllGrades: () =>
     axiosInstance.post<void>('/api/v1/service-admin/talents/recalculate-grades'),

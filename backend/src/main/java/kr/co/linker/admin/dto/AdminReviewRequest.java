@@ -8,5 +8,6 @@ public record AdminReviewRequest(
         @NotNull @Min(1) @Max(5) Integer collaborationScore,
         @NotNull @Min(1) @Max(5) Integer technicalScore,
         @NotNull @Min(1) @Max(5) Integer reliabilityScore,
-        String comment
+        String comment,
+        Boolean isBlacklisted
 ) {}

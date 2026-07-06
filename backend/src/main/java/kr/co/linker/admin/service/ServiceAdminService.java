@@ -164,6 +164,24 @@ public class ServiceAdminService {
 
     @Transactional
     public UUID createTalent(CreateTalentRequest req) {
+        // 블랙리스트 검증 로직 추가
+        if (req.phone() != null && !req.phone().isBlank()) {
+            String encryptedPhone = encryptionService.encrypt(req.phone());
+            talentProfileRepository.findByPhoneAndDeletedAtIsNull(encryptedPhone).ifPresent(p -> {
+                if (p.isBlacklisted()) {
+                    throw new LinkerException(HttpStatus.FORBIDDEN, "블랙리스트로 지정된 인력입니다. (사유: " + p.getBlacklistReason() + ")");
+                }
+            });
+        }
+        if (req.email() != null && !req.email().isBlank()) {
+            String candidateHash = encryptionService.hash(req.email());
+            talentProfileRepository.findByEmailHashAndDeletedAtIsNull(candidateHash).ifPresent(p -> {
+                if (p.isBlacklisted()) {
+                    throw new LinkerException(HttpStatus.FORBIDDEN, "블랙리스트로 지정된 인력입니다. (사유: " + p.getBlacklistReason() + ")");
+                }
+            });
+        }
+
         String userEmail;
         if (req.email() != null && !req.email().isBlank()) {
             String candidateHash = encryptionService.hash(req.email());
@@ -660,7 +678,7 @@ public class ServiceAdminService {
 
     @Transactional
     public void submitTalentReview(UUID talentId, UUID reviewerId, AdminReviewRequest req) {
-        talentProfileRepository.findById(talentId)
+        TalentProfile talent = talentProfileRepository.findById(talentId)
                 .orElseThrow(() -> new LinkerException(HttpStatus.NOT_FOUND, "TALENT_NOT_FOUND", "전문가를 찾을 수 없습니다."));
         PeerReview review = PeerReview.create(
                 talentId, reviewerId, null,
@@ -669,6 +687,13 @@ public class ServiceAdminService {
         );
         peerReviewRepository.save(review);
         log.info("[SERVICE_ADMIN] 전문가 평가 등록 talentId={} reviewerId={}", talentId, reviewerId);
+        
+        if (Boolean.TRUE.equals(req.isBlacklisted())) {
+            talent.updateBlacklist(true, req.comment() != null && !req.comment().isBlank() ? req.comment() : "평가 중 블랙리스트로 지정됨");
+            talentProfileRepository.save(talent);
+            talentIndexService.index(talentId);
+            log.info("[SERVICE_ADMIN] 평가와 함께 전문가 블랙리스트 지정 완료 talentId={}", talentId);
+        }
     }
 
     @Transactional(readOnly = true)
@@ -941,5 +966,13 @@ public class ServiceAdminService {
             updatedCount++;
         }
         log.info("[SERVICE_ADMIN] 전문가 기술 등급 일괄 재산정 완료. 대상 건수={}", updatedCount);
+    }
+
+    @Transactional
+    public void updateBlacklist(UUID talentId, boolean isBlacklisted, String reason) {
+        TalentProfile profile = requireTalent(talentId);
+        profile.updateBlacklist(isBlacklisted, reason);
+        talentIndexService.index(profile.getId());
+        log.info("[SERVICE_ADMIN] 전문가 블랙리스트 상태 변경: talentId={}, isBlacklisted={}, reason={}", talentId, isBlacklisted, reason);
     }
 }

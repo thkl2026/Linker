@@ -6,7 +6,13 @@
       "Bash(./gradlew test *)",
       "Bash(cd /e/linker && ls backend/src/main/resources/db/migration/ | sed -E 's/^\\(V[0-9]+\\)__.*/\\\\1/' | sort | uniq -d)",
       "Read(//e/e/linker/backend/src/main/resources/db/**)",
-      "Bash(xargs grep -l \"service-admin/talents\")"
+      "Bash(xargs grep -l \"service-admin/talents\")",
+      "PowerShell(New-Item -ItemType Directory -Force \"f:\\\\linker\\\\backend\\\\src\\\\main\\\\resources\\\\elasticsearch\")",
+      "PowerShell(New-Item -ItemType Directory -Force \"f:\\\\linker\\\\backend\\\\src\\\\main\\\\java\\\\kr\\\\co\\\\linker\\\\talent\\\\document\")",
+      "PowerShell(New-Item -ItemType Directory -Force \"f:\\\\linker\\\\backend\\\\src\\\\main\\\\java\\\\kr\\\\co\\\\linker\\\\talent\\\\service\")",
+      "PowerShell(\"dirs created\")",
+      "Bash(./gradlew compileJava --no-daemon -q)",
+      "Bash(git commit -m ' *)"
     ]
   }
 }

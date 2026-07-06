@@ -118,6 +118,14 @@ public class TalentProfile {
     /** Soft Delete */
     private OffsetDateTime deletedAt;
 
+    /** 블랙리스트 여부 */
+    @Column(nullable = false)
+    private boolean isBlacklisted = false;
+
+    /** 블랙리스트 사유 */
+    @Column(length = 500)
+    private String blacklistReason;
+
     // ── AI 스코어 (F-1.3) ───────────────────────────────────────────────────
     @Column(precision = 5, scale = 2)
     private BigDecimal skillScore = BigDecimal.ZERO;
@@ -287,6 +295,11 @@ public class TalentProfile {
     /** Soft Delete */
     public void delete() {
         this.deletedAt = OffsetDateTime.now();
+    }
+
+    public void updateBlacklist(boolean isBlacklisted, String blacklistReason) {
+        this.isBlacklisted = isBlacklisted;
+        this.blacklistReason = blacklistReason;
     }
 
     /** 삭제 여부 */

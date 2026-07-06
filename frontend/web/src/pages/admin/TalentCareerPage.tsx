@@ -847,6 +847,22 @@ function TalentDetailModal({
   const [insightKeywords, setInsightKeywords] = useState<string>('')
   const [insightLoading, setInsightLoading] = useState(false)
 
+  // ── 블랙리스트 상태 ─────────────────────────────────────────────────────────
+  const [blacklistModalOpen, setBlacklistModalOpen] = useState(false)
+  const [blacklistReasonInput, setBlacklistReasonInput] = useState(talent.blacklistReason ?? '')
+  
+  const toggleBlacklistMutation = useMutation({
+    mutationFn: (req: { isBlacklisted: boolean, reason: string | null }) => 
+      serviceAdminApi.updateBlacklist(talent.id, req.isBlacklisted, req.reason),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin', 'talents'] })
+      addToast('블랙리스트 상태가 업데이트되었습니다.', 'success')
+      setBlacklistModalOpen(false)
+      onUpdated()
+    },
+    onError: () => addToast('블랙리스트 상태 업데이트에 실패했습니다.', 'error'),
+  })
+
   // ── 평가/리뷰 상태 ────────────────────────────────────────────────────────
   const [reviewTab, setReviewTab] = useState<'write' | 'history'>('write')
   const [rCollab,   setRCollab]   = useState(0)
@@ -1149,6 +1165,11 @@ function TalentDetailModal({
               <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${AVAILABILITY_COLORS[talent.availabilityStatus]}`}>
                 {AVAILABILITY_LABELS[talent.availabilityStatus]}
               </span>
+              {talent.isBlacklisted && (
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700 cursor-help" title={talent.blacklistReason ?? ''}>
+                  블랙리스트
+                </span>
+              )}
             </div>
           </div>
           
@@ -1244,6 +1265,10 @@ function TalentDetailModal({
                     <button onClick={() => setMode('edit')}
                       className="px-4 py-2 bg-white border border-border/50 hover:bg-surface hover:border-secondary transition-colors rounded-xl text-xs font-bold text-primary flex items-center gap-2 shadow-sm">
                       ✏️ 기본정보 수정
+                    </button>
+                    <button onClick={() => { setBlacklistReasonInput(talent.blacklistReason ?? ''); setBlacklistModalOpen(true); }}
+                      className="px-4 py-2 bg-white border border-red-200 hover:bg-red-50 hover:border-red-300 transition-colors rounded-xl text-xs font-bold text-red-600 flex items-center gap-2 shadow-sm">
+                      {talent.isBlacklisted ? '🛡️ 블랙리스트 관리' : '⚠️ 블랙리스트 추가'}
                     </button>
                   </div>
                 </div>
@@ -2657,6 +2682,64 @@ function InsightPanel({
 
         </div>
       )}
+
+      {blacklistModalOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md">
+            <h3 className="text-lg font-bold text-primary mb-4">
+              {talent.isBlacklisted ? '블랙리스트 관리' : '블랙리스트 추가'}
+            </h3>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-primary/70 mb-1.5">사유</label>
+                <textarea
+                  value={blacklistReasonInput}
+                  onChange={e => setBlacklistReasonInput(e.target.value)}
+                  placeholder="블랙리스트 지정 사유를 입력하세요"
+                  rows={4}
+                  className="w-full text-sm px-3 py-2 border border-border rounded-lg bg-surface focus:outline-none focus:ring-2 focus:ring-secondary/50 resize-none"
+                />
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-end gap-2">
+              <button 
+                onClick={() => setBlacklistModalOpen(false)}
+                className="px-4 py-2 rounded-lg border border-border text-sm font-semibold text-primary/70 hover:bg-surface"
+              >
+                취소
+              </button>
+              {talent.isBlacklisted ? (
+                <>
+                  <button 
+                    onClick={() => toggleBlacklistMutation.mutate({ isBlacklisted: false, reason: null })}
+                    disabled={toggleBlacklistMutation.isPending}
+                    className="px-4 py-2 rounded-lg bg-surface border border-border text-primary text-sm font-semibold hover:bg-surface/80"
+                  >
+                    해제
+                  </button>
+                  <button 
+                    onClick={() => toggleBlacklistMutation.mutate({ isBlacklisted: true, reason: blacklistReasonInput })}
+                    disabled={toggleBlacklistMutation.isPending || !blacklistReasonInput.trim()}
+                    className="px-4 py-2 rounded-lg bg-red-600 text-white text-sm font-semibold hover:bg-red-700 disabled:opacity-50"
+                  >
+                    사유 수정
+                  </button>
+                </>
+              ) : (
+                <button 
+                  onClick={() => toggleBlacklistMutation.mutate({ isBlacklisted: true, reason: blacklistReasonInput })}
+                  disabled={toggleBlacklistMutation.isPending || !blacklistReasonInput.trim()}
+                  className="px-4 py-2 rounded-lg bg-red-600 text-white text-sm font-semibold hover:bg-red-700 disabled:opacity-50"
+                >
+                  블랙리스트 추가
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   )
 }
@@ -3332,6 +3415,7 @@ function EvaluationModal({
   const [rTech,     setRTech]     = useState(0)
   const [rReliable, setRReliable] = useState(0)
   const [rComment,  setRComment]  = useState('')
+  const [rBlacklisted, setRBlacklisted] = useState(false)
 
   const { data: history, refetch: refetchHistory } = useQuery({
     queryKey: ['eval-modal-history', talent.id],
@@ -3342,9 +3426,10 @@ function EvaluationModal({
     mutationFn: () => serviceAdminApi.submitTalentReview(talent.id, {
       collaborationScore: rCollab, technicalScore: rTech, reliabilityScore: rReliable,
       comment: rComment || undefined,
+      isBlacklisted: rBlacklisted ? true : undefined,
     }),
     onSuccess: () => {
-      setRCollab(0); setRTech(0); setRReliable(0); setRComment('')
+      setRCollab(0); setRTech(0); setRReliable(0); setRComment(''); setRBlacklisted(false)
       refetchHistory()
       qc.invalidateQueries({ queryKey: ['talent-review-history', talent.id] })
       qc.invalidateQueries({ queryKey: ['talent-eval-list'] })
@@ -3458,6 +3543,18 @@ function EvaluationModal({
                 <textarea value={rComment} onChange={e => setRComment(e.target.value)} rows={3}
                   className="w-full bg-surface/60 border border-border/50 rounded-xl px-4 py-3 text-sm resize-none focus:outline-none focus:border-secondary transition-all"
                   placeholder="해당 전문가에 대한 종합 의견을 자유롭게 작성하세요..." />
+              </div>
+              <div className="flex items-center gap-2 mt-2">
+                <input
+                  type="checkbox"
+                  id="markBlacklist"
+                  checked={rBlacklisted}
+                  onChange={e => setRBlacklisted(e.target.checked)}
+                  className="w-4 h-4 accent-red-600 rounded border-gray-300 focus:ring-red-500"
+                />
+                <label htmlFor="markBlacklist" className="text-sm font-semibold text-red-600 cursor-pointer">
+                  이 전문가를 블랙리스트로 지정 (사유는 위 코멘트로 자동 등록됨)
+                </label>
               </div>
             </div>
           )}
