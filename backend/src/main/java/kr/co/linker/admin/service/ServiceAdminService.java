@@ -169,7 +169,7 @@ public class ServiceAdminService {
             String encryptedPhone = encryptionService.encrypt(req.phone());
             talentProfileRepository.findByPhoneAndDeletedAtIsNull(encryptedPhone).ifPresent(p -> {
                 if (p.isBlacklisted()) {
-                    throw new LinkerException(HttpStatus.FORBIDDEN, "블랙리스트로 지정된 인력입니다. (사유: " + p.getBlacklistReason() + ")");
+                    throw new LinkerException(HttpStatus.FORBIDDEN, "TALENT_BLACKLISTED", "블랙리스트로 지정된 인력입니다. (사유: " + p.getBlacklistReason() + ")");
                 }
             });
         }
@@ -177,7 +177,7 @@ public class ServiceAdminService {
             String candidateHash = encryptionService.hash(req.email());
             talentProfileRepository.findByEmailHashAndDeletedAtIsNull(candidateHash).ifPresent(p -> {
                 if (p.isBlacklisted()) {
-                    throw new LinkerException(HttpStatus.FORBIDDEN, "블랙리스트로 지정된 인력입니다. (사유: " + p.getBlacklistReason() + ")");
+                    throw new LinkerException(HttpStatus.FORBIDDEN, "TALENT_BLACKLISTED", "블랙리스트로 지정된 인력입니다. (사유: " + p.getBlacklistReason() + ")");
                 }
             });
         }
