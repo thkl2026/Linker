@@ -2399,6 +2399,64 @@ function TalentDetailModal({
           onClose={() => { setExpFormOpen(false); setEditingExp(null) }}
         />
       )}
+
+      {blacklistModalOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md">
+            <h3 className="text-lg font-bold text-primary mb-4">
+              {talent.isBlacklisted ? '블랙리스트 관리' : '블랙리스트 추가'}
+            </h3>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-primary/70 mb-1.5">사유</label>
+                <textarea
+                  value={blacklistReasonInput}
+                  onChange={e => setBlacklistReasonInput(e.target.value)}
+                  placeholder="블랙리스트 지정 사유를 입력하세요"
+                  rows={4}
+                  className="w-full text-sm px-3 py-2 border border-border rounded-lg bg-surface focus:outline-none focus:ring-2 focus:ring-secondary/50 resize-none"
+                />
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-end gap-2">
+              <button 
+                onClick={() => setBlacklistModalOpen(false)}
+                className="px-4 py-2 rounded-lg border border-border text-sm font-semibold text-primary/70 hover:bg-surface"
+              >
+                취소
+              </button>
+              {talent.isBlacklisted ? (
+                <>
+                  <button 
+                    onClick={() => toggleBlacklistMutation.mutate({ isBlacklisted: false, reason: null })}
+                    disabled={toggleBlacklistMutation.isPending}
+                    className="px-4 py-2 rounded-lg bg-surface border border-border text-primary text-sm font-semibold hover:bg-surface/80"
+                  >
+                    해제
+                  </button>
+                  <button 
+                    onClick={() => toggleBlacklistMutation.mutate({ isBlacklisted: true, reason: blacklistReasonInput })}
+                    disabled={toggleBlacklistMutation.isPending || !blacklistReasonInput.trim()}
+                    className="px-4 py-2 rounded-lg bg-red-600 text-white text-sm font-semibold hover:bg-red-700 disabled:opacity-50"
+                  >
+                    사유 수정
+                  </button>
+                </>
+              ) : (
+                <button 
+                  onClick={() => toggleBlacklistMutation.mutate({ isBlacklisted: true, reason: blacklistReasonInput })}
+                  disabled={toggleBlacklistMutation.isPending || !blacklistReasonInput.trim()}
+                  className="px-4 py-2 rounded-lg bg-red-600 text-white text-sm font-semibold hover:bg-red-700 disabled:opacity-50"
+                >
+                  블랙리스트 추가
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -2680,64 +2738,6 @@ function InsightPanel({
           </div>
 
 
-        </div>
-      )}
-
-      {blacklistModalOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md">
-            <h3 className="text-lg font-bold text-primary mb-4">
-              {talent.isBlacklisted ? '블랙리스트 관리' : '블랙리스트 추가'}
-            </h3>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-semibold text-primary/70 mb-1.5">사유</label>
-                <textarea
-                  value={blacklistReasonInput}
-                  onChange={e => setBlacklistReasonInput(e.target.value)}
-                  placeholder="블랙리스트 지정 사유를 입력하세요"
-                  rows={4}
-                  className="w-full text-sm px-3 py-2 border border-border rounded-lg bg-surface focus:outline-none focus:ring-2 focus:ring-secondary/50 resize-none"
-                />
-              </div>
-            </div>
-
-            <div className="mt-6 flex justify-end gap-2">
-              <button 
-                onClick={() => setBlacklistModalOpen(false)}
-                className="px-4 py-2 rounded-lg border border-border text-sm font-semibold text-primary/70 hover:bg-surface"
-              >
-                취소
-              </button>
-              {talent.isBlacklisted ? (
-                <>
-                  <button 
-                    onClick={() => toggleBlacklistMutation.mutate({ isBlacklisted: false, reason: null })}
-                    disabled={toggleBlacklistMutation.isPending}
-                    className="px-4 py-2 rounded-lg bg-surface border border-border text-primary text-sm font-semibold hover:bg-surface/80"
-                  >
-                    해제
-                  </button>
-                  <button 
-                    onClick={() => toggleBlacklistMutation.mutate({ isBlacklisted: true, reason: blacklistReasonInput })}
-                    disabled={toggleBlacklistMutation.isPending || !blacklistReasonInput.trim()}
-                    className="px-4 py-2 rounded-lg bg-red-600 text-white text-sm font-semibold hover:bg-red-700 disabled:opacity-50"
-                  >
-                    사유 수정
-                  </button>
-                </>
-              ) : (
-                <button 
-                  onClick={() => toggleBlacklistMutation.mutate({ isBlacklisted: true, reason: blacklistReasonInput })}
-                  disabled={toggleBlacklistMutation.isPending || !blacklistReasonInput.trim()}
-                  className="px-4 py-2 rounded-lg bg-red-600 text-white text-sm font-semibold hover:bg-red-700 disabled:opacity-50"
-                >
-                  블랙리스트 추가
-                </button>
-              )}
-            </div>
-          </div>
         </div>
       )}
     </section>
