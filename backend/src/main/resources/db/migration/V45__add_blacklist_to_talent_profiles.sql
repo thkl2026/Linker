@@ -1,0 +1,2 @@
+ALTER TABLE talent_profiles ADD COLUMN IF NOT EXISTS is_blacklisted BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE talent_profiles ADD COLUMN IF NOT EXISTS blacklist_reason TEXT;

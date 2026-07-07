@@ -61,7 +61,8 @@ public class DbTableCheckTest {
                                     ResultSetMetaData metaData = sampleRs.getMetaData();
                                     int columnCount = metaData.getColumnCount();
                                     int sampleIdx = 1;
-                                    while (sampleRs.next() && sampleIdx <= 3) {
+                                    final int maxSamples = 3;
+                                    while (sampleRs.next() && sampleIdx <= maxSamples) {
                                         Map<String, Object> row = new HashMap<>();
                                         for (int i = 1; i <= columnCount; i++) {
                                             String columnName = metaData.getColumnName(i);

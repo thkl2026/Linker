@@ -25,6 +25,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Sql("/db/settlement-test-data.sql")
 class SettlementRepositoryTest extends AbstractIntegrationTest {
 
+    private static final int TEST_YEAR = 2026;
+    private static final int TEST_MONTH = 3;
+    private static final int DAY_ONE = 1;
+
     @Autowired
     SettlementRepository settlementRepository;
 
@@ -32,7 +36,7 @@ class SettlementRepositoryTest extends AbstractIntegrationTest {
     @DisplayName("계약ID + 정산월로 정산을 정확히 조회한다")
     void findByContractIdAndSettlementMonth_returnsMatch() {
         UUID contractId = UUID.fromString("aaaaaaaa-0000-0000-0000-000000000001");
-        LocalDate month = LocalDate.of(2026, 3, 1);
+        LocalDate month = LocalDate.of(TEST_YEAR, TEST_MONTH, DAY_ONE);
 
         Optional<Settlement> result =
                 settlementRepository.findByContractIdAndSettlementMonth(contractId, month);
@@ -59,7 +63,7 @@ class SettlementRepositoryTest extends AbstractIntegrationTest {
     @DisplayName("DRAFT 상태 정산을 approve() 하면 APPROVED로 전이된다")
     void approve_changesStatusToApproved() {
         UUID contractId = UUID.fromString("aaaaaaaa-0000-0000-0000-000000000001");
-        LocalDate month = LocalDate.of(2026, 3, 1);
+        LocalDate month = LocalDate.of(TEST_YEAR, TEST_MONTH, DAY_ONE);
         UUID approverId = UUID.fromString("cccccccc-0000-0000-0000-000000000001");
 
         Settlement settlement =
@@ -77,7 +81,7 @@ class SettlementRepositoryTest extends AbstractIntegrationTest {
     void uniqueConstraint_preventsDoubleSettlement() {
         UUID contractId = UUID.fromString("aaaaaaaa-0000-0000-0000-000000000001");
         UUID talentId = UUID.fromString("bbbbbbbb-0000-0000-0000-000000000001");
-        LocalDate month = LocalDate.of(2026, 3, 1);
+        LocalDate month = LocalDate.of(TEST_YEAR, TEST_MONTH, DAY_ONE);
 
         Settlement duplicate = Settlement.create(contractId, talentId, month,
                 new BigDecimal("40.00"), new BigDecimal("500000"), BigDecimal.ZERO);
