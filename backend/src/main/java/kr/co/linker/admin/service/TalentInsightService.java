@@ -36,7 +36,7 @@ public class TalentInsightService {
     @Value("${linker.ai.gemini-api-key}")
     private String geminiApiKey;
 
-    @Value("${linker.ai.llm-model:gemini-2.5-flash}")
+    @Value("${linker.ai.llm-model:gemini-1.5-flash}")
     private String llmModel;
 
     public TalentInsightService(TalentProfileRepository talentProfileRepository,

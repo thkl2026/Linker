@@ -1101,6 +1101,8 @@ function TalentDetailModal({
   // ── 개발자 분석 지표 ──────────────────────────────────────────────────────────
   const projectDurations = projectExps.map(expMonths)
   const shortProjects    = projectExps.filter((_, i) => projectDurations[i] < 2)
+  const under6MonthsProjects = projectExps.filter((_, i) => projectDurations[i] < 6)
+  const over1YearProjects = projectExps.filter((_, i) => projectDurations[i] >= 12)
   const avgProjectMonths = projectExps.length > 0
     ? Math.round(projectDurations.reduce((a, b) => a + b, 0) / projectExps.length)
     : 0
@@ -1319,7 +1321,7 @@ function TalentDetailModal({
                   </h3>
 
                   {/* 상단 스탯 카드 */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
                     <div className="bg-white border border-border/50 rounded-xl px-4 py-3 flex flex-col gap-1 shadow-sm">
                       <span className="text-[11px] font-semibold text-primary/40 uppercase tracking-wide">전체 프로젝트</span>
                       <span className="text-2xl font-bold text-primary">{projectExps.length}<span className="text-sm font-normal text-primary/50 ml-1">건</span></span>
@@ -1331,6 +1333,24 @@ function TalentDetailModal({
                       </span>
                       {projectExps.length > 0 && (
                         <span className="text-[11px] text-primary/40">전체의 {Math.round((shortProjects.length / projectExps.length) * 100)}%</span>
+                      )}
+                    </div>
+                    <div className="bg-white border border-border/50 rounded-xl px-4 py-3 flex flex-col gap-1 shadow-sm">
+                      <span className="text-[11px] font-semibold text-primary/40 uppercase tracking-wide">6개월 미만 프로젝트</span>
+                      <span className="text-2xl font-bold text-primary">
+                        {under6MonthsProjects.length}<span className="text-sm font-normal text-primary/50 ml-1">건</span>
+                      </span>
+                      {projectExps.length > 0 && (
+                        <span className="text-[11px] text-primary/40">전체의 {Math.round((under6MonthsProjects.length / projectExps.length) * 100)}%</span>
+                      )}
+                    </div>
+                    <div className="bg-white border border-border/50 rounded-xl px-4 py-3 flex flex-col gap-1 shadow-sm">
+                      <span className="text-[11px] font-semibold text-primary/40 uppercase tracking-wide">1년 이상 프로젝트</span>
+                      <span className="text-2xl font-bold text-primary">
+                        {over1YearProjects.length}<span className="text-sm font-normal text-primary/50 ml-1">건</span>
+                      </span>
+                      {projectExps.length > 0 && (
+                        <span className="text-[11px] text-primary/40">전체의 {Math.round((over1YearProjects.length / projectExps.length) * 100)}%</span>
                       )}
                     </div>
                     <div className="bg-white border border-border/50 rounded-xl px-4 py-3 flex flex-col gap-1 shadow-sm">
@@ -2166,12 +2186,12 @@ function TalentDetailModal({
                     {analyzing ? `AI 분석 중... (${uploadedFileName})` : uploadedFileName ? uploadedFileName : '이력서 업로드로 자동 입력'}
                   </p>
                   <p className="text-xs text-primary/40 mt-0.5">
-                    {uploadedFileName && !analyzing ? '분석 완료 · 다른 파일을 올려 재분석' : 'PDF · DOCX · TXT · 이미지(JPG/PNG/WEBP) · 드래그 앤 드롭 가능'}
+                    {uploadedFileName && !analyzing ? '분석 완료 · 다른 파일을 올려 재분석' : 'PDF · DOC/DOCX · TXT · 이미지(JPG/PNG/WEBP) · 드래그 앤 드롭 가능'}
                   </p>
                 </div>
                 {!analyzing && <span className="text-xs font-semibold text-secondary shrink-0">{uploadedFileName ? '재선택' : '파일 선택'}</span>}
               </div>
-              <input ref={fileInputRef} type="file" accept=".pdf,.docx,.txt,.jpg,.jpeg,.png,.webp" className="hidden"
+              <input ref={fileInputRef} type="file" accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.webp" className="hidden"
                 onChange={async e => { const f = e.target.files?.[0]; if (!f) return; e.target.value = ''; await processFile(f) }} />
 
               {talent.resumeUrl && (
@@ -2330,9 +2350,12 @@ function TalentDetailModal({
                 </div>
                 <div>
                   <label className="text-sm font-medium text-primary/70 block mb-1">희망 단가 (원/월)</label>
-                  <input type="number" value={form.desiredRate ?? ''}
-                    onChange={e => setForm(f => ({ ...f, desiredRate: e.target.value ? Number(e.target.value) : undefined }))}
-                    className="w-full border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50" placeholder="5000000" />
+                  <input type="text" value={form.desiredRate ? form.desiredRate.toLocaleString() : ''}
+                    onChange={e => {
+                      const val = e.target.value.replace(/[^0-9]/g, '');
+                      setForm(f => ({ ...f, desiredRate: val ? Number(val) : undefined }));
+                    }}
+                    className="w-full border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50" placeholder="5,000,000" />
                 </div>
               </div>
               <div>
@@ -2939,7 +2962,7 @@ function TalentCreateModal({ onClose, onSave, isPending }: {
               </div>
               {!analyzing && !dragging && <span className="text-xs font-semibold text-secondary shrink-0">{uploadedFileName ? '재선택' : '파일 선택'}</span>}
             </div>
-            <input ref={fileInputRef} type="file" accept=".pdf,.docx,.txt,.jpg,.jpeg,.png,.webp" className="hidden"
+            <input ref={fileInputRef} type="file" accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.webp" className="hidden"
               onChange={async e => { const f = e.target.files?.[0]; if (!f) return; e.target.value = ''; await processFile(f) }} />
           </>
         ) : (
@@ -3089,9 +3112,12 @@ function TalentCreateModal({ onClose, onSave, isPending }: {
             </div>
             <div>
               <label className="text-sm font-medium text-primary/70 block mb-1">희망 단가 (원/월)</label>
-              <input type="number" value={form.desiredRate ?? ''}
-                onChange={e => setForm(f => ({ ...f, desiredRate: e.target.value ? Number(e.target.value) : undefined }))}
-                className="w-full border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50" placeholder="5000000" />
+              <input type="text" value={form.desiredRate ? form.desiredRate.toLocaleString() : ''}
+                onChange={e => {
+                  const val = e.target.value.replace(/[^0-9]/g, '');
+                  setForm(f => ({ ...f, desiredRate: val ? Number(val) : undefined }));
+                }}
+                className="w-full border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50" placeholder="5,000,000" />
             </div>
           </div>
           <div>
