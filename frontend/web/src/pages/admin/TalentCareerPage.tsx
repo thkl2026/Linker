@@ -1949,7 +1949,19 @@ function TalentDetailModal({
                                   <input type="month" className="w-full text-center text-primary/80 bg-transparent hover:bg-white px-1 py-1 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none text-[13px] transition-all" 
                                     defaultValue={exp.startDate.substring(0,7)} 
                                     onBlur={e => { const val = e.target.value ? e.target.value + '-01' : ''; if (val !== exp.startDate) handleExpUpdate(exp.id, exp, { startDate: val }) }} />
-                                  <div className="text-primary/40 text-[10px]">~</div>
+                                  <div className="flex items-center justify-center gap-1 text-[10px]">
+                                    <span className="text-primary/40">~</span>
+                                    {exp.startDate && (
+                                      <span className="px-1.5 py-0.5 bg-violet-50 border border-violet-100 text-violet-600 rounded font-bold whitespace-nowrap">
+                                        {(() => {
+                                          const s = new Date(exp.startDate);
+                                          const eDate = exp.endDate ? new Date(exp.endDate) : new Date();
+                                          const m = (eDate.getFullYear() - s.getFullYear()) * 12 + (eDate.getMonth() - s.getMonth()) + 1;
+                                          return m > 0 ? `${m}개월` : '0개월';
+                                        })()}
+                                      </span>
+                                    )}
+                                  </div>
                                   <input type="month" className="w-full text-center text-primary/80 bg-transparent hover:bg-white px-1 py-1 rounded-sm focus:bg-blue-50 focus:ring-1 focus:ring-blue-400 outline-none text-[13px] transition-all" 
                                     defaultValue={exp.endDate?.substring(0,7) || ''} 
                                     onBlur={e => { const val = e.target.value ? e.target.value + '-01' : null; if (val !== exp.endDate) handleExpUpdate(exp.id, exp, { endDate: val }) }} />
