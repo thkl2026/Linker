@@ -78,6 +78,7 @@ public class TalentInsightService {
         TalentInsightResponse result = parseInsight(raw, talentId);
         if (result != null) {
             result = computeDomainPct(result, experiences);
+            result = computeGapPeriods(result, experiences);
         }
         log.info("[INSIGHT_DONE] talentId={} riskFlags={}", talentId,
                 result != null && result.riskFlags() != null ? result.riskFlags().size() : 0);
@@ -162,6 +163,64 @@ public class TalentInsightService {
                 result.summary(), result.careerPattern(), result.technicalProfile(),
                 newDomain, result.roleProfile(), result.softSkills(),
                 result.riskFlags(), result.marketValue(), result.careerRoadmap());
+    }
+
+    private TalentInsightResponse computeGapPeriods(TalentInsightResponse result, List<ExperienceResponse> experiences) {
+        if (result.careerPattern() == null) return result;
+
+        List<ExperienceResponse> sorted = experiences.stream()
+                .filter(e -> e.startDate() != null && (String.valueOf(e.experienceType()).equals("COMPANY") || String.valueOf(e.experienceType()).equals("PROJECT")))
+                .sorted(Comparator.comparing(ExperienceResponse::startDate))
+                .collect(Collectors.toList());
+
+        List<TalentInsightResponse.GapPeriod> gaps = new ArrayList<>();
+        LocalDate currentEnd = null;
+
+        for (ExperienceResponse exp : sorted) {
+            LocalDate start = exp.startDate();
+            LocalDate end = exp.endDate() != null ? exp.endDate() : LocalDate.now();
+
+            if (currentEnd != null && start.isAfter(currentEnd)) {
+                int gapMonths = (int) ChronoUnit.MONTHS.between(currentEnd.withDayOfMonth(1), start.withDayOfMonth(1));
+                if (gapMonths >= 3) {
+                    gaps.add(new TalentInsightResponse.GapPeriod(
+                            currentEnd.toString().substring(0, 7),
+                            start.toString().substring(0, 7),
+                            gapMonths,
+                            "이직 준비 또는 휴식 추정"
+                    ));
+                }
+            }
+            if (currentEnd == null || end.isAfter(currentEnd)) {
+                currentEnd = end;
+            }
+        }
+        Collections.reverse(gaps);
+
+        TalentInsightResponse.CareerPattern oldPattern = result.careerPattern();
+        TalentInsightResponse.CareerPattern newPattern = new TalentInsightResponse.CareerPattern(
+                oldPattern.consistency(), oldPattern.consistencyReason(),
+                oldPattern.shortProjectCount(), oldPattern.shortProjectRisk(),
+                gaps, oldPattern.avgProjectMonths(),
+                oldPattern.persistenceLevel(), oldPattern.persistenceReason()
+        );
+
+        List<TalentInsightResponse.RiskFlag> newRiskFlags = new ArrayList<>();
+        if (result.riskFlags() != null) {
+            newRiskFlags.addAll(result.riskFlags().stream().filter(f -> !"GAP".equals(f.type())).collect(Collectors.toList()));
+        }
+        for (TalentInsightResponse.GapPeriod gap : gaps) {
+            if (gap.months() >= 6) {
+                newRiskFlags.add(new TalentInsightResponse.RiskFlag("GAP", gap.months() >= 12 ? "HIGH" : "MEDIUM",
+                        gap.fromDate() + " ~ " + gap.toDate() + " (" + gap.months() + "개월) 장기 공백"));
+            }
+        }
+
+        return new TalentInsightResponse(
+                result.summary(), newPattern, result.technicalProfile(),
+                result.domainProfile(), result.roleProfile(), result.softSkills(),
+                newRiskFlags, result.marketValue(), result.careerRoadmap()
+        );
     }
 
     private String findDomain(String projectName, Map<String, String> domainMap) {
