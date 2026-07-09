@@ -1395,17 +1395,45 @@ function TalentDetailModal({
                       <div className="bg-surface px-3 py-2 text-center text-[13px] font-bold text-primary border-r border-b border-border/50 flex items-center justify-center">생년월일</div>
                       <div className="border-r border-b border-border/50 bg-white text-[13px]">
                         {editingField === 'birthDate' ? (
-                          <div className="p-0.5"><input autoFocus type="date"
+                          <div className="p-0.5"><input autoFocus type="text"
+                            placeholder="YYYY-MM-DD 또는 YYYY"
                             className="w-full bg-blue-50 px-2.5 py-1.5 outline-none ring-1 ring-blue-400 rounded-sm text-primary/80 text-[13px]"
                             value={form.birthDate ?? ''}
                             onChange={e => setForm(f => ({ ...f, birthDate: e.target.value }))}
-                            onBlur={() => { setHasChanges(true); setEditingField(null) }}
-                            onKeyDown={e => { if (e.key === 'Enter') { setHasChanges(true); setEditingField(null) } if (e.key === 'Escape') setEditingField(null) }}
+                            onBlur={(e) => { 
+                               let val = e.target.value.trim();
+                               // 잘못된 예전 데이터 포맷 복원 (예: 197401-01-01)
+                               if (val.length > 10 && val.match(/^\d{4}\d{2}-\d{2}-\d{2}$/)) {
+                                   val = val.substring(0,4) + '-' + val.substring(4,6) + '-' + val.substring(8,10);
+                               }
+                               // 숫자만 입력된 경우 변환
+                               const numeric = val.replace(/\D/g, '');
+                               if (numeric.length === 4) val = numeric + '-01-01';
+                               else if (numeric.length === 8) val = numeric.substring(0,4) + '-' + numeric.substring(4,6) + '-' + numeric.substring(6,8);
+                               else if (numeric.length === 6) {
+                                   const yy = parseInt(numeric.substring(0,2));
+                                   const year = (yy > 30 ? 1900 : 2000) + yy;
+                                   val = year + '-' + numeric.substring(2,4) + '-' + numeric.substring(4,6);
+                               }
+                               setForm(f => ({ ...f, birthDate: val }));
+                               setHasChanges(true); 
+                               setEditingField(null); 
+                            }}
+                            onKeyDown={e => { if (e.key === 'Enter') { e.currentTarget.blur() } if (e.key === 'Escape') setEditingField(null) }}
                           /></div>
                         ) : (
                           <div onDoubleClick={() => setEditingField('birthDate')}
                             className="px-3 py-2 cursor-default group flex items-center gap-1 min-h-[38px] select-none text-[13px]">
-                            <span className="text-primary/80">{form.birthDate || '—'}</span>
+                            <span className="text-primary/80">
+                              {(() => {
+                                 let d = form.birthDate;
+                                 if (!d) return '—';
+                                 if (d.length > 10 && d.match(/^\d{4}\d{2}-\d{2}-\d{2}$/)) {
+                                     return d.substring(0,4) + '-' + d.substring(4,6) + '-' + d.substring(8,10);
+                                 }
+                                 return d;
+                              })()}
+                            </span>
                             <span className="text-[10px] text-primary/20 opacity-0 group-hover:opacity-100 transition-opacity">✎</span>
                           </div>
                         )}
@@ -2243,7 +2271,22 @@ function TalentDetailModal({
                     </div>
                     <div>
                       <label className="text-sm font-medium text-primary/70 block mb-1">생년월일</label>
-                      <input type="date" value={form.birthDate ?? ''} onChange={e => { setForm(f => ({ ...f, birthDate: e.target.value })); setHasChanges(true) }}
+                      <input type="text" placeholder="YYYY-MM-DD 또는 YYYY" value={form.birthDate ?? ''} onChange={e => { setForm(f => ({ ...f, birthDate: e.target.value })); setHasChanges(true) }}
+                        onBlur={(e) => { 
+                           let val = e.target.value.trim();
+                           if (val.length > 10 && val.match(/^\d{4}\d{2}-\d{2}-\d{2}$/)) {
+                               val = val.substring(0,4) + '-' + val.substring(4,6) + '-' + val.substring(8,10);
+                           }
+                           const numeric = val.replace(/\D/g, '');
+                           if (numeric.length === 4) val = numeric + '-01-01';
+                           else if (numeric.length === 8) val = numeric.substring(0,4) + '-' + numeric.substring(4,6) + '-' + numeric.substring(6,8);
+                           else if (numeric.length === 6) {
+                               const yy = parseInt(numeric.substring(0,2));
+                               const year = (yy > 30 ? 1900 : 2000) + yy;
+                               val = year + '-' + numeric.substring(2,4) + '-' + numeric.substring(4,6);
+                           }
+                           setForm(f => ({ ...f, birthDate: val }));
+                        }}
                         className="w-full border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50" />
                     </div>
                   </div>
@@ -3068,7 +3111,22 @@ function TalentCreateModal({ onClose, onSave, isPending }: {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-medium text-primary/70 block mb-1">생년월일</label>
-              <input type="date" value={form.birthDate ?? ''} onChange={e => setForm(f => ({ ...f, birthDate: e.target.value }))}
+              <input type="text" placeholder="YYYY-MM-DD 또는 YYYY" value={form.birthDate ?? ''} onChange={e => setForm(f => ({ ...f, birthDate: e.target.value }))}
+                onBlur={(e) => { 
+                   let val = e.target.value.trim();
+                   if (val.length > 10 && val.match(/^\d{4}\d{2}-\d{2}-\d{2}$/)) {
+                       val = val.substring(0,4) + '-' + val.substring(4,6) + '-' + val.substring(8,10);
+                   }
+                   const numeric = val.replace(/\D/g, '');
+                   if (numeric.length === 4) val = numeric + '-01-01';
+                   else if (numeric.length === 8) val = numeric.substring(0,4) + '-' + numeric.substring(4,6) + '-' + numeric.substring(6,8);
+                   else if (numeric.length === 6) {
+                       const yy = parseInt(numeric.substring(0,2));
+                       const year = (yy > 30 ? 1900 : 2000) + yy;
+                       val = year + '-' + numeric.substring(2,4) + '-' + numeric.substring(4,6);
+                   }
+                   setForm(f => ({ ...f, birthDate: val }));
+                }}
                 className="w-full border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50" />
             </div>
             <div>

@@ -8,10 +8,10 @@
 ### THINK STEP BY STEP (Chain-of-Thought)
 1단계: 이름(name) 추출 — 아래 우선순위로 찾는다.
   ① "성명", "성 명", "이름" 레이블 바로 옆/아래 값을 최우선으로 추출한다. 공백이 포함된 한글("박 창 훈")은 공백을 제거하여 반환("박창훈").
-  ② 레이블이 없으면 이력서 최상단에 단독으로 있는 2~4자 한글 이름을 찾는다.
+  ② 레이블이 없으면 이력서 최상단에 단독으로 있거나 성별/출생연도와 함께 나란히 적힌 2~4자 한글 이름(예: "서용원 남 1977년")을 찾는다.
   ③ "경력기술 프로필", "경력소개서", "SKILL INVENTORY", "이력서", "기술경력서" 같은 문서 제목은 이름이 아님 — 절대 반환 금지.
   한글 이름과 영문 이름(nameEn)이 모두 있으면 각각 추출. 영문 이름만 있으면 nameEn에 저장하고 name은 null.
-  연락처·이메일·생년월일·주소는 전체 이력서에서 탐색한다.
+  연락처·이메일·생년월일·주소는 전체 이력서에서 탐색한다. 생년월일 레이블이 없더라도 이름 근처에 출생연도(예: "1977년", "77년생")가 있으면 이를 생년월일로 간주한다.
 2단계: 직위/직급(title) — "수석 개발자", "팀장", "책임 연구원", "과장" 등 현재 또는 최근 직위를 추출한다.
 3단계: 기술스택 섹션 또는 경력 내 사용 기술을 모두 수집한다.
 4단계: 전체 경력과 보유 기술을 종합하여 category와 field를 판단한다.
@@ -79,8 +79,16 @@
 연락처 |  | email |
 경력 | 30년 이상
 
-### EXAMPLE OUTPUT C:
 {"name":"박용구","nameEn":null,"phone":null,"email":null,"birthDate":"1964-09-01","address":null,"skillGrade":null,"title":"상무","skills":[],"category":null,"field":null,"workType":null,"desiredRate":null}
+
+### EXAMPLE INPUT D (레이블 없는 자유형식 프로필):
+서용원 남 1977년 (만 48세)
+휴대폰 | 010-4258-9643    Email | yoseo77@naver.com
+주소 | 경기 부천시 원미구 역곡1동
+Python AWS Unix Linux GCP Kafka
+
+### EXAMPLE OUTPUT D:
+{"name":"서용원","nameEn":null,"phone":"010-4258-9643","email":"yoseo77@naver.com","birthDate":"1977-01-01","address":"경기 부천시 원미구 역곡1동","skillGrade":null,"title":null,"skills":["Python","AWS","Unix","Linux","GCP","Kafka"],"category":null,"field":null,"workType":null,"desiredRate":null}
 
 ### OUTPUT FORMAT (ONLY JSON, no markdown, no explanation):
 {"name":null,"nameEn":null,"phone":null,"email":null,"birthDate":null,"address":null,"skillGrade":null,"title":null,"skills":[],"category":null,"field":null,"workType":null,"desiredRate":null}
