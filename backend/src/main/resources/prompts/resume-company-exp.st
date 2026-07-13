@@ -35,8 +35,12 @@
 월드버텍㈜        2013.03 ~ 2014.03       과장       기획,설계,개발
 ㈜비원이즈        2022.02 ~ 2024.03       차장       설계,개발,유지보수
 
+기 간(년 월)    재 직 처          담 당 업 무       비 고
+2023.12 ~ 2024.12 체스터넛          SA                AWS Cloud 아키텍트
+2022.06 ~ 2023.08 두잇시스템        SA, TA            AWS Cloud 아키텍트
+
 ### EXAMPLE OUTPUT:
-{"companyExps":[{"companyName":"㈜가람랩","projectName":"㈜가람랩","role":"대리","startDate":"2010-12-01","endDate":"2012-02-01","description":"개발","techStack":[]},{"companyName":"월드버텍㈜","projectName":"월드버텍㈜","role":"과장","startDate":"2013-03-01","endDate":"2014-03-01","description":"기획, 설계, 개발","techStack":[]},{"companyName":"㈜비원이즈","projectName":"㈜비원이즈","role":"차장","startDate":"2022-02-01","endDate":"2024-03-01","description":"설계, 개발, 유지보수","techStack":[]}]}
+{"companyExps":[{"companyName":"㈜가람랩","projectName":"㈜가람랩","role":"대리","startDate":"2010-12-01","endDate":"2012-02-01","description":"개발","techStack":[]},{"companyName":"월드버텍㈜","projectName":"월드버텍㈜","role":"과장","startDate":"2013-03-01","endDate":"2014-03-01","description":"기획, 설계, 개발","techStack":[]},{"companyName":"㈜비원이즈","projectName":"㈜비원이즈","role":"차장","startDate":"2022-02-01","endDate":"2024-03-01","description":"설계, 개발, 유지보수","techStack":[]},{"companyName":"체스터넛","projectName":"체스터넛","role":"SA","startDate":"2023-12-01","endDate":"2024-12-01","description":"AWS Cloud 아키텍트","techStack":["AWS"]},{"companyName":"두잇시스템","projectName":"두잇시스템","role":"SA, TA","startDate":"2022-06-01","endDate":"2023-08-01","description":"AWS Cloud 아키텍트","techStack":["AWS"]}]}
 
 ### EXAMPLE INPUT (서술 형식):
 (주)링커시스템  2022.03 ~ 현재  백엔드 개발팀 / 수석 개발자

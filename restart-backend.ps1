@@ -52,7 +52,7 @@ $errFile = Join-Path $backendDir "bootrun_err.log"
 
 Start-Process `
     -FilePath "$gradlew" `
-    -ArgumentList "bootRun" `
+    -ArgumentList "bootRun --args='--spring.profiles.active=onprem'" `
     -RedirectStandardOutput $logFile `
     -RedirectStandardError  $errFile `
     -WindowStyle Hidden `

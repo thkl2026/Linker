@@ -19,7 +19,12 @@
 - techStack은 공식 표기법: "springboot"→"Spring Boot", "k8s"→"Kubernetes", "nodejs"→"Node.js"
 - projectName 절대 누락 금지 — 없으면 description 첫 문장을 사용할 것
 - 회사 소속 개발 프로젝트·프리랜서 프로젝트·외주 프로젝트 모두 포함
-- **근무회사(또는 고객사/수행처) 열이나 정보가 생략된 프로젝트 테이블/목록이라도, 프로젝트명과 기간, 역할 등이 존재하면 반드시 누락 없이 모든 프로젝트를 추출한다. 이 경우 companyName은 null로 설정한다.**
+- **"회사명", "주요업무(프로젝트 명)", "주요역활 및 담당", "업무상세" 등의 표 형태로 기술된 경력기술서의 경우:** 
+  - "회사명"을 `companyName`으로 매핑
+  - "주요업무(프로젝트 명)"을 `projectName`으로 매핑
+  - "주요역활 및 담당"을 `role`로 매핑
+  - "업무상세" 내용을 바탕으로 `description`과 `techStack`을 추출
+- 근무회사(또는 고객사/수행처) 열이나 정보가 생략된 프로젝트 테이블/목록이라도, 프로젝트명과 기간, 역할 등이 존재하면 반드시 누락 없이 모든 프로젝트를 추출한다. 이 경우 companyName은 null로 설정한다.
 
 ### FIELD MAPPING:
 - companyName : 고객사 또는 수행처명 (없으면 null)
@@ -46,8 +51,17 @@
 역할: 1인 개발
 기술: Node.js, Express, MongoDB
 
+[회사명: ㈜체스트넛]
+주요업무 (프로젝트 명): LG그룹사 AWS 인프라 구축 운영 업무
+기간: 2023.12 ~ 2024.12
+주요역할 및 담당: AWS 클라우드 SA/TA
+업무상세:
+- AWS Cloud 서비스 구축
+- EC2, ASG, CodeDeploy, Lambda, CloudWatch, IAM
+- 문서 작성
+
 ### EXAMPLE OUTPUT:
-{"projectExps":[{"companyName":"한국전력공사","projectName":"차세대 고객정보시스템 구축","role":"백엔드 개발 리드","startDate":"2023-06-01","endDate":"2024-03-01","description":"차세대 고객정보시스템 고도화 3차 백엔드 개발 리드","techStack":["Java","Spring Batch","Oracle","MyBatis","Linux","Jenkins"]},{"companyName":"NH농협은행","projectName":"모바일뱅킹 API 고도화","role":"API 개발","startDate":"2022-01-01","endDate":"2023-05-01","description":"모바일뱅킹 API 고도화 개발","techStack":["Spring Boot","JPA","MySQL","Redis","Swagger"]},{"companyName":null,"projectName":"쇼핑몰 백엔드 개발","role":"1인 개발","startDate":"2021-06-01","endDate":"2021-12-01","description":"프리랜서 쇼핑몰 백엔드 1인 개발","techStack":["Node.js","Express","MongoDB"]}]}
+{"projectExps":[{"companyName":"한국전력공사","projectName":"차세대 고객정보시스템 구축","role":"백엔드 개발 리드","startDate":"2023-06-01","endDate":"2024-03-01","description":"차세대 고객정보시스템 고도화 3차 백엔드 개발 리드","techStack":["Java","Spring Batch","Oracle","MyBatis","Linux","Jenkins"]},{"companyName":"NH농협은행","projectName":"모바일뱅킹 API 고도화","role":"API 개발","startDate":"2022-01-01","endDate":"2023-05-01","description":"모바일뱅킹 API 고도화 개발","techStack":["Spring Boot","JPA","MySQL","Redis","Swagger"]},{"companyName":null,"projectName":"쇼핑몰 백엔드 개발","role":"1인 개발","startDate":"2021-06-01","endDate":"2021-12-01","description":"프리랜서 쇼핑몰 백엔드 1인 개발","techStack":["Node.js","Express","MongoDB"]},{"companyName":"㈜체스트넛","projectName":"LG그룹사 AWS 인프라 구축 운영 업무","role":"AWS 클라우드 SA/TA","startDate":"2023-12-01","endDate":"2024-12-01","description":"LG그룹사 AWS 인프라 구축 및 운영","techStack":["AWS","EC2","CodeDeploy","AWS Lambda","Amazon CloudWatch","AWS IAM"]}]}
 
 ### OUTPUT FORMAT (ONLY JSON, no markdown, no explanation):
 {"projectExps":[]}
